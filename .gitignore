@@ -2,5 +2,15 @@ node_modules/
 dist/
 .env
 .env.local
+.env.*
+!.env.example
 .codegraph/
 *.tsbuildinfo
+
+# Logs
+logs/
+*.log
+
+# IDE and operating system files
+.idea/
+.DS_Store
