@@ -1,0 +1,1 @@
+CREATE INDEX "commerce_stock_return_order_idx" ON "commerce_stock_movements" USING btree ("order_id") WHERE "commerce_stock_movements"."kind" = 'return';

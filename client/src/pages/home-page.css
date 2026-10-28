@@ -1,0 +1,12 @@
+@import "./home/home-layout.css";
+@import "../shared/styles/product-art.css";
+@import "./home/sections/hero-section.css";
+@import "./home/sections/benefits-section.css";
+@import "./home/sections/categories-section.css";
+@import "./home/sections/deals-section.css";
+@import "../features/catalog/components/product-card.css";
+@import "./home/sections/suggestions-section.css";
+@import "./home/sections/workspace-section.css";
+@import "./home/sections/advice-section.css";
+@import "./home/sections/newsletter-section.css";
+@import "../shared/components/store-layout/store-footer.css";

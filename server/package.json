@@ -1,0 +1,41 @@
+{
+  "name": "server",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/server.ts",
+    "lint": "biome check .",
+    "typecheck": "tsc --noEmit",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "tsx src/db/catalog-classification.cli.ts migrate",
+    "db:assignment:check": "tsx src/db/order-assignment-history.cli.ts",
+    "db:assignment:regression": "tsx src/db/order-assignment-recovery.regression.ts",
+    "db:catalog:check": "tsx src/db/catalog-classification.cli.ts check",
+    "db:catalog:classify": "tsx src/db/catalog-classification.cli.ts classify"
+  },
+  "dependencies": {
+    "better-auth": "^1.7.7",
+    "cors": "^2.8.6",
+    "drizzle-orm": "^0.45.4",
+    "express": "^5.2.1",
+    "express-rate-limit": "^8.7.1",
+    "helmet": "^8.3.0",
+    "pg": "^8.23.1",
+    "pino": "^10.4.0",
+    "pino-http": "^11.0.0",
+    "rate-limit-redis": "^6.0.1",
+    "redis": "^6.3.0",
+    "zod": "^4.6.5"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.6",
+    "@types/node": "^24.19.1",
+    "@types/pg": "^8.23.1",
+    "drizzle-kit": "^0.31.11",
+    "pino-pretty": "^13.2.0",
+    "tsx": "^4.23.15",
+    "typescript": "^7.0.2"
+  }
+}

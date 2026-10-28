@@ -1,0 +1,145 @@
+.store-footer {
+  border-top: 1px solid #e8edf4;
+  background: #fff;
+}
+
+.store-footer__main {
+  display: grid;
+  grid-template-columns: 1.35fr 1fr 1.2fr 1fr;
+  gap: 56px;
+  padding-top: 24px;
+  padding-bottom: 22px;
+}
+
+.store-footer__brand .store-logo {
+  font-size: 31px;
+}
+
+.store-page .store-footer__brand p {
+  max-width: 220px;
+  margin: 9px 0 12px;
+  color: #8591a7;
+  font-size: 11px;
+  line-height: 1.45;
+}
+
+.store-footer__socials {
+  display: flex;
+  gap: 8px;
+}
+
+.store-footer__socials a {
+  display: grid;
+  width: 26px;
+  height: 26px;
+  place-items: center;
+  border-radius: 50%;
+  background: #2185ef;
+  color: #fff;
+  font-size: 15px;
+  font-weight: 800;
+}
+
+.store-footer__socials a + a {
+  background: #fb2635;
+  font-size: 11px;
+}
+
+.store-footer__column,
+.store-footer__contact {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  padding-top: 4px;
+}
+
+.store-footer__column h2,
+.store-footer__contact h2 {
+  margin: 0 0 3px;
+  color: #273a60;
+  font-size: 13px;
+  font-weight: 760;
+}
+
+.store-page .store-footer__column a,
+.store-page .store-footer__contact a {
+  color: #8290a8;
+  font-size: 11px;
+}
+
+.store-page .store-footer__contact a {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.store-page .store-footer__contact a svg {
+  color: #344a75;
+}
+
+.store-footer__contact a strong {
+  color: var(--store-red);
+  font-size: 13px;
+}
+
+.store-footer__bottom {
+  display: flex;
+  min-height: 45px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  border-top: 1px solid #edf0f5;
+  color: #8792a7;
+  font-size: 10px;
+}
+
+.store-footer__bottom > div {
+  display: flex;
+  gap: 22px;
+}
+
+.store-footer__payments {
+  display: inline-flex;
+  align-items: center;
+  gap: 13px;
+  color: #1346a1;
+  font-size: 14px;
+  font-style: italic;
+  font-weight: 850;
+}
+
+.payment-circles {
+  position: relative;
+  display: inline-block;
+  width: 31px;
+  height: 19px;
+  background:
+    radial-gradient(circle at 35% 50%, #ed1c24 0 45%, transparent 47%),
+    radial-gradient(circle at 65% 50%, #f6a800 0 45%, transparent 47%);
+}
+
+.store-footer__payments .payment-momo {
+  padding: 2px 4px;
+  border-radius: 4px;
+  background: #c90076;
+  color: #fff;
+  font-size: 10px;
+  font-style: normal;
+}
+
+@media (max-width: 1180px) {
+  .store-footer__main {
+    gap: 32px;
+  }
+}
+
+@media (max-width: 980px) {
+  .store-footer__main {
+    gap: 20px;
+  }
+}
+
+.store-footer a:hover {
+  color: var(--store-red);
+}

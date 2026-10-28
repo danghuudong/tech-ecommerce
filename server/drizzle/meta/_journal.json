@@ -1,0 +1,209 @@
+{
+  "version": "7",
+  "dialect": "postgresql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1791694097283,
+      "tag": "0000_ordering_flow",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1791809309541,
+      "tag": "0001_commerce_operational_fixes",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1791816241730,
+      "tag": "0002_commerce_money_reconciliation",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1791857567153,
+      "tag": "0003_commerce_reconciliation_controls",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1791860634790,
+      "tag": "0004_commerce_receipt_integrity",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1791864330086,
+      "tag": "0005_commerce_payment_allocations",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1791867195630,
+      "tag": "0006_commerce_payment_balance_reviews",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1791870083740,
+      "tag": "0007_commerce_payment_exception_recovery",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1791878212406,
+      "tag": "0008_commerce_refund_and_delivery_reconciliation",
+      "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1791880946656,
+      "tag": "0009_commerce_writeoff_fulfillment_authorization",
+      "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1792136725500,
+      "tag": "0010_order_assignment_shipping",
+      "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1792140709068,
+      "tag": "0011_carrier_receipt_responsibility",
+      "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1792152128526,
+      "tag": "0012_separate_admin_sessions",
+      "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "7",
+      "when": 1792158548631,
+      "tag": "0013_product_taxonomy",
+      "breakpoints": true
+    },
+    {
+      "idx": 14,
+      "version": "7",
+      "when": 1792159476756,
+      "tag": "0014_catalog_classification_repair",
+      "breakpoints": true
+    },
+    {
+      "idx": 15,
+      "version": "7",
+      "when": 1792209269937,
+      "tag": "0015_accounting_roles",
+      "breakpoints": true
+    },
+    {
+      "idx": 16,
+      "version": "7",
+      "when": 1792230544249,
+      "tag": "0016_receiving_bank_directory",
+      "breakpoints": true
+    },
+    {
+      "idx": 17,
+      "version": "7",
+      "when": 1792234341912,
+      "tag": "0017_order_soft_deletion",
+      "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "7",
+      "when": 1792253295855,
+      "tag": "0018_automatic_order_assignment",
+      "breakpoints": true
+    },
+    {
+      "idx": 19,
+      "version": "7",
+      "when": 1792255811306,
+      "tag": "0019_assignment_workload_and_shifts",
+      "breakpoints": true
+    },
+    {
+      "idx": 20,
+      "version": "7",
+      "when": 1792290408093,
+      "tag": "0020_assignment_recovery_and_rebalance",
+      "breakpoints": true
+    },
+    {
+      "idx": 21,
+      "version": "7",
+      "when": 1792292561598,
+      "tag": "0021_assignment_history_recovery",
+      "breakpoints": true
+    },
+    {
+      "idx": 22,
+      "version": "7",
+      "when": 1792293916848,
+      "tag": "0022_historical_assignment_timestamps",
+      "breakpoints": true
+    },
+    {
+      "idx": 23,
+      "version": "7",
+      "when": 1792295638172,
+      "tag": "0023_assignment_approval_and_enrollment_recovery",
+      "breakpoints": true
+    },
+    {
+      "idx": 24,
+      "version": "7",
+      "when": 1792301100000,
+      "tag": "0024_assignment_marker_provenance",
+      "breakpoints": true
+    },
+    {
+      "idx": 25,
+      "version": "7",
+      "when": 1792334014480,
+      "tag": "0025_order_undo_return_lookup",
+      "breakpoints": true
+    },
+    {
+      "idx": 26,
+      "version": "7",
+      "when": 1792335868213,
+      "tag": "0026_order_undo_documents",
+      "breakpoints": true
+    },
+    {
+      "idx": 27,
+      "version": "7",
+      "when": 1792470394460,
+      "tag": "0027_optional_delivery_proof",
+      "breakpoints": true
+    },
+    {
+      "idx": 28,
+      "version": "7",
+      "when": 1792490358872,
+      "tag": "0028_optional_shipment_return_proof",
+      "breakpoints": true
+    }
+  ]
+}

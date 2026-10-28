@@ -1,0 +1,100 @@
+.section-heading--advice h2 {
+  font-size: 25px;
+}
+
+.advice-section {
+  margin-top: 22px;
+}
+
+.section-heading--advice {
+  justify-content: space-between;
+  margin-bottom: 13px;
+}
+
+.section-heading--advice > div > p {
+  display: none;
+}
+
+.section-heading--advice .section-heading__all {
+  margin-left: 0;
+}
+
+.advice-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.advice-card {
+  display: grid;
+  min-height: 188px;
+  grid-template-columns: minmax(0, 1fr) 43%;
+  overflow: hidden;
+  border: 1px solid #eef1f5;
+  border-radius: 12px;
+  background: #fff;
+}
+
+.advice-card__copy {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 16px 0 14px 16px;
+}
+
+.store-page .advice-card__copy > span {
+  margin-bottom: 6px;
+  padding: 3px 6px;
+  border-radius: 4px;
+  background: #fff0f0;
+  color: var(--store-red);
+  font-size: 9px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.advice-card__copy h3 {
+  margin: 0;
+  color: #293d63;
+  font-size: 13px;
+  font-weight: 730;
+  line-height: 1.3;
+}
+
+.store-page .advice-card__copy p {
+  display: -webkit-box;
+  overflow: hidden;
+  margin: 5px 0 8px;
+  color: #8491a8;
+  font-size: 10px;
+  line-height: 1.45;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.advice-card__copy a {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: auto;
+  color: var(--store-red);
+  font-size: 10px;
+  font-weight: 730;
+}
+
+.advice-card__art {
+  min-width: 0;
+  min-height: 100%;
+  align-self: stretch;
+  background-size: 300% 200%;
+}
+
+@media (max-width: 980px) {
+  .advice-card {
+    grid-template-columns: minmax(0, 1fr) 38%;
+  }
+
+  .advice-card__copy {
+    padding-left: 11px;
+  }
+}

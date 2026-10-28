@@ -1,0 +1,2 @@
+ALTER TABLE "commerce_payment_balance_reviews" ADD COLUMN "allow_fulfillment" boolean DEFAULT false NOT NULL;--> statement-breakpoint
+ALTER TABLE "commerce_payment_balance_reviews" ADD CONSTRAINT "commerce_payment_balance_reviews_fulfillment_check" CHECK (not "commerce_payment_balance_reviews"."allow_fulfillment" or ("commerce_payment_balance_reviews"."disposition" is not null and "commerce_payment_balance_reviews"."disposition" = 'written_off' and "commerce_payment_balance_reviews"."status" in ('written_off', 'needs_review')));

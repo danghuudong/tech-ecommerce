@@ -1,0 +1,37 @@
+.product-art {
+  display: block;
+  background-color: #f4f6fc;
+  background-image: url("/images/catalog-grid.png");
+  background-repeat: no-repeat;
+  background-size: 300% 200%;
+}
+
+.product-art--laptop {
+  background-position: 0 0;
+}
+
+.product-art--phone {
+  background-position: 50% 0;
+}
+
+.product-art--tower {
+  background-position: 100% 0;
+}
+
+.product-art--monitor {
+  background-position: 0 100%;
+}
+
+.product-art--headphones {
+  background-position: 50% 100%;
+}
+
+.product-art--keyboard {
+  background-position: 100% 100%;
+}
+
+.product-art--mouse {
+  background-image: url("/images/gaming-mouse.png");
+  background-position: center;
+  background-size: cover;
+}

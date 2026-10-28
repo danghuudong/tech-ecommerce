@@ -1,0 +1,6 @@
+ALTER TABLE "orders" ADD COLUMN "deleted_at" timestamp with time zone;--> statement-breakpoint
+ALTER TABLE "orders" ADD COLUMN "deleted_by" text;--> statement-breakpoint
+ALTER TABLE "orders" ADD COLUMN "deletion_reason" text;--> statement-breakpoint
+ALTER TABLE "orders" ADD CONSTRAINT "orders_deleted_by_user_id_fk" FOREIGN KEY ("deleted_by") REFERENCES "public"."user"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
+CREATE INDEX "orders_deleted_idx" ON "orders" USING btree ("deleted_at","created_at","id") WHERE "orders"."deleted_at" is not null;--> statement-breakpoint
+ALTER TABLE "orders" ADD CONSTRAINT "orders_deletion_check" CHECK (("orders"."deleted_at" is null and "orders"."deleted_by" is null and "orders"."deletion_reason" is null) or ("orders"."deleted_at" is not null and "orders"."deleted_by" is not null and "orders"."deletion_reason" is not null and length(btrim("orders"."deletion_reason")) between 3 and 1000 and "orders"."status" in ('cancelled', 'completed')));

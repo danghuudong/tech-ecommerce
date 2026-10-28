@@ -1,0 +1,342 @@
+<div id="cod-picker-preview" class="viz-dotted-background">
+  <style>
+    #cod-picker-preview { padding: 20px; color-scheme: light dark; }
+    #cod-picker-preview .cp-product {
+      --cp-bg: light-dark(#ffffff, #18202d);
+      --cp-text: light-dark(#112b50, #e7edf8);
+      --cp-muted: light-dark(#5c7191, #afbed4);
+      --cp-line: light-dark(#d6dfed, #40516b);
+      --cp-soft: light-dark(#f6f8fc, #202d40);
+      --cp-blue: light-dark(#205ca1, #a6cbff);
+      --cp-info: light-dark(#eef5ff, #20334d);
+      --cp-error: light-dark(#ac2432, #ffa3aa);
+      background: var(--cp-bg); color: var(--cp-text);
+      border: 1px solid var(--cp-line); border-radius: 10px;
+      padding: 24px; font: 400 14px/1.5 Arial, sans-serif;
+      max-width: 690px; margin: 0 auto;
+    }
+    #cod-picker-preview .cp-product * { box-sizing: border-box; }
+    #cod-picker-preview .cp-product [hidden] { display: none !important; }
+    #cod-picker-preview .cp-heading { display: flex; align-items: center; justify-content: space-between; gap: 14px; flex-wrap: wrap; }
+    #cod-picker-preview h2, #cod-picker-preview h3, #cod-picker-preview p { margin: 0; }
+    #cod-picker-preview h2, #cod-picker-preview h3 { font-size: 16px; line-height: 1.5; font-weight: 600; }
+    #cod-picker-preview .cp-meta { color: var(--cp-muted); font-size: 13px; }
+    #cod-picker-preview .cp-stack { display: grid; gap: 12px; }
+    #cod-picker-preview .cp-section { margin-top: 22px; }
+    #cod-picker-preview .cp-selected { border: 1px solid var(--cp-line); border-radius: 7px; padding: 14px; }
+    #cod-picker-preview .cp-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 14px; align-items: center; padding: 16px 0; border-bottom: 1px solid var(--cp-line); }
+    #cod-picker-preview .cp-row:last-child { border-bottom: 0; }
+    #cod-picker-preview .cp-row p, #cod-picker-preview .cp-selected p { overflow-wrap: anywhere; }
+    #cod-picker-preview .cp-code { font-weight: 600; }
+    #cod-picker-preview .cp-money { font-variant-numeric: tabular-nums; }
+    #cod-picker-preview .cp-button {
+      display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+      min-height: 38px; padding: 8px 13px; font: inherit; font-weight: 500;
+      border: 1px solid var(--cp-line); border-radius: 6px;
+      color: var(--cp-text); background: var(--cp-bg); white-space: nowrap;
+    }
+    #cod-picker-preview .cp-button:hover { background: var(--cp-soft); border-color: var(--cp-muted); }
+    #cod-picker-preview .cp-quiet { min-height: 36px; padding: 5px 8px; border-color: transparent; color: var(--cp-blue); }
+    #cod-picker-preview .cp-quiet:hover { border-color: transparent; }
+    #cod-picker-preview .cp-button:focus-visible, #cod-picker-preview input:focus-visible { outline: 2px solid var(--cp-blue); outline-offset: 3px; }
+    #cod-picker-preview .cp-search { position: relative; }
+    #cod-picker-preview .cp-search > svg { position: absolute; top: 14px; left: 13px; color: var(--cp-muted); width: 18px; height: 18px; }
+    #cod-picker-preview .cp-search-results {
+      max-height: 360px; overflow-y: auto; overscroll-behavior: contain;
+      padding: 12px 14px; border: 1px solid var(--cp-line); border-radius: 8px;
+      background: var(--cp-bg);
+    }
+    #cod-picker-preview .cp-search-results .cp-row { padding: 12px 0; }
+    #cod-picker-preview .cp-option-details > span { display: block; overflow-wrap: anywhere; }
+    #cod-picker-preview .cp-button:disabled { opacity: 0.5; cursor: not-allowed; }
+    #cod-picker-preview input { width: 100%; min-height: 44px; padding: 10px 12px; border: 1px solid var(--cp-line); border-radius: 6px; background: var(--cp-bg); color: var(--cp-text); font: inherit; font-size: 16px; }
+    #cod-picker-preview .cp-search input { padding-left: 40px; }
+    #cod-picker-preview input::placeholder { color: var(--cp-muted); opacity: 1; }
+    #cod-picker-preview label { display: block; margin: 12px 0 7px; font-weight: 500; }
+    #cod-picker-preview .cp-choice { display: grid; grid-template-columns: 18px minmax(0, 1fr); gap: 12px; align-items: start; margin: 0; min-height: 44px; font-weight: 400; cursor: pointer; }
+    #cod-picker-preview .cp-check-label { display: inline-flex; align-items: center; gap: 8px; margin: 0; min-height: 44px; font-weight: 400; cursor: pointer; }
+    #cod-picker-preview .cp-checkbox { width: 18px; height: 18px; min-height: 18px; padding: 0; margin: 3px 0; accent-color: var(--cp-blue); }
+    #cod-picker-preview .cp-checkbox:disabled { cursor: not-allowed; }
+    #cod-picker-preview .cp-amount { max-width: 280px; }
+    #cod-picker-preview .cp-selected .cp-meta { margin-top: 6px; }
+    #cod-picker-preview .cp-summary { display: flex; gap: 10px; align-items: flex-start; margin-top: 20px; padding: 14px 16px; border-radius: 7px; background: var(--cp-info); color: var(--cp-blue); }
+    #cod-picker-preview .cp-summary svg { flex-shrink: 0; margin-top: 2px; width: 18px; height: 18px; }
+    #cod-picker-preview .cp-error { color: var(--cp-error); }
+    #cod-picker-preview .cp-empty { padding: 22px 0; text-align: center; color: var(--cp-muted); }
+    #cod-picker-preview .cp-divider { border: 0; border-top: 1px solid var(--cp-line); margin: 24px 0 20px; }
+    #cod-picker-preview .cp-button svg { width: 16px; height: 16px; }
+    @media (max-width: 480px) {
+      #cod-picker-preview { padding: 10px; }
+      #cod-picker-preview .cp-product { padding: 16px; }
+      #cod-picker-preview .cp-row { gap: 8px; }
+      #cod-picker-preview .cp-amount { max-width: none; }
+      #cod-picker-preview .cp-button { min-height: 44px; }
+    }
+  </style>
+  <section class="cp-product" aria-label="Mẫu thêm khoản thu hộ">
+    <div class="cp-heading">
+      <h2>Khoản thu hộ đã chọn <span data-selected-count>(1)</span></h2>
+      <span class="cp-meta">Dữ liệu mẫu · GHN</span>
+    </div>
+    <div data-selected class="cp-stack cp-section"></div>
+    <hr class="cp-divider">
+    <div class="cp-heading">
+      <h3 data-picker-title>Thêm nhiều khoản thu hộ</h3>
+      <button type="button" class="cp-button cp-quiet cursor-interaction" data-toggle aria-expanded="true" aria-controls="cp-available-panel">
+        <i data-lucide="chevron-up" aria-hidden="true"></i><span>Thu gọn</span>
+      </button>
+    </div>
+    <div id="cp-available-panel" class="cp-stack cp-section">
+      <div>
+        <label for="cp-order-search">Tìm đơn hàng</label>
+        <div class="cp-search">
+          <i data-lucide="search" aria-hidden="true"></i>
+          <input id="cp-order-search" type="search" aria-controls="cp-search-results" autocomplete="off" placeholder="Mã đơn, mã khoản, tên hoặc SĐT người nhận">
+        </div>
+      </div>
+      <p class="cp-meta" data-result-count aria-live="polite">3 khoản cùng GHN có thể thêm</p>
+      <div class="cp-heading">
+        <label class="cp-check-label"><input class="cp-checkbox" type="checkbox" data-select-all><span data-select-all-label>Chọn tất cả kết quả</span></label>
+        <button type="button" class="cp-button cursor-interaction" data-add-batch disabled>Thêm các khoản đã chọn (0)</button>
+      </div>
+      <div id="cp-search-results" class="cp-search-results" role="region" aria-label="Khoản thu hộ có thể thêm">
+        <div data-available></div>
+      </div>
+    </div>
+    <div class="cp-summary" aria-live="polite" aria-atomic="true">
+      <i data-lucide="info" aria-hidden="true"></i>
+      <p data-total></p>
+    </div>
+    <p data-announcement role="status" class="cp-meta" style="margin-top: 8px;"></p>
+  </section>
+  <script>
+    (() => {
+      const root = document.getElementById('cod-picker-preview');
+      const money = value => new Intl.NumberFormat('vi-VN').format(value) + 'đ';
+      const rows = [
+        { id: 'anchor', code: 'TV10071', reference: 'ma-tk-01', name: 'Nguyễn Minh Anh', phone: '0901234001', remaining: 690000 },
+        { id: 'cod-b', code: 'TV10072', reference: 'ma-tk-02', name: 'Trần Hoàng Nam', phone: '0901234002', remaining: 310000 },
+        { id: 'cod-c', code: 'TV10068', reference: 'ma-tk-03', name: 'Lê Thu Hà', phone: '0901234003', remaining: 450000 },
+        { id: 'cod-d', code: 'TV10065', reference: 'ma-tk-04', name: 'Phạm Quốc Bảo', phone: '0901234004', remaining: 280000 }
+      ];
+      const state = { amounts: { anchor: 690000 }, query: '', expanded: true, showPhone: true };
+      const selected = root.querySelector('[data-selected]');
+      const available = root.querySelector('[data-available]');
+      const search = root.querySelector('#cp-order-search');
+      const batchSelection = new Set();
+      const selectAll = root.querySelector('[data-select-all]');
+      const selectAllLabel = root.querySelector('[data-select-all-label]');
+      const addBatch = root.querySelector('[data-add-batch]');
+      const maxCollections = 100;
+      const toggle = root.querySelector('[data-toggle]');
+      const panel = root.querySelector('#cp-available-panel');
+      const announcement = root.querySelector('[data-announcement]');
+      const normalize = value => String(value).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/đ/g, 'd').trim().replace(/^#\s*/, '');
+      const icons = () => { if (globalThis.lucide) globalThis.lucide.createIcons({ attrs: { width: 16, height: 16 } }); };
+
+      function availableRows() {
+        return rows.filter(row => row.remaining > 0 && !Object.hasOwn(state.amounts, row.id));
+      }
+
+      function matchingRows() {
+        const query = normalize(state.query);
+        return availableRows().filter(row => normalize([row.code, row.reference, row.name, row.phone].join(' ')).includes(query));
+      }
+
+      function remainingCapacity() {
+        return Math.max(0, maxCollections - Object.keys(state.amounts).length);
+      }
+
+      function renderBatchControls() {
+        const eligibleIds = new Set(availableRows().map(row => row.id));
+        for (const id of batchSelection) {
+          if (!eligibleIds.has(id)) batchSelection.delete(id);
+        }
+        const matches = matchingRows();
+        const checkedCount = matches.filter(row => batchSelection.has(row.id)).length;
+        selectAll.checked = matches.length > 0 && checkedCount === matches.length;
+        selectAll.indeterminate = checkedCount > 0 && checkedCount < matches.length;
+        selectAllLabel.textContent = checkedCount > 0
+          ? 'Bỏ chọn kết quả (' + checkedCount + ')'
+          : 'Chọn tất cả kết quả';
+        selectAll.disabled = !matches.length || (checkedCount === 0 && batchSelection.size >= remainingCapacity());
+        addBatch.disabled = !batchSelection.size || !remainingCapacity();
+        addBatch.textContent = 'Thêm các khoản đã chọn (' + batchSelection.size + ')';
+        for (const checkbox of available.querySelectorAll('[data-batch-id]')) {
+          checkbox.checked = batchSelection.has(checkbox.dataset.batchId);
+          checkbox.disabled = !checkbox.checked && batchSelection.size >= remainingCapacity();
+        }
+      }
+
+      function addCollections(ids) {
+        const requested = new Set(ids);
+        const chosen = availableRows().filter(row => requested.has(row.id));
+        if (!chosen.length) return;
+        if (chosen.length > remainingCapacity()) {
+          announcement.textContent = 'Chỉ còn chỗ thêm ' + remainingCapacity() + ' khoản trong giới hạn ' + maxCollections + ' khoản. Hãy bỏ bớt dấu chọn trước khi thêm.';
+          return;
+        }
+        for (const row of chosen) {
+          state.amounts[row.id] = row.remaining;
+          batchSelection.delete(row.id);
+        }
+        render();
+        announcement.textContent = 'Đã thêm ' + chosen.length + ' khoản thu hộ. Có thể sửa số tiền nhận của từng khoản ở phía trên.';
+        search.focus({ preventScroll: true });
+        save();
+      }
+
+      function restore(snapshot) {
+        const saved = snapshot && snapshot.privateContent && snapshot.privateContent.codPicker;
+        if (!saved || saved.version !== 1) return;
+        const restored = { anchor: 690000 };
+        for (const row of rows) {
+          const amount = saved.amounts && saved.amounts[row.id];
+          if (Number.isSafeInteger(amount) && amount > 0 && amount <= row.remaining) restored[row.id] = amount;
+        }
+        state.amounts = restored;
+        state.query = typeof saved.query === 'string' ? saved.query.slice(0, 120) : '';
+        state.expanded = saved.expanded !== false;
+        state.showPhone = saved.showPhone !== false;
+      }
+
+      function save() {
+        if (!window.openai || !window.openai.setWidgetState) return;
+        window.openai.setWidgetState({
+          modelContent: { preview: 'Mẫu thêm khoản thu hộ', carrier: 'GHN', selected: rows.filter(row => Object.hasOwn(state.amounts, row.id)).map(row => ({ order: row.code, collection: row.reference, amountVnd: state.amounts[row.id] })) },
+          privateContent: { codPicker: { version: 1, ...state } }
+        }).catch(() => {});
+      }
+
+      function renderTotal() {
+        const chosen = rows.filter(row => Object.hasOwn(state.amounts, row.id));
+        root.querySelector('[data-selected-count]').textContent = '(' + chosen.length + ')';
+        const valid = chosen.every(row => Number.isSafeInteger(state.amounts[row.id]) && state.amounts[row.id] > 0 && state.amounts[row.id] <= row.remaining);
+        const total = root.querySelector('[data-total]');
+        total.classList.toggle('cp-error', !valid);
+        total.textContent = valid
+          ? 'Tổng tiền nhận cho ' + chosen.length + ' khoản thu hộ: ' + money(chosen.reduce((sum, row) => sum + state.amounts[row.id], 0))
+          : 'Kiểm tra số tiền: phải lớn hơn 0 và không vượt số còn phải nhận của từng khoản.';
+      }
+
+      function renderSelected() {
+        selected.replaceChildren();
+        rows.filter(row => Object.hasOwn(state.amounts, row.id)).forEach(row => {
+          const box = document.createElement('section');
+          box.className = 'cp-selected';
+          box.setAttribute('aria-label', 'Khoản thu hộ ' + row.reference + ' của đơn ' + row.code);
+          box.innerHTML = '<div class="cp-heading"><p class="cp-code">#' + row.code + ' · ' + row.reference + '</p>'
+            + (row.id === 'anchor' ? '<span class="cp-meta">Đơn đang xem</span>' : '<button type="button" class="cp-button cp-quiet cursor-interaction" data-remove="' + row.id + '"><i data-lucide="x" aria-hidden="true"></i>Bỏ</button>')
+            + '</div><p class="cp-meta">' + row.name + '</p><label for="cp-money-' + row.id + '">Số tiền nhận lần này (VND)</label>'
+            + '<input class="cp-amount cp-money" id="cp-money-' + row.id + '" type="number" min="1" max="' + row.remaining + '" step="1" required value="' + state.amounts[row.id] + '" aria-describedby="cp-remaining-' + row.id + '">'
+            + '<p class="cp-meta" id="cp-remaining-' + row.id + '">Còn phải nhận: ' + money(row.remaining) + '</p>';
+          box.querySelector('input').addEventListener('input', event => {
+            const input = event.currentTarget;
+            state.amounts[row.id] = input.value === '' ? '' : input.valueAsNumber;
+            input.setAttribute('aria-invalid', String(!input.validity.valid));
+            renderTotal();
+            save();
+          });
+          const remove = box.querySelector('[data-remove]');
+          if (remove) remove.addEventListener('click', () => {
+            delete state.amounts[row.id];
+            render();
+            announcement.textContent = 'Đã bỏ khoản ' + row.reference + ' khỏi danh sách đã chọn.';
+            const nextTarget = state.expanded ? available.querySelector('[data-add="' + row.id + '"]') || search : toggle;
+            nextTarget.focus();
+            save();
+          });
+          selected.append(box);
+        });
+      }
+
+      function renderAvailable() {
+        const remaining = availableRows();
+        const query = normalize(state.query);
+        const matches = matchingRows();
+        root.querySelector('[data-result-count]').textContent = query
+          ? matches.length + ' khoản phù hợp · Cùng GHN'
+          : remaining.length + ' khoản cùng GHN có thể thêm';
+        if (!remainingCapacity()) root.querySelector('[data-result-count]').textContent += ' · Đã đạt giới hạn ' + maxCollections + ' khoản';
+        available.replaceChildren();
+        if (!matches.length) {
+          const empty = document.createElement('p');
+          empty.className = 'cp-empty';
+          empty.textContent = remaining.length ? 'Không tìm thấy khoản phù hợp. Thử mã đơn, mã khoản, tên hoặc số điện thoại khác.' : 'Đã chọn hết các khoản thu hộ có thể thêm.';
+          available.append(empty);
+        }
+        matches.forEach(row => {
+          const item = document.createElement('div');
+          item.className = 'cp-row';
+          item.innerHTML = '<label class="cp-choice"><input class="cp-checkbox" type="checkbox" data-batch-id="' + row.id + '" aria-label="Chọn khoản ' + row.reference + ' của đơn ' + row.code + '">'
+            + '<span class="cp-option-details"><span class="cp-code">#' + row.code + ' · ' + row.name + '</span>'
+            + '<span class="cp-meta">' + row.reference + (state.showPhone ? ' · ' + row.phone : '') + '</span>'
+            + '<span class="cp-money">Còn phải nhận: ' + money(row.remaining) + '</span></span></label>'
+            + '<button type="button" class="cp-button cursor-interaction" data-add="' + row.id + '" aria-label="Thêm khoản ' + row.reference + ' của đơn ' + row.code + '">Thêm</button>';
+          item.querySelector('input').addEventListener('change', event => {
+            if (event.currentTarget.checked && batchSelection.size < remainingCapacity()) batchSelection.add(row.id);
+            else batchSelection.delete(row.id);
+            renderBatchControls();
+          });
+          const add = item.querySelector('[data-add]');
+          add.disabled = !remainingCapacity();
+          add.addEventListener('click', () => addCollections([row.id]));
+          available.append(item);
+        });
+        renderBatchControls();
+      }
+
+      function renderDisclosure() {
+        panel.hidden = !state.expanded;
+        root.querySelector('[data-picker-title]').hidden = !state.expanded;
+        toggle.classList.toggle('cp-quiet', state.expanded);
+        toggle.setAttribute('aria-expanded', String(state.expanded));
+        toggle.innerHTML = '<i data-lucide="' + (state.expanded ? 'chevron-up' : 'plus') + '" aria-hidden="true"></i><span>' + (state.expanded ? 'Thu gọn' : 'Thêm khoản thu hộ') + '</span>';
+      }
+
+      function render() {
+        search.value = state.query;
+        renderSelected();
+        renderAvailable();
+        renderTotal();
+        renderDisclosure();
+        icons();
+      }
+
+      search.addEventListener('input', () => {
+        state.query = search.value;
+        renderAvailable();
+        icons();
+        save();
+      });
+      selectAll.addEventListener('change', () => {
+        const matches = matchingRows();
+        const shouldClear = matches.some(row => batchSelection.has(row.id));
+        for (const row of matches) {
+          if (shouldClear) batchSelection.delete(row.id);
+          else if (batchSelection.size < remainingCapacity()) batchSelection.add(row.id);
+        }
+        renderBatchControls();
+      });
+      addBatch.addEventListener('click', () => addCollections(batchSelection));
+      toggle.addEventListener('click', () => {
+        state.expanded = !state.expanded;
+        renderDisclosure();
+        icons();
+        save();
+      });
+      restore(window.openai && window.openai.widgetState);
+      render();
+      window.addEventListener('openai:set_globals', event => {
+        const globals = event.detail && event.detail.globals;
+        if (!globals || !globals.widgetState) return;
+        restore(globals.widgetState);
+        render();
+      });
+      if (globalThis.Tweak) {
+        const tweak = new Tweak({ container: root.querySelector('.cp-product'), onChange: () => { renderAvailable(); icons(); } });
+        tweak.addToggle(state, 'showPhone', { label: 'Hiện số điện thoại người nhận' });
+      }
+    })();
+  </script>
+</div>
