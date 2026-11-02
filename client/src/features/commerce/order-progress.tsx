@@ -34,6 +34,7 @@ import {
   orderLabels,
 } from './components'
 import { type OrderStage, orderProgressModel } from './order-progress-model'
+import { packingChecklistVerified } from './packing-checklist'
 import type { OrderDetail } from './types'
 import './order-progress.css'
 import './order-tracking-timeline.css'
@@ -57,7 +58,8 @@ const stages = {
   shipped: {
     name: 'Vận chuyển',
     icon: Truck,
-    description: 'Vận đơn đang có hiệu lực và các lần giao hàng đã ghi nhận.',
+    description:
+      'Kho, phân loại, trung chuyển và shipper đi giao nằm chung trong Đang vận chuyển.',
   },
   delivered: {
     name: 'Đã giao',
@@ -773,6 +775,23 @@ function StepDetails({
           ),
         ],
       ]
+      if (audience === 'staff') {
+        const checklist = milestone?.details?.packingChecklist
+        facts.push([
+          'Kiểm tra trước bàn giao',
+          packingChecklistVerified(checklist) ? (
+            <span key="packing-confirmation">
+              Đã kiểm tra đóng gói trước bàn giao
+              <br />
+              <small>
+                Người xác nhận: {actor} · {date(milestone?.createdAt)}
+              </small>
+            </span>
+          ) : (
+            'Chưa có xác nhận đóng gói được lưu trong lịch sử'
+          ),
+        ])
+      }
       break
     case 'delivered':
       facts = [

@@ -278,10 +278,59 @@ export const staffOrderSettingsSchema = z
     message: 'Choose a shift end before accepting orders',
     path: ['shiftEndsAt'],
   })
-export const dispatchSchema = z.strictObject({
+export const packingChecklistSchema = z.strictObject({
+  productsChecked: z.literal(true),
+  conditionChecked: z.literal(true),
+  packagingChecked: z.literal(true),
+})
+export const waybillVerificationSchema = z.strictObject({
+  recipientVerified: z.literal(true),
+  paymentVerified: z.literal(true),
+})
+export const waybillSchema = z.strictObject({
   ...orderRevisionSchema.shape,
   carrierId: idSchema,
   trackingReference: reference,
+  ...waybillVerificationSchema.shape,
+})
+export const waybillCorrectionSchema = waybillSchema.extend({
+  shipmentId: idSchema,
+  reason: note,
+})
+const optionalWaybillVerification = {
+  recipientVerified: z.literal(true).optional(),
+  paymentVerified: z.literal(true).optional(),
+}
+export const savedWaybillVerificationSchema = orderRevisionSchema
+  .extend({
+    shipmentId: idSchema,
+    ...optionalWaybillVerification,
+  })
+  .refine((input) => input.recipientVerified || input.paymentVerified, {
+    message: 'Select at least one verification to record',
+  })
+export const dispatchSchema = waybillSchema
+  .omit({
+    recipientVerified: true,
+    paymentVerified: true,
+  })
+  .extend({
+    ...optionalWaybillVerification,
+    packingChecklist: packingChecklistSchema,
+  })
+export const carrierRecipientResultSchema = z.strictObject({
+  ...orderRevisionSchema.shape,
+  shipmentId: idSchema,
+  carrierId: idSchema,
+  trackingReference: reference,
+  recipient: recipientSchema,
+  outcome: z.enum(['accepted', 'rejected']),
+  reference,
+  reason: note,
+  confirmedAt: z.iso
+    .datetime({ offset: true })
+    .transform((value) => new Date(value)),
+  evidenceVerified: z.literal(true),
 })
 export const shipmentCarrierSchema = z.strictObject({
   carrierId: idSchema,
@@ -671,6 +720,15 @@ export const roleUpdateSchema = z.strictObject({
 })
 
 export type CheckoutInput = z.infer<typeof checkoutSchema>
+export type DispatchInput = z.infer<typeof dispatchSchema>
+export type WaybillInput = z.infer<typeof waybillSchema>
+export type WaybillCorrectionInput = z.infer<typeof waybillCorrectionSchema>
+export type SavedWaybillVerificationInput = z.infer<
+  typeof savedWaybillVerificationSchema
+>
+export type CarrierRecipientResultInput = z.infer<
+  typeof carrierRecipientResultSchema
+>
 export type ShipmentCarrierInput = z.infer<typeof shipmentCarrierSchema>
 export type ProductCreateInput = z.infer<typeof productCreateSchema>
 export type ProductUpdateInput = z.infer<typeof productUpdateSchema>

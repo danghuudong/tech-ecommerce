@@ -1,6 +1,10 @@
 import { eq } from 'drizzle-orm'
-import { carriers, orders, shipments } from '../../db/schema.js'
+import { orders, shipments } from '../../db/schema.js'
 import { assertBankPaymentApproved } from './bank-payment-policy.js'
+import {
+  type DispatchInput,
+  packingChecklistSchema,
+} from './commerce.contracts.js'
 import {
   appendOrderEvent,
   assertOccurredAt,
@@ -21,6 +25,7 @@ import {
   refundUnallocatedPayment,
 } from './payment-ledger.js'
 import { assertReservationActive } from './reservation.service.js'
+import { ensureWaybill } from './waybill.service.js'
 
 async function lockShipment(tx: Transaction, orderId: string) {
   const [shipment] = await tx
@@ -36,11 +41,7 @@ async function lockShipment(tx: Transaction, orderId: string) {
 export function dispatchOrder(
   command: Command,
   orderId: string,
-  input: {
-    carrierId: string
-    trackingReference: string
-    expectedRevision: number
-  },
+  input: DispatchInput,
 ) {
   return executeCommand(
     { ...command, permission: 'staff' },
@@ -51,28 +52,26 @@ export function dispatchOrder(
         fail(409, 'ORDER_CHANGED', 'Reload the order before handover')
       if (order.status !== 'packing')
         fail(409, 'INVALID_ORDER_STATE', 'Pack the order before handover')
+      const checklist = packingChecklistSchema.safeParse(input.packingChecklist)
+      if (!checklist.success)
+        fail(
+          422,
+          'PACKING_CHECKLIST_REQUIRED',
+          'Verify products, condition and packaging before handover',
+        )
       await assertReservationActive(tx, order)
       if (order.paymentMethod === 'bank_transfer')
         assertBankPaymentApproved(await paymentSummaryForOrder(tx, order))
-      const [carrier] = await tx
-        .select({ id: carriers.id })
-        .from(carriers)
-        .where(eq(carriers.id, input.carrierId))
-      if (!carrier)
-        fail(404, 'CARRIER_NOT_FOUND', 'Select a registered carrier')
-      const [shipment] = await tx
-        .insert(shipments)
-        .values({ orderId, ...input })
-        .onConflictDoNothing({
-          target: [shipments.carrierId, shipments.trackingReference],
+      const shipment = await ensureWaybill(tx, actor, order, input)
+      const now = await databaseNow(tx)
+      await tx
+        .update(shipments)
+        .set({
+          status: 'in_transit',
+          handedOverAt: now,
+          updatedAt: now,
         })
-        .returning({ id: shipments.id })
-      if (!shipment)
-        fail(
-          409,
-          'TRACKING_REFERENCE_IN_USE',
-          'This carrier tracking reference already belongs to another shipment',
-        )
+        .where(eq(shipments.id, shipment.id))
       for (const item of await getOrderItems(tx, orderId))
         await changeStock(tx, actor, {
           productId: item.productId,
@@ -81,9 +80,8 @@ export function dispatchOrder(
           onHandDelta: -item.quantity,
           reservedDelta: -item.quantity,
           reason: 'Shipment handed over',
-          reference: shipment.id,
+          reference: `${shipment.id}:handover:${order.revision}`,
         })
-      const now = await databaseNow(tx)
       await tx
         .update(orders)
         .set({
@@ -97,6 +95,12 @@ export function dispatchOrder(
         shipmentId: shipment.id,
         carrierId: input.carrierId,
         trackingReference: input.trackingReference,
+        packingChecklist: checklist.data,
+        recipientVerified: true,
+        paymentVerified: true,
+        recipient: { ...order.recipient },
+        paymentMethod: order.paymentMethod,
+        codAmountVnd: order.paymentMethod === 'cod' ? order.totalVnd : 0,
       })
       return { orderId, shipmentId: shipment.id }
     },
@@ -144,7 +148,13 @@ export function recordDelivery(
           'Shipment is not eligible for delivery acknowledgement',
         )
       const now = await databaseNow(tx)
-      assertOccurredAt(input.deliveredAt, shipment.createdAt, now)
+      if (!shipment.handedOverAt)
+        fail(
+          409,
+          'SHIPMENT_NOT_HANDED_OVER',
+          'Hand over the shipment before recording delivery',
+        )
+      assertOccurredAt(input.deliveredAt, shipment.handedOverAt, now)
       await tx
         .update(shipments)
         .set({

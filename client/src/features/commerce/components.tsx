@@ -75,9 +75,9 @@ export const orderLabels: Record<OrderStatus, string> = {
   placed: 'Chờ xác nhận',
   confirmed: 'Đã xác nhận',
   packing: 'Đang đóng gói',
-  shipped: 'Đang giao',
+  shipped: 'Đang vận chuyển',
   delivered: 'Đã giao',
-  completed: 'Hoàn thành',
+  completed: 'Hoàn tất',
   cancelled: 'Đã hủy',
 }
 
@@ -119,6 +119,7 @@ const labels: Record<string, string> = {
   partially_settled: 'Đã hoàn một phần',
   voided: 'Đã hủy nghĩa vụ',
   in_transit: 'Đang vận chuyển',
+  ready_to_ship: 'Đã chốt vận đơn, chờ bàn giao',
   delivery_failed: 'Giao không thành công',
   returned: 'Đã nhận hàng hoàn',
 }
@@ -577,6 +578,11 @@ const eventLabels: Record<string, string> = {
   order_confirmed: 'Đã xác nhận',
   order_packing: 'Bắt đầu đóng gói',
   shipment_handed_over: 'Đã bàn giao vận chuyển',
+  waybill_confirmed: 'Đã lưu vận đơn chốt với hãng',
+  waybill_corrected: 'Đã sửa vận đơn trước bàn giao',
+  waybill_verified: 'Đã lưu đối chiếu vận đơn',
+  carrier_recipient_change_recorded:
+    'Đã ghi nhận kết quả đổi người nhận từ hãng',
   shipment_carrier_identified: 'Đã xác minh đơn vị vận chuyển',
   shipment_carrier_corrected: 'Đã hiệu chỉnh đơn vị vận chuyển',
   cod_carrier_corrected:
@@ -684,10 +690,76 @@ export function OrderEventList({
                 details={event.details}
               />
             )}
-            {event.type === 'shipment_handed_over' &&
+            {[
+              'shipment_handed_over',
+              'waybill_confirmed',
+              'waybill_corrected',
+              'waybill_verified',
+              'carrier_recipient_change_recorded',
+            ].includes(event.type) &&
               typeof event.details?.trackingReference === 'string' && (
                 <small>Mã vận đơn: {event.details.trackingReference}</small>
               )}
+            {[
+              'waybill_confirmed',
+              'waybill_corrected',
+              'waybill_verified',
+            ].includes(event.type) && (
+              <>
+                {event.actorName && (
+                  <small>Người xác nhận: {event.actorName}</small>
+                )}
+                {event.details?.recipientVerified === true && (
+                  <small>Đã đối chiếu người nhận</small>
+                )}
+                {event.details?.paymentVerified === true && (
+                  <small>Đã đối chiếu thanh toán/COD</small>
+                )}
+                {event.type === 'waybill_corrected' && (
+                  <>
+                    {typeof event.details?.previousTrackingReference ===
+                      'string' && (
+                      <small>
+                        Mã vận đơn cũ: {event.details.previousTrackingReference}
+                      </small>
+                    )}
+                    {typeof event.details?.carrierName === 'string' && (
+                      <small>
+                        Hãng vận chuyển:{' '}
+                        {typeof event.details.previousCarrierName === 'string'
+                          ? event.details.previousCarrierName
+                          : 'Chưa xác định'}
+                        {' → '}
+                        {event.details.carrierName}
+                      </small>
+                    )}
+                    {typeof event.details?.reason === 'string' && (
+                      <small>Lý do sửa: {event.details.reason}</small>
+                    )}
+                  </>
+                )}
+              </>
+            )}
+            {event.type === 'carrier_recipient_change_recorded' && (
+              <>
+                <small>
+                  {event.details?.outcome === 'accepted'
+                    ? 'Hãng đã chấp thuận và người nhận đã được cập nhật.'
+                    : 'Hãng từ chối; thông tin người nhận giữ nguyên.'}
+                </small>
+                {typeof event.details?.reference === 'string' && (
+                  <small>Tham chiếu phản hồi: {event.details.reference}</small>
+                )}
+                {typeof event.details?.confirmedAt === 'string' && (
+                  <small>
+                    Hãng phản hồi lúc: {formatDate(event.details.confirmedAt)}
+                  </small>
+                )}
+                {typeof event.details?.reason === 'string' && (
+                  <small>Nội dung: {event.details.reason}</small>
+                )}
+              </>
+            )}
             {event.type === 'shipment_delivered' && (
               <>
                 {typeof event.details?.deliveredAt === 'string' && (

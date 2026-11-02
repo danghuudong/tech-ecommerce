@@ -30,7 +30,7 @@ function previousDeliveryStatus(
   if (shipment?.status !== 'delivered') return null
   const shipmentEvents = events.filter(
     (event) =>
-      event.createdAt >= shipment.createdAt &&
+      event.createdAt >= (shipment.handedOverAt ?? shipment.createdAt) &&
       (!event.details.shipmentId || event.details.shipmentId === shipment.id),
   )
   const acknowledgement = shipmentEvents
@@ -218,8 +218,11 @@ export function orderUndoPolicy(
       return 'ORDER_UNDO_RESERVATION_EXPIRED'
 
     if (!requiresPhysicalEvidence) {
-      if (order.stockState !== 'reserved' || facts.shipment)
-        return 'ORDER_UNDO_STATE_MISMATCH'
+      if (order.stockState !== 'reserved') return 'ORDER_UNDO_STATE_MISMATCH'
+      if (facts.shipment)
+        return facts.shipment.status === 'ready_to_ship'
+          ? 'ORDER_UNDO_WAYBILL_CONFIRMED'
+          : 'ORDER_UNDO_STATE_MISMATCH'
       if (
         transition.action === 'confirmation' &&
         order.paymentMethod === 'cod'

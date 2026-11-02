@@ -306,6 +306,7 @@ export type OrderUndoBlockReason =
   | 'ORDER_UNDO_RECONCILIATION_REQUIRED'
   | 'ORDER_UNDO_RESERVATION_EXPIRED'
   | 'ORDER_UNDO_STATE_MISMATCH'
+  | 'ORDER_UNDO_WAYBILL_CONFIRMED'
   | 'ORDER_UNDO_HISTORY_REQUIRED'
   | 'ORDER_UNDO_CONFIRMATION_EXPIRED'
   | 'ORDER_UNDO_SHIPMENT_ACTIVITY'
@@ -325,6 +326,13 @@ export interface OrderUndo {
   } | null
   confirmationExpiresAt: string | null
   originalConfirmationExpiresAt: string | null
+}
+
+export interface WaybillVerificationProof {
+  eventId: string
+  verifiedAt: string
+  actorUserId: string | null
+  actorName: string | null
 }
 
 export interface OrderDetail {
@@ -436,9 +444,15 @@ export interface OrderDetail {
   shipment: {
     id: string
     createdAt: string
+    handedOverAt: string | null
+    recipientSnapshot: Recipient | null
     carrierId: string | null
     carrier: Carrier | null
     trackingReference: string
+    verification?: {
+      recipient: WaybillVerificationProof | null
+      payment: WaybillVerificationProof | null
+    }
     status: string
     failedAttempts: number
     failureReason: string | null

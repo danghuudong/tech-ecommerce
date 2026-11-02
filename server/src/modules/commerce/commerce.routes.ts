@@ -40,6 +40,7 @@ import {
   assignmentSchema,
   bankReconciliationSchema,
   carrierCreateSchema,
+  carrierRecipientResultSchema,
   carrierRemittanceSchema,
   cartItemSchema,
   catalogListSchema,
@@ -81,11 +82,14 @@ import {
   returnReceiptSchema,
   returnRequestSchema,
   roleUpdateSchema,
+  savedWaybillVerificationSchema,
   shipmentCarrierSchema,
   shipmentReturnSchema,
   staffOrderSettingsSchema,
   staffUserListSchema,
   stockAdjustmentSchema,
+  waybillCorrectionSchema,
+  waybillSchema,
 } from './commerce.contracts.js'
 import { type Command, fail, resolveActor } from './commerce.persistence.js'
 import type { CommandResult } from './commerce.types.js'
@@ -165,6 +169,12 @@ import {
   getShipmentCarrierContext,
   identifyShipmentCarrier,
 } from './shipment-carrier.service.js'
+import {
+  confirmWaybill,
+  correctWaybill,
+  recordCarrierRecipientResult,
+  verifyWaybill,
+} from './waybill.service.js'
 
 export const commerceRouter = Router()
 
@@ -916,6 +926,39 @@ mutation(
   bankReconciliationSchema,
   (command, input, request) =>
     reconcileBankDeadline(command, id(request, 'orderId'), input),
+)
+mutation(
+  'post',
+  '/staff/orders/:orderId/waybill',
+  'fulfillment:confirm_waybill',
+  waybillSchema,
+  (command, input, request) =>
+    confirmWaybill(command, id(request, 'orderId'), input),
+  201,
+)
+mutation(
+  'post',
+  '/staff/orders/:orderId/waybill/correction',
+  'fulfillment:correct_waybill',
+  waybillCorrectionSchema,
+  (command, input, request) =>
+    correctWaybill(command, id(request, 'orderId'), input),
+)
+mutation(
+  'post',
+  '/staff/orders/:orderId/waybill/verification',
+  'fulfillment:verify_waybill',
+  savedWaybillVerificationSchema,
+  (command, input, request) =>
+    verifyWaybill(command, id(request, 'orderId'), input),
+)
+mutation(
+  'post',
+  '/staff/orders/:orderId/shipment/recipient-result',
+  'fulfillment:carrier_recipient_result',
+  carrierRecipientResultSchema,
+  (command, input, request) =>
+    recordCarrierRecipientResult(command, id(request, 'orderId'), input),
 )
 mutation(
   'post',

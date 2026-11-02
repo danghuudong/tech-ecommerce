@@ -61,6 +61,10 @@ import {
   workloadBreakdown,
 } from './order-assignment-policy.js'
 import { orderDeletionBlockReason } from './order-deletion-policy.js'
+import {
+  canEditOrderRecipient,
+  canRecordCarrierRecipientResult,
+} from './order-recipient-policy.js'
 import { orderUndoPolicy, readOrderUndoFacts } from './order-undo-policy.js'
 import { allocatedPaymentsForOrders } from './payment-allocation.js'
 import {
@@ -76,6 +80,7 @@ import {
 } from './refund-policy.js'
 import { bankReviewState } from './reservation.service.js'
 import { returnAllocations } from './return.service.js'
+import { canCorrectWaybill, waybillVerification } from './waybill-policy.js'
 
 type Pagination = { limit: number; offset: number }
 type OrderListInput = Pagination & {
@@ -357,6 +362,20 @@ export async function getOrder(
       const actorNames = new Map(
         people.map((person) => [person.id, person.name]),
       )
+      const shipment = shipmentRecords[0] ?? null
+      const verification =
+        staff && shipment ? waybillVerification(order, shipment, events) : null
+      const verificationProof = (event: (typeof events)[number] | null) =>
+        event
+          ? {
+              eventId: event.id,
+              verifiedAt: event.createdAt,
+              actorUserId: event.actorUserId,
+              actorName: event.actorUserId
+                ? (actorNames.get(event.actorUserId) ?? null)
+                : null,
+            }
+          : null
       const canWork =
         (actor.role === 'staff' || actor.role === 'admin') &&
         (actor.role === 'admin' || order.assignedTo === actor.userId)
@@ -417,7 +436,7 @@ export async function getOrder(
       if (
         owner &&
         reservationActive &&
-        ['placed', 'confirmed'].includes(order.status)
+        canEditOrderRecipient('customer', order, shipmentRecords.length > 0)
       )
         customerActions.push('update_recipient')
       if (
@@ -435,7 +454,7 @@ export async function getOrder(
       if (
         canProcess &&
         reservationActive &&
-        ['placed', 'confirmed'].includes(order.status)
+        canEditOrderRecipient(actor.role, order, shipmentRecords.length > 0)
       )
         staffActions.push('update_recipient')
       if (actor.role === 'admin' && !order.deletedAt)
@@ -458,9 +477,23 @@ export async function getOrder(
         canProcess &&
         reservationActive &&
         order.status === 'packing' &&
+        (!shipmentRecords[0] ||
+          shipmentRecords[0].status === 'ready_to_ship') &&
         (order.paymentMethod === 'cod' || paymentSummary.bankPaymentApproved)
-      )
+      ) {
         staffActions.push('dispatch')
+        if (!shipmentRecords.length) staffActions.push('confirm_waybill')
+        if (canCorrectWaybill(order, shipment)) {
+          staffActions.push('correct_waybill')
+          if (!verification?.recipient || !verification.payment)
+            staffActions.push('verify_waybill')
+        }
+      }
+      if (
+        canProcess &&
+        canRecordCarrierRecipientResult(order, shipmentRecords[0])
+      )
+        staffActions.push('record_carrier_recipient_result')
       if (
         canFinance &&
         (order.paymentMethod === 'bank_transfer' ||
@@ -551,7 +584,6 @@ export async function getOrder(
           staffActions.push('record_collection_debt')
         staffActions.push('write_off_collection')
       }
-      const shipment = shipmentRecords[0] ?? null
       const undo = canWork
         ? orderUndoPolicy(
             actor,
@@ -927,7 +959,18 @@ export async function getOrder(
           })),
         },
         shipment: shipment
-          ? { ...shipment, carrier: shipmentCarrier ?? null }
+          ? {
+              ...shipment,
+              carrier: shipmentCarrier ?? null,
+              ...(verification
+                ? {
+                    verification: {
+                      recipient: verificationProof(verification.recipient),
+                      payment: verificationProof(verification.payment),
+                    },
+                  }
+                : {}),
+            }
           : null,
         returns: returnRecords.map((record) => ({
           ...record,
@@ -1047,6 +1090,8 @@ export async function getOrder(
                   ![
                     'order_assigned',
                     'cod_collection_failures_corrected',
+                    'waybill_verified',
+                    'waybill_corrected',
                   ].includes(event.type))),
           )
           .map((event) => ({

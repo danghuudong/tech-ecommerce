@@ -232,7 +232,7 @@ export function CustomerOrderActions({ order }: { order: OrderDetail }) {
       <div className="c-payment-actions">
         {actions.includes('update_recipient') && (
           <Action variant="secondary" onClick={() => setDialog('address')}>
-            Sửa địa chỉ
+            Sửa thông tin người nhận
           </Action>
         )}
         {actions.includes('request_return') && (
@@ -247,7 +247,7 @@ export function CustomerOrderActions({ order }: { order: OrderDetail }) {
           </Action>
         )}
       </div>
-      {dialog === 'address' && (
+      {dialog === 'address' && actions.includes('update_recipient') && (
         <AddressDrawer order={order} onClose={() => setDialog(null)} />
       )}
       {dialog === 'cancel' && (
@@ -305,6 +305,12 @@ export function AddressDrawer({
           if (await command.run(parsed.data)) onClose()
         })}
       >
+        {staff && order.status === 'packing' && (
+          <Notice>
+            Bạn có thể sửa thông tin người nhận khi chưa chốt vận đơn. Sau khi
+            lưu, cần đối chiếu lại thông tin trên vận đơn trước khi bàn giao.
+          </Notice>
+        )}
         <RecipientFields form={form} />
         <ErrorNotice error={command.error} />
         <div className="c-actions">

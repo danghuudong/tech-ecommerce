@@ -204,6 +204,13 @@
       "when": 1792490358872,
       "tag": "0028_optional_shipment_return_proof",
       "breakpoints": true
+    },
+    {
+      "idx": 29,
+      "version": "7",
+      "when": 1793527243121,
+      "tag": "0029_waybill_recipient_verification",
+      "breakpoints": true
     }
   ]
 }

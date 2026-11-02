@@ -490,6 +490,22 @@
   background: #edf9f1;
   color: #147742;
 }
+:where(.c-cod-settlement) {
+  display: grid;
+  gap: 10px;
+  margin-block: 12px;
+}
+:where(.c-cod-settlement > div) {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: baseline;
+  gap: 12px;
+}
+:where(.c-cod-settlement dd) {
+  margin: 0;
+  font-weight: 650;
+  text-align: right;
+}
 :where(.c-shift-card) {
   margin-bottom: 20px;
 }
