@@ -29,6 +29,7 @@ import {
   OrderHistory,
   PageHeading,
   Panel,
+  PaymentStatusBadge,
   PriceSummary,
   ProductThumb,
   Quantity,
@@ -88,7 +89,7 @@ function OrderContent() {
       </PageHeading>
       <div className="c-badges">
         <Badge status={order.status} />
-        <Badge status={order.payment.status} />
+        <PaymentStatusBadge {...order.payment} />
       </div>
       <OrderProgress order={order} audience="customer" />
       {order.cancellationReason && (
@@ -638,7 +639,7 @@ function BankTransferContent() {
         </div>
         <div className="c-badges">
           <Badge status={order.status} />
-          <Badge status={order.payment.status} />
+          <PaymentStatusBadge {...order.payment} />
         </div>
       </div>
       {showTransfer && order.paymentDeadlineAt && (

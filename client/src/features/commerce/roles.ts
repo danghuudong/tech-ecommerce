@@ -12,3 +12,9 @@ export const canManagePayments = (role: Role | undefined) =>
 
 export const canManageOrders = (role: Role | undefined) =>
   role === 'staff' || role === 'admin'
+
+export function getAfterSaleLabel(role: Role | undefined) {
+  if (role === 'staff') return 'Trả hàng'
+  if (role === 'accountant') return 'Hoàn tiền'
+  return 'Trả hàng & hoàn tiền'
+}

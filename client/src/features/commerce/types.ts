@@ -105,6 +105,7 @@ export interface OrderSummary {
   totalVnd: number
   paymentMethod: PaymentMethod
   paymentStatus: string
+  completedOverpaymentRefundVnd: number | null
   paidVnd: number
   amountDueVnd: number | null
   refundedVnd: number
@@ -382,6 +383,7 @@ export interface OrderDetail {
     balancesVerified: boolean
     refundedVnd: number
     netRefundedVnd: number
+    completedOverpaymentRefundVnd: number | null
     refundDueVnd: number | null
     pendingRefundVnd: number
     bankPaymentApproved: boolean
@@ -395,6 +397,7 @@ export interface OrderDetail {
     receipts: {
       id: string
       reference: string
+      remittanceNote?: string | null
       amountVnd: number
       receivedAt: string
       duplicate: boolean

@@ -36,12 +36,13 @@ import {
   ProductThumb,
   QueryError,
   RecipientCard,
+  SelectableTableRow,
   shortId,
 } from './components'
 import { inputToIso, vietnamDateInput } from './date-time'
 import { StaffLayout } from './layouts'
 import { ReasonDrawer } from './order-pages'
-import { canManageOrders, canManagePayments } from './roles'
+import { canManageOrders, canManagePayments, getAfterSaleLabel } from './roles'
 import { AssignmentControl } from './staff-pages'
 import type {
   OrderDetail,
@@ -220,8 +221,14 @@ function ReturnsContent() {
   return (
     <>
       <PageHeading
-        title="Trả hàng & hoàn tiền"
-        subtitle="Duyệt yêu cầu, nhận hàng thực tế và theo dõi kết quả hoàn tiền."
+        title={getAfterSaleLabel(actor.data?.role)}
+        subtitle={
+          canReturns && canRefunds
+            ? 'Duyệt yêu cầu, nhận hàng thực tế và theo dõi kết quả hoàn tiền.'
+            : canReturns
+              ? 'Duyệt yêu cầu trả hàng và ghi nhận hàng thực tế nhận lại.'
+              : 'Theo dõi nghĩa vụ hoàn tiền và mở các lần xử lý hoàn tiền.'
+        }
       />
       <div className="c-tabs" style={{ marginBottom: 18 }}>
         {canReturns && (
@@ -378,16 +385,22 @@ function ReturnsContent() {
                   <tbody>
                     {requests.data?.items.map(
                       ({ request, orderCode, recipient }) => (
-                        <tr
+                        <SelectableTableRow
                           key={request.id}
-                          className={
-                            selection?.id === request.id ? 'is-selected' : ''
+                          selected={selection?.id === request.id}
+                          onSelect={() =>
+                            setSelected({
+                              orderId: request.orderId,
+                              id: request.id,
+                            })
                           }
                         >
                           <td>
                             <button
                               type="button"
                               className="c-row-select"
+                              aria-pressed={selection?.id === request.id}
+                              aria-label={`Chọn yêu cầu ${shortId(request.id)} của đơn hàng #${orderCode}`}
                               onClick={() =>
                                 setSelected({
                                   orderId: request.orderId,
@@ -398,7 +411,21 @@ function ReturnsContent() {
                               #{shortId(request.id)}
                             </button>
                           </td>
-                          <td>#{orderCode}</td>
+                          <td>
+                            <button
+                              type="button"
+                              className="c-row-select"
+                              aria-pressed={selection?.id === request.id}
+                              onClick={() =>
+                                setSelected({
+                                  orderId: request.orderId,
+                                  id: request.id,
+                                })
+                              }
+                            >
+                              #{orderCode}
+                            </button>
+                          </td>
                           <td>
                             <strong>{recipient.name}</strong>
                             <small>{recipient.phone}</small>
@@ -413,7 +440,7 @@ function ReturnsContent() {
                           <td>
                             <Badge status={request.status} />
                           </td>
-                        </tr>
+                        </SelectableTableRow>
                       ),
                     )}
                   </tbody>
@@ -436,16 +463,22 @@ function ReturnsContent() {
                   <tbody>
                     {refunds.data?.items.map(
                       ({ refund, orderCode, recipient }) => (
-                        <tr
+                        <SelectableTableRow
                           key={refund.id}
-                          className={
-                            selection?.id === refund.id ? 'is-selected' : ''
+                          selected={selection?.id === refund.id}
+                          onSelect={() =>
+                            setSelected({
+                              orderId: refund.orderId,
+                              id: refund.id,
+                            })
                           }
                         >
                           <td>
                             <button
                               type="button"
                               className="c-row-select"
+                              aria-pressed={selection?.id === refund.id}
+                              aria-label={`Chọn khoản hoàn ${shortId(refund.id)} của đơn hàng #${orderCode}`}
                               onClick={() =>
                                 setSelected({
                                   orderId: refund.orderId,
@@ -457,7 +490,21 @@ function ReturnsContent() {
                             </button>
                             <small>{formatDate(refund.createdAt)}</small>
                           </td>
-                          <td>#{orderCode}</td>
+                          <td>
+                            <button
+                              type="button"
+                              className="c-row-select"
+                              aria-pressed={selection?.id === refund.id}
+                              onClick={() =>
+                                setSelected({
+                                  orderId: refund.orderId,
+                                  id: refund.id,
+                                })
+                              }
+                            >
+                              #{orderCode}
+                            </button>
+                          </td>
                           <td>
                             <strong>{recipient.name}</strong>
                             <small>{recipient.phone}</small>
@@ -474,7 +521,7 @@ function ReturnsContent() {
                           <td>
                             <Badge status={refund.status} />
                           </td>
-                        </tr>
+                        </SelectableTableRow>
                       ),
                     )}
                   </tbody>

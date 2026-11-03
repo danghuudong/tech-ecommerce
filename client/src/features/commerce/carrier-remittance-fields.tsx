@@ -1,4 +1,4 @@
-import { ChevronUp, Plus } from 'lucide-react'
+import { ChevronUp, Plus, X } from 'lucide-react'
 import { useId, useState } from 'react'
 import { useCommerceQuery, useOrder } from './api'
 import {
@@ -125,41 +125,20 @@ export function CarrierRemittanceFields({
       </Field>
       {value.map((item, index) => (
         <section
-          className="c-form-section"
+          className="c-form-section c-remittance-item"
           key={item.collectionId}
           aria-label={`Khoản thu hộ ${item.reference} của đơn #${item.code}`}
         >
-          <strong>
-            Đơn #{item.code} · Khoản thu hộ {item.reference}
-          </strong>
-          <div className="c-form-grid">
-            <Field
-              label="Số tiền nhận lần này (VND) *"
-              hint={`Còn phải nhận: ${formatMoney(item.remainingVnd)} · Khách đã trả cho đơn vị vận chuyển lúc ${formatDate(item.receivedAt)}`}
-            >
-              <input
-                type="number"
-                min={1}
-                max={item.remainingVnd}
-                step={1}
-                required
-                value={Number.isFinite(item.amountVnd) ? item.amountVnd : ''}
-                onChange={(event) =>
-                  onChange(
-                    value.map((row) =>
-                      row.collectionId === item.collectionId
-                        ? { ...row, amountVnd: event.target.valueAsNumber }
-                        : row,
-                    ),
-                  )
-                }
-                disabled={disabled}
-              />
-            </Field>
+          <div className="c-remittance-item__heading">
+            <strong>
+              Đơn #{item.code} · Khoản thu hộ {item.reference}
+            </strong>
             {index > 0 && (
               <Action
-                variant="secondary"
+                variant="danger"
+                className="c-remittance-item__remove"
                 disabled={disabled}
+                aria-label={`Bỏ khoản thu hộ ${item.reference} của đơn #${item.code} khỏi lần ghi nhận`}
                 onClick={() =>
                   onChange(
                     value.filter(
@@ -168,12 +147,42 @@ export function CarrierRemittanceFields({
                   )
                 }
               >
-                Bỏ khoản thu hộ
+                <X size={15} aria-hidden="true" />
+                Bỏ khỏi lần ghi nhận
               </Action>
             )}
           </div>
+          <Field
+            label="Số tiền nhận lần này (VND) *"
+            hint={`Còn phải nhận: ${formatMoney(item.remainingVnd)} · Khách đã trả cho đơn vị vận chuyển lúc ${formatDate(item.receivedAt)}`}
+          >
+            <input
+              type="number"
+              min={1}
+              max={item.remainingVnd}
+              step={1}
+              required
+              value={Number.isFinite(item.amountVnd) ? item.amountVnd : ''}
+              onChange={(event) =>
+                onChange(
+                  value.map((row) =>
+                    row.collectionId === item.collectionId
+                      ? { ...row, amountVnd: event.target.valueAsNumber }
+                      : row,
+                  ),
+                )
+              }
+              disabled={disabled}
+            />
+          </Field>
         </section>
       ))}
+      {value.length > 1 && (
+        <small className="c-muted">
+          Bỏ khỏi lần ghi nhận chỉ thay đổi danh sách đang chọn. Khoản thu hộ
+          vẫn được lưu trong hệ thống.
+        </small>
+      )}
       <div className="c-remittance-picker__heading">
         {adding && <strong>Thêm khoản thu hộ</strong>}
         <Action

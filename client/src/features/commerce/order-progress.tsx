@@ -32,6 +32,7 @@ import {
   Notice,
   OrderEventList,
   orderLabels,
+  PaymentStatusBadge,
 } from './components'
 import { type OrderStage, orderProgressModel } from './order-progress-model'
 import { packingChecklistVerified } from './packing-checklist'
@@ -712,7 +713,7 @@ function StepDetails({
           ? ['Người xác nhận', actor]
           : [
               'Tình trạng thanh toán hiện tại',
-              <Badge key="payment" status={order.payment.status} />,
+              <PaymentStatusBadge key="payment" {...order.payment} />,
             ],
         audience === 'staff'
           ? [
@@ -817,7 +818,7 @@ function StepDetails({
         ['Thời điểm hoàn tất', date(milestone?.createdAt)],
         [
           'Tình trạng thanh toán hiện tại',
-          <Badge key="payment" status={order.payment.status} />,
+          <PaymentStatusBadge key="payment" {...order.payment} />,
         ],
         [
           'Khách còn phải thanh toán',

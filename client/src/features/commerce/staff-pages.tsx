@@ -29,7 +29,6 @@ import {
   AccessGate,
   Action,
   Badge,
-  CompactLines,
   CopyValue,
   Drawer,
   Empty,
@@ -44,6 +43,7 @@ import {
   PageHeading,
   Pagination,
   Panel,
+  PaymentStatusBadge,
   PriceSummary,
   ProductThumb,
   QueryError,
@@ -116,7 +116,6 @@ function StaffOrdersContent() {
   const [text, setText] = useState(initialQ)
   const [q, setQ] = useState(initialQ)
   const [offset, setOffset] = useState(0)
-  const [selected, setSelected] = useState<string | null>(null)
   const actor = useActor()
   useEffect(() => {
     setQ(initialQ)
@@ -164,9 +163,6 @@ function StaffOrdersContent() {
     setTab('all')
     setFilter(value)
   }
-  const selectedId = orders.data?.items.some((order) => order.id === selected)
-    ? selected
-    : orders.data?.items[0]?.id
   return (
     <>
       <PageHeading
@@ -365,18 +361,9 @@ function StaffOrdersContent() {
                   </thead>
                   <tbody>
                     {orders.data.items.map((order) => (
-                      <tr
-                        key={order.id}
-                        className={order.id === selectedId ? 'is-selected' : ''}
-                      >
+                      <tr key={order.id}>
                         <td>
-                          <button
-                            type="button"
-                            className="c-row-select"
-                            onClick={() => setSelected(order.id)}
-                          >
-                            #{order.code}
-                          </button>
+                          <strong className="c-red">#{order.code}</strong>
                           <small>{formatDate(order.createdAt)}</small>
                         </td>
                         <td>
@@ -399,7 +386,12 @@ function StaffOrdersContent() {
                                 ? 'COD'
                                 : 'Chuyển khoản'}
                             </Badge>
-                            <Badge status={order.paymentStatus} />
+                            <PaymentStatusBadge
+                              status={order.paymentStatus}
+                              completedOverpaymentRefundVnd={
+                                order.completedOverpaymentRefundVnd
+                              }
+                            />
                           </div>
                         </td>
                         <td>
@@ -489,87 +481,7 @@ function StaffOrdersContent() {
           </>
         )}
       </Panel>
-      {selectedId && (
-        <div style={{ marginTop: 16 }}>
-          <OrderQueuePreview key={selectedId} id={selectedId} />
-        </div>
-      )}
     </>
-  )
-}
-
-function OrderQueuePreview({ id }: { id: string }) {
-  const order = useOrder(id, true)
-  const advance = useCommand(
-    (action: 'confirm' | 'pack') =>
-      write(`staff/orders/${id}/${action}`, {
-        expectedRevision: order.data?.revision,
-      }),
-    orderQueryPaths,
-  )
-  if (order.isPending)
-    return (
-      <Panel>
-        <Loading />
-      </Panel>
-    )
-  if (order.isError)
-    return <QueryError error={order.error} retry={() => order.refetch()} />
-  const data = order.data
-  const action = data.permittedActions.staff.includes('confirm')
-    ? 'confirm'
-    : data.permittedActions.staff.includes('pack')
-      ? 'pack'
-      : null
-  return (
-    <Panel>
-      <div className="c-queue-preview">
-        <div>
-          <div className="c-badges">
-            <Badge tone="red">#{data.code}</Badge>
-            <Badge status={data.status} />
-          </div>
-          <div className="c-divider" />
-          <RecipientCard recipient={data.recipient} />
-        </div>
-        <div>
-          <strong>Sản phẩm ({data.items.length})</strong>
-          <CompactLines lines={data.items} />
-        </div>
-        <div>
-          <PriceSummary
-            subtotal={data.prices.subtotalVnd}
-            shipping={data.prices.shippingFeeVnd}
-            total={data.prices.totalVnd}
-          />
-          <ErrorNotice error={advance.error} />
-          {action ? (
-            <Action
-              className="c-button--block"
-              pending={advance.isPending}
-              onClick={() => {
-                void advance.run(action)
-              }}
-            >
-              {action === 'confirm' ? 'Xác nhận đơn hàng' : 'Tiếp tục đóng gói'}
-            </Action>
-          ) : (
-            <Link
-              to="/staff/orders/$orderId"
-              params={{ orderId: id }}
-              className="c-button c-button--secondary c-button--block"
-            >
-              Xem chi tiết đơn
-            </Link>
-          )}
-          {data.paymentMethod === 'bank_transfer' &&
-            !data.payment.bankPaymentApproved &&
-            ['placed', 'confirmed'].includes(data.status) && (
-              <small>Cần xác minh thanh toán trước khi đóng gói.</small>
-            )}
-        </div>
-      </div>
-    </Panel>
   )
 }
 
@@ -645,7 +557,7 @@ function FulfillmentContent() {
       >
         <div className="c-badges">
           <Badge status={order.status} />
-          <Badge status={order.payment.status} />
+          <PaymentStatusBadge {...order.payment} />
           <Badge tone="neutral">
             {order.paymentMethod === 'cod' ? 'COD' : 'Chuyển khoản'}
           </Badge>

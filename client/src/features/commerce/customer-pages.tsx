@@ -52,6 +52,7 @@ import {
   PageHeading,
   Pagination,
   Panel,
+  PaymentStatusBadge,
   PriceSummary,
   ProductThumb,
   Quantity,
@@ -1243,7 +1244,12 @@ function CustomerOrdersContent() {
                           <b>{formatMoney(order.totalVnd)}</b>
                         </td>
                         <td>
-                          <Badge status={order.paymentStatus} />
+                          <PaymentStatusBadge
+                            status={order.paymentStatus}
+                            completedOverpaymentRefundVnd={
+                              order.completedOverpaymentRefundVnd
+                            }
+                          />
                           <small>
                             {order.paymentMethod === 'cod'
                               ? 'COD'

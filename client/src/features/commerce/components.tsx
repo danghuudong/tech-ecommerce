@@ -163,6 +163,27 @@ export function Badge({
   )
 }
 
+export function PaymentStatusBadge({
+  status,
+  completedOverpaymentRefundVnd,
+}: {
+  status: string
+  completedOverpaymentRefundVnd: number | null
+}) {
+  return (
+    <span className="c-payment-status">
+      <Badge status={status} />
+      {status === 'paid' &&
+        completedOverpaymentRefundVnd != null &&
+        completedOverpaymentRefundVnd > 0 && (
+          <small className="c-payment-status__note">
+            Đã hoàn đủ tiền dư: {formatMoney(completedOverpaymentRefundVnd)}
+          </small>
+        )}
+    </span>
+  )
+}
+
 export function Action({
   children,
   pending,
@@ -186,6 +207,36 @@ export function Action({
       )}
       {children}
     </button>
+  )
+}
+
+export function SelectableTableRow({
+  selected,
+  onSelect,
+  children,
+}: {
+  selected: boolean
+  onSelect: () => void
+  children: ReactNode
+}) {
+  return (
+    <tr
+      className={`c-selectable-row${selected ? ' is-selected' : ''}`}
+      onClick={(event) => {
+        if (
+          event.defaultPrevented ||
+          !(event.target instanceof Element) ||
+          event.target.closest(
+            'a, button, input, select, textarea, label, summary, [role="button"], [role="link"], [contenteditable]',
+          ) ||
+          window.getSelection()?.isCollapsed === false
+        )
+          return
+        onSelect()
+      }}
+    >
+      {children}
+    </tr>
   )
 }
 

@@ -18,7 +18,12 @@ import { type ReactNode, useEffect, useState } from 'react'
 import { StoreHeader } from '@/shared/components/store-layout/store-header'
 import { useActor, useSession } from './api'
 import { Action, ErrorNotice } from './components'
-import { canManageOrders, canManagePayments, roleLabels } from './roles'
+import {
+  canManageOrders,
+  canManagePayments,
+  getAfterSaleLabel,
+  roleLabels,
+} from './roles'
 import { SessionScopeContext } from './session-scope'
 import { SignOut } from './sign-out'
 import { StaffShiftCard } from './staff-shift-card'
@@ -119,13 +124,25 @@ function StaffWorkspace({ children }: { children: ReactNode }) {
       // Keep the toggle usable when browser storage is unavailable.
     }
   }, [collapsed])
-  const visibleLinks = staffLinks.filter(({ to }) => {
-    if (to === '/staff/payments') return canManagePayments(actor.data?.role)
-    if (to === '/staff/fulfillment') return canManageOrders(actor.data?.role)
-    if (to === '/staff/team') return actor.data?.role === 'admin'
-    if (to === '/staff/receiving-accounts') return actor.data?.role === 'admin'
-    return true
-  })
+  const afterSaleLabel = getAfterSaleLabel(actor.data?.role)
+  const visibleLinks = staffLinks
+    .filter(({ to }) => {
+      if (to === '/staff/payments') return canManagePayments(actor.data?.role)
+      if (to === '/staff/fulfillment') return canManageOrders(actor.data?.role)
+      if (to === '/staff/returns')
+        return (
+          canManageOrders(actor.data?.role) ||
+          canManagePayments(actor.data?.role)
+        )
+      if (to === '/staff/team') return actor.data?.role === 'admin'
+      if (to === '/staff/receiving-accounts')
+        return actor.data?.role === 'admin'
+      return true
+    })
+    .map((link) => ({
+      ...link,
+      label: link.to === '/staff/returns' ? afterSaleLabel : link.label,
+    }))
   const active = location.pathname.startsWith('/staff/orders/')
     ? staffLinks[1]
     : (staffLinks.find((link) => location.pathname === link.to) ??
@@ -192,7 +209,9 @@ function StaffWorkspace({ children }: { children: ReactNode }) {
           </Action>
           <span>
             Trang chủ<span className="c-breadcrumb-separator">›</span>
-            <strong>{active.label}</strong>
+            <strong>
+              {active.to === '/staff/returns' ? afterSaleLabel : active.label}
+            </strong>
             {location.pathname.startsWith('/staff/orders/') && (
               <span> / Chi tiết đơn hàng</span>
             )}

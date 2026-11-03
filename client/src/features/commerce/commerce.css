@@ -458,7 +458,21 @@
 :where(.c-badges) {
   display: flex;
   flex-wrap: wrap;
+  align-items: flex-start;
   gap: 8px;
+}
+:where(.c-payment-status) {
+  display: inline-flex;
+  max-width: 100%;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+}
+:where(.c-payment-status__note) {
+  color: var(--c-muted);
+  font-size: 11px;
+  font-weight: 400;
+  line-height: 1.4;
 }
 :where(.c-notice) {
   display: flex;
@@ -611,20 +625,27 @@
   font: inherit;
   font-weight: 600;
 }
+:where(.c-row-select:focus-visible) {
+  outline: none;
+}
+:where(.c-selectable-row:has(.c-row-select:focus-visible)) {
+  outline: 2px solid #93b4ee;
+  outline-offset: -2px;
+}
+:where(.c-selectable-row) {
+  cursor: pointer;
+}
 :where(.c-table td.c-number),
 :where(.c-table th.c-number) {
   text-align: right;
   white-space: nowrap;
 }
-:where(.c-table tbody tr.is-selected) {
-  background: #fff0f2;
-  box-shadow: inset 3px 0 var(--c-red);
-}
 :where(.c-table tbody tr:hover) {
   background: #fafbfe;
 }
-:where(.c-table tbody tr.is-selected:hover) {
-  background: #fff0f2;
+:where(.c-table tbody tr.c-selectable-row.is-selected),
+:where(.c-table tbody tr.c-selectable-row.is-selected:hover) {
+  background: #edf4ff;
 }
 :where(.c-table--cart th) {
   background: #fff;
@@ -1571,30 +1592,6 @@
   background: #fff;
   font-size: 12px;
 }
-:where(.c-queue-preview) {
-  display: grid;
-  grid-template-columns: 1fr 1.2fr 1fr;
-  gap: 20px;
-}
-:where(.c-queue-preview > div + div) {
-  padding-left: 20px;
-  border-left: 1px solid var(--c-line);
-}
-:where(.c-queue-preview .c-compact-line .c-thumb) {
-  width: 43px;
-  height: 45px;
-}
-:where(.c-queue-preview .c-compact-line) {
-  gap: 10px;
-  padding-block: 9px;
-}
-:where(.c-queue-preview .c-compact-line strong),
-:where(.c-queue-preview .c-compact-line b) {
-  font-size: 11px;
-}
-:where(.c-queue-preview .c-price-summary__total dd) {
-  font-size: 20px;
-}
 :where(.c-timeline) {
   display: grid;
   gap: 0;
@@ -1736,6 +1733,10 @@
 :where(.c-recorded-receipt > strong) {
   overflow-wrap: anywhere;
 }
+:where(.c-receipt-note) {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
 :where(.c-recorded-receipt .c-financial-dl > div) {
   flex-wrap: wrap;
   gap: 6px 18px;
@@ -1764,6 +1765,28 @@
 :where(.c-form-section) {
   display: grid;
   gap: 16px;
+}
+:where(.c-remittance-item) {
+  padding: 16px;
+  border: 1px solid var(--c-line);
+  border-radius: 8px;
+}
+:where(.c-remittance-item__heading) {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px 16px;
+}
+:where(.c-remittance-item__heading > strong) {
+  flex: 1 1 180px;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+:where(.c-remittance-item__remove) {
+  min-height: 32px;
+  padding: 5px 9px;
+  font-size: 12px;
 }
 :where(.c-remittance-picker__heading) {
   display: flex;
@@ -1871,15 +1894,6 @@
   }
   :where(.c-stat small) {
     font-size: 11px;
-  }
-  :where(.c-queue-preview) {
-    grid-template-columns: 1fr 1fr;
-  }
-  :where(.c-queue-preview > div:last-child) {
-    grid-column: 1 / -1;
-    padding: 15px 0 0;
-    border-left: 0;
-    border-top: 1px solid var(--c-line);
   }
 }
 @media (max-width: 980px) {
@@ -2152,14 +2166,6 @@
   }
   :where(.c-stat b) {
     font-size: 22px;
-  }
-  :where(.c-queue-preview) {
-    grid-template-columns: 1fr;
-  }
-  :where(.c-queue-preview > div + div) {
-    padding: 15px 0 0;
-    border-left: 0;
-    border-top: 1px solid var(--c-line);
   }
   :where(.c-filters) {
     padding-inline: 12px;
