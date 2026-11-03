@@ -52,6 +52,7 @@ import {
   useOrderId,
 } from './components'
 import { inputToIso, serverClockNow, vietnamDateInput } from './date-time'
+import { DeliveryRetryDrawer } from './delivery-retry'
 import { DispatchForm } from './dispatch-form'
 import { StaffLayout } from './layouts'
 import { OrderAssignmentOverview } from './order-assignment-settings'
@@ -587,7 +588,13 @@ function FulfillmentContent() {
   const query = useOrder(id, true)
   const actor = useActor()
   const [dialog, setDialog] = useState<
-    'failure' | 'returned' | 'cancel' | 'address' | 'carrier-recipient' | null
+    | 'failure'
+    | 'retry'
+    | 'returned'
+    | 'cancel'
+    | 'address'
+    | 'carrier-recipient'
+    | null
   >(null)
   const command = useCommand(
     (action: string) =>
@@ -713,13 +720,11 @@ function FulfillmentContent() {
                   {actions.includes('retry_delivery') && (
                     <Action
                       variant="secondary"
-                      pending={command.isPending}
-                      onClick={() => {
-                        void command.run('retry-delivery')
-                      }}
+                      disabled={command.isPending}
+                      onClick={() => setDialog('retry')}
                     >
                       <RefreshCw size={16} />
-                      Giao lại
+                      Ghi nhận yêu cầu giao lại
                     </Action>
                   )}
                   {actions.includes('receive_undelivered_shipment') && (
@@ -938,6 +943,15 @@ function FulfillmentContent() {
           onClose={() => setDialog(null)}
         />
       )}
+      {dialog === 'retry' &&
+        actions.includes('retry_delivery') &&
+        order.shipment && (
+          <DeliveryRetryDrawer
+            key={`${order.id}-${order.shipment.id}-${order.shipment.failedAttempts}`}
+            order={order}
+            onClose={() => setDialog(null)}
+          />
+        )}
       {dialog === 'carrier-recipient' &&
         actions.includes('record_carrier_recipient_result') && (
           <CarrierRecipientResultDrawer

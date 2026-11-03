@@ -2,6 +2,7 @@ import { eq } from 'drizzle-orm'
 import { orders, shipments } from '../../db/schema.js'
 import { assertBankPaymentApproved } from './bank-payment-policy.js'
 import {
+  type DeliveryRetryInput,
   type DispatchInput,
   packingChecklistSchema,
 } from './commerce.contracts.js'
@@ -244,14 +245,29 @@ export function recordDeliveryFailure(
   )
 }
 
-export function retryDelivery(command: Command, orderId: string) {
+export function retryDelivery(
+  command: Command,
+  orderId: string,
+  input: DeliveryRetryInput,
+) {
   return executeCommand(
     { ...command, permission: 'staff' },
     async (tx, actor) => {
       const order = await lockOrder(tx, orderId)
       assertOrderAccess(actor, order, true)
       const shipment = await lockShipment(tx, orderId)
-      if (order.status !== 'shipped' || shipment.status !== 'delivery_failed')
+      if (order.revision !== input.expectedRevision)
+        fail(
+          409,
+          'ORDER_CHANGED',
+          'Reload the order before recording a delivery retry request',
+        )
+      if (
+        shipment.id !== input.shipmentId ||
+        order.status !== 'shipped' ||
+        shipment.status !== 'delivery_failed' ||
+        shipment.failedAttempts < 1
+      )
         fail(
           409,
           'INVALID_SHIPMENT_STATE',
@@ -263,14 +279,28 @@ export function retryDelivery(command: Command, orderId: string) {
           'DELIVERY_RETRY_EXHAUSTED',
           'Receive the returned shipment; delivery retry limit was reached',
         )
+      const now = await databaseNow(tx)
+      const retryNumber = shipment.failedAttempts
       await tx
         .update(shipments)
-        .set({ status: 'in_transit', updatedAt: await databaseNow(tx) })
+        .set({ status: 'in_transit', updatedAt: now })
         .where(eq(shipments.id, shipment.id))
-      await appendOrderEvent(tx, actor, orderId, 'delivery_retry_started', {
+      await tx
+        .update(orders)
+        .set({ revision: order.revision + 1, updatedAt: now })
+        .where(eq(orders.id, orderId))
+      await appendOrderEvent(tx, actor, orderId, 'delivery_retry_requested', {
         shipmentId: shipment.id,
+        carrierId: shipment.carrierId,
+        trackingReference: shipment.trackingReference,
+        retryNumber,
+        failedAttempts: shipment.failedAttempts,
+        previousFailureReason: shipment.failureReason,
+        reason: input.reason,
+        reference: input.reference ?? null,
+        source: 'manual',
       })
-      return { orderId, shipmentId: shipment.id }
+      return { orderId, shipmentId: shipment.id, retryNumber }
     },
   )
 }

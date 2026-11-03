@@ -32,6 +32,7 @@ import {
   user,
 } from '../../db/schema.js'
 import { latestCollectionDecision } from './collection-decision.js'
+import type { RefundListInput, ReturnListInput } from './commerce.contracts.js'
 import {
   assertOrderAccess,
   databaseNow,
@@ -651,7 +652,10 @@ export async function getOrder(
           staffActions.push('record_delivery_failure')
         if (shipment.status === 'delivery_failed') {
           staffActions.push('receive_undelivered_shipment')
-          if (shipment.failedAttempts < MAX_RECOVERY_ATTEMPTS)
+          if (
+            shipment.failedAttempts > 0 &&
+            shipment.failedAttempts < MAX_RECOVERY_ATTEMPTS
+          )
             staffActions.push('retry_delivery')
         }
       }
@@ -1461,78 +1465,149 @@ export async function listOrders(
 
 export async function listAfterSaleWork(
   userId: string,
-  input: Pagination,
-  kind: 'returns' | 'refunds',
+  input:
+    | { kind: 'returns'; filters: ReturnListInput }
+    | { kind: 'refunds'; filters: RefundListInput },
 ) {
   return db.transaction(
     async (tx) => {
       const actor = await resolveActor(
         tx,
         userId,
-        kind === 'refunds' ? 'accountant' : 'staff',
+        input.kind === 'refunds' ? 'accountant' : 'staff',
       )
       const visibility =
         actor.role !== 'staff' ? undefined : eq(orders.assignedTo, userId)
-      if (kind === 'returns')
+      const record = input.kind === 'returns' ? returns : refunds
+      const query = input.filters.q?.trim().replace(/^#\s*/, '').trim()
+      const searchFilter = query
+        ? /^TV[1-9][0-9]*$/i.test(query)
+          ? eq(orders.code, query.toUpperCase())
+          : sql`strpos(lower(concat_ws(' ', ${orders.code}, ${record.id}::text, ${orders.recipient}->>'name', ${orders.recipient}->>'phone')), lower(${query})) > 0`
+        : undefined
+      const createdOn = input.filters.createdOn
+      const dateFilter = createdOn
+        ? sql`${record.createdAt} >= (${createdOn}::date::timestamp at time zone 'Asia/Ho_Chi_Minh') and ${record.createdAt} < ((${createdOn}::date + 1)::timestamp at time zone 'Asia/Ho_Chi_Minh')`
+        : undefined
+      if (input.kind === 'returns') {
+        const filters = input.filters
+        const pending = inArray(returns.status, [
+          'requested',
+          'approved',
+          'receiving',
+          'received',
+        ])
+        const finished = inArray(returns.status, [
+          'rejected',
+          'withdrawn',
+          'closed',
+        ])
+        const baseFilter = and(
+          visibility,
+          searchFilter,
+          dateFilter,
+          filters.responsibility
+            ? eq(returns.responsibility, filters.responsibility)
+            : undefined,
+        )
+        const selectionFilter = and(
+          filters.view === 'all'
+            ? undefined
+            : filters.view === 'closed'
+              ? finished
+              : pending,
+          filters.status ? eq(returns.status, filters.status) : undefined,
+        )
+        const [counts] = await tx
+          .select({
+            total: sql<number>`count(*) filter (where ${selectionFilter ?? sql`true`})::int`,
+            all: sql<number>`count(*)::int`,
+            pending: sql<number>`count(*) filter (where ${pending})::int`,
+            finished: sql<number>`count(*) filter (where ${finished})::int`,
+          })
+          .from(returns)
+          .innerJoin(orders, eq(orders.id, returns.orderId))
+          .where(baseFilter)
         return {
           items: await tx
             .select({
               request: returns,
               orderCode: orders.code,
+              recipient: orders.recipient,
               assignedTo: orders.assignedTo,
             })
             .from(returns)
             .innerJoin(orders, eq(orders.id, returns.orderId))
-            .where(
-              and(
-                visibility,
-                inArray(returns.status, [
-                  'requested',
-                  'approved',
-                  'receiving',
-                  'received',
-                ]),
-              ),
-            )
+            .where(and(baseFilter, selectionFilter))
             .orderBy(returns.createdAt, returns.id)
-            .limit(input.limit)
-            .offset(input.offset),
-          ...input,
+            .limit(filters.limit)
+            .offset(filters.offset),
+          total: counts?.total ?? 0,
+          stats: {
+            all: counts?.all ?? 0,
+            pending: counts?.pending ?? 0,
+            finished: counts?.finished ?? 0,
+          },
+          ...filters,
         }
+      }
+      const filters = input.filters
+      const pending = or(
+        inArray(refunds.status, [
+          'awaiting_payment',
+          'pending',
+          'processing',
+          'unknown',
+          'needs_review',
+          'partially_settled',
+        ]),
+        actor.role === 'admin'
+          ? and(
+              eq(refunds.status, 'settled'),
+              sql`exists (select 1 from ${paymentBalanceReviews} where ${paymentBalanceReviews.orderId} = ${orders.id} and ${paymentBalanceReviews.status} in ('needs_review', 'debt'))`,
+            )
+          : undefined,
+      )
+      const finished = eq(refunds.status, 'settled')
+      const baseFilter = and(
+        visibility,
+        searchFilter,
+        dateFilter,
+        filters.reason ? eq(refunds.reason, filters.reason) : undefined,
+      )
+      const selectionFilter = and(
+        filters.view === 'all'
+          ? undefined
+          : filters.view === 'settled'
+            ? finished
+            : pending,
+        filters.status ? eq(refunds.status, filters.status) : undefined,
+      )
+      const [counts] = await tx
+        .select({
+          total: sql<number>`count(*) filter (where ${selectionFilter ?? sql`true`})::int`,
+          all: sql<number>`count(*)::int`,
+          pending: sql<number>`count(*) filter (where ${pending})::int`,
+          finished: sql<number>`count(*) filter (where ${finished})::int`,
+        })
+        .from(refunds)
+        .innerJoin(orders, eq(orders.id, refunds.orderId))
+        .where(baseFilter)
       const records = await tx
         .select({ refund: refunds, order: orders })
         .from(refunds)
         .innerJoin(orders, eq(orders.id, refunds.orderId))
-        .where(
-          and(
-            visibility,
-            or(
-              inArray(refunds.status, [
-                'awaiting_payment',
-                'pending',
-                'processing',
-                'unknown',
-                'needs_review',
-                'partially_settled',
-              ]),
-              actor.role === 'admin'
-                ? and(
-                    eq(refunds.status, 'settled'),
-                    sql`exists (select 1 from ${paymentBalanceReviews} where ${paymentBalanceReviews.orderId} = ${orders.id} and ${paymentBalanceReviews.status} in ('needs_review', 'debt'))`,
-                  )
-                : undefined,
-            ),
-          ),
-        )
+        .where(and(baseFilter, selectionFilter))
         .orderBy(refunds.createdAt, refunds.id)
-        .limit(input.limit)
-        .offset(input.offset)
+        .limit(filters.limit)
+        .offset(filters.offset)
       const financials = await readOrderFinancials(tx, [
         ...new Map(records.map((row) => [row.order.id, row.order])).values(),
       ])
       return {
         items: records.map(({ refund, order }) => ({
           orderCode: order.code,
+          recipient: order.recipient,
           refund: {
             ...refund,
             blockedByPaymentReconciliation: !financials.get(order.id)
@@ -1556,7 +1631,13 @@ export async function listAfterSaleWork(
             ? financials.get(order.id)?.refundDiscrepancyVnd
             : null,
         })),
-        ...input,
+        total: counts?.total ?? 0,
+        stats: {
+          all: counts?.all ?? 0,
+          pending: counts?.pending ?? 0,
+          finished: counts?.finished ?? 0,
+        },
+        ...filters,
       }
     },
     { isolationLevel: 'repeatable read' },

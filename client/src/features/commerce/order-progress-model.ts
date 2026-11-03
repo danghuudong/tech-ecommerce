@@ -37,6 +37,7 @@ const relatedEvents: Record<string, OrderStage> = {
   delivery_failed: 'shipped',
   delivery_retried: 'shipped',
   delivery_retry_started: 'shipped',
+  delivery_retry_requested: 'shipped',
   undelivered_shipment_received: 'shipped',
   payment_recorded: 'completed',
   payment_receipt_recorded: 'completed',

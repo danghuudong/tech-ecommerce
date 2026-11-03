@@ -50,9 +50,9 @@ import {
   codCollectionSchema,
   collectionFailureSchema,
   collectionResolutionSchema,
+  deliveryRetrySchema,
   deliverySchema,
   dispatchSchema,
-  emptySchema,
   idSchema,
   manualRefundAttemptSchema,
   orderDeletionSchema,
@@ -76,9 +76,11 @@ import {
   receivingAccountListSchema,
   refundAttemptSchema,
   refundExceptionSettlementSchema,
+  refundListSchema,
   refundOutcomeSchema,
   refundRecoveryReceiptSchema,
   returnApprovalSchema,
+  returnListSchema,
   returnReceiptSchema,
   returnRequestSchema,
   roleUpdateSchema,
@@ -520,22 +522,20 @@ commerceRouter.get(
   '/staff/returns',
   async (request: AuthenticatedRequest, response) =>
     response.json({
-      data: await listAfterSaleWork(
-        userId(request),
-        paginationSchema.parse(request.query),
-        'returns',
-      ),
+      data: await listAfterSaleWork(userId(request), {
+        kind: 'returns',
+        filters: returnListSchema.parse(request.query),
+      }),
     }),
 )
 commerceRouter.get(
   '/staff/refunds',
   async (request: AuthenticatedRequest, response) =>
     response.json({
-      data: await listAfterSaleWork(
-        userId(request),
-        paginationSchema.parse(request.query),
-        'refunds',
-      ),
+      data: await listAfterSaleWork(userId(request), {
+        kind: 'refunds',
+        filters: refundListSchema.parse(request.query),
+      }),
     }),
 )
 mutation(
@@ -1017,8 +1017,9 @@ mutation(
   'post',
   '/staff/orders/:orderId/retry-delivery',
   'fulfillment:retry',
-  emptySchema,
-  (command, _input, request) => retryDelivery(command, id(request, 'orderId')),
+  deliveryRetrySchema,
+  (command, input, request) =>
+    retryDelivery(command, id(request, 'orderId'), input),
 )
 mutation(
   'post',

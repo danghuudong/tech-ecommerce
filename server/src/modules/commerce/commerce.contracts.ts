@@ -40,6 +40,45 @@ export const paginationSchema = z.strictObject({
   limit: z.coerce.number().int().min(1).max(100).default(20),
   offset: z.coerce.number().int().min(0).max(100_000).default(0),
 })
+const afterSaleListSchema = paginationSchema.extend({
+  q: z.string().trim().max(120).optional(),
+  createdOn: z.iso.date().optional(),
+})
+export const returnListSchema = afterSaleListSchema.extend({
+  view: z.enum(['pending', 'closed', 'all']).default('pending'),
+  status: z
+    .enum([
+      'requested',
+      'approved',
+      'receiving',
+      'received',
+      'rejected',
+      'withdrawn',
+      'closed',
+    ])
+    .optional(),
+  responsibility: z.enum(['customer', 'store', 'carrier']).optional(),
+})
+export type ReturnListInput = z.infer<typeof returnListSchema>
+export const refundListSchema = afterSaleListSchema.extend({
+  view: z.enum(['pending', 'settled', 'all']).default('pending'),
+  status: z
+    .enum([
+      'awaiting_payment',
+      'pending',
+      'processing',
+      'unknown',
+      'needs_review',
+      'partially_settled',
+      'settled',
+      'voided',
+    ])
+    .optional(),
+  reason: z
+    .enum(['cancellation', 'return', 'return_to_sender', 'overpayment'])
+    .optional(),
+})
+export type RefundListInput = z.infer<typeof refundListSchema>
 export const productListSchema = paginationSchema.extend({
   q: z.string().trim().max(120).optional(),
 })
@@ -358,6 +397,11 @@ export const deliverySchema = z.strictObject({
   deliveredAt: z.iso
     .datetime({ offset: true })
     .transform((value) => new Date(value)),
+})
+export const deliveryRetrySchema = orderRevisionSchema.extend({
+  shipmentId: idSchema,
+  reason: note,
+  reference: reference.optional(),
 })
 export const paymentSchema = z.strictObject({
   method: z.enum(['cod', 'bank_transfer']),
@@ -721,6 +765,7 @@ export const roleUpdateSchema = z.strictObject({
 
 export type CheckoutInput = z.infer<typeof checkoutSchema>
 export type DispatchInput = z.infer<typeof dispatchSchema>
+export type DeliveryRetryInput = z.infer<typeof deliveryRetrySchema>
 export type WaybillInput = z.infer<typeof waybillSchema>
 export type WaybillCorrectionInput = z.infer<typeof waybillCorrectionSchema>
 export type SavedWaybillVerificationInput = z.infer<

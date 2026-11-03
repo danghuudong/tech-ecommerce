@@ -1,5 +1,12 @@
 import { Link } from '@tanstack/react-router'
-import { Check, LockKeyhole, Package, RotateCcw, Send } from 'lucide-react'
+import {
+  Check,
+  LockKeyhole,
+  Package,
+  RotateCcw,
+  Search,
+  Send,
+} from 'lucide-react'
 import { useEffect, useState } from 'react'
 import {
   orderQueryPaths,
@@ -40,9 +47,45 @@ import type {
   OrderDetail,
   OrderReturn,
   Page,
+  Recipient,
   Refund,
   ReturnRecord,
 } from './types'
+
+const returnStatusLabels = {
+  requested: 'Chờ duyệt',
+  approved: 'Đã duyệt · Chờ nhận hàng',
+  receiving: 'Đang nhận hàng',
+  received: 'Đã nhận hàng',
+  rejected: 'Đã từ chối',
+  withdrawn: 'Đã rút yêu cầu',
+  closed: 'Đã đóng',
+}
+const refundStatusLabels = {
+  awaiting_payment: 'Chờ xác minh thanh toán',
+  pending: 'Chờ hoàn tiền',
+  processing: 'Đang xử lý',
+  unknown: 'Kết quả chưa rõ',
+  needs_review: 'Cần xem xét',
+  partially_settled: 'Đã hoàn một phần',
+  settled: 'Đã hoàn tiền',
+  voided: 'Đã hủy nghĩa vụ',
+}
+const refundReasonLabels: Record<string, string> = {
+  cancellation: 'Hủy đơn hàng',
+  return: 'Trả hàng',
+  return_to_sender: 'Hàng được hoàn về',
+  overpayment: 'Khách thanh toán dư',
+}
+const responsibilityLabels = {
+  customer: 'Khách hàng',
+  store: 'Cửa hàng',
+  carrier: 'Hãng vận chuyển',
+}
+type AfterSalePage<T> = Page<T> & {
+  total: number
+  stats: { pending: number; finished: number; all: number }
+}
 
 export function StaffReturnsPage() {
   return (
@@ -68,35 +111,85 @@ function ReturnsContent() {
         ? 'refunds'
         : 'returns'
   const [offset, setOffset] = useState(0)
+  const [view, setView] = useState<'pending' | 'finished' | 'all'>('pending')
+  const [q, setQ] = useState('')
+  const [text, setText] = useState('')
+  const [status, setStatus] = useState('')
+  const [category, setCategory] = useState('')
+  const [date, setDate] = useState('')
   const [selected, setSelected] = useState<{
     orderId: string
     id: string
   } | null>(null)
   const requests = useCommerceQuery<
-    Page<{
+    AfterSalePage<{
       request: ReturnRecord
       orderCode: string
+      recipient: Recipient
       assignedTo: string | null
     }>
   >(
     'staff/returns',
-    { limit: 10, offset },
+    {
+      limit: 10,
+      offset,
+      view: view === 'finished' ? 'closed' : view,
+      q: q || undefined,
+      status: status || undefined,
+      responsibility: category || undefined,
+      createdOn: date || undefined,
+    },
     canReturns && tab === 'returns',
     15_000,
   )
   const refunds = useCommerceQuery<
-    Page<{
-      refund: Omit<Refund, 'attempts' | 'permittedActions'>
+    AfterSalePage<{
+      refund: Omit<Refund, 'attempts' | 'permittedActions'> & {
+        reason: string
+        createdAt: string
+      }
       orderCode: string
+      recipient: Recipient
       assignedTo: string | null
     }>
   >(
     'staff/refunds',
-    { limit: 10, offset },
+    {
+      limit: 10,
+      offset,
+      view: view === 'finished' ? 'settled' : view,
+      q: q || undefined,
+      status: status || undefined,
+      reason: category || undefined,
+      createdOn: date || undefined,
+    },
     canRefunds && tab === 'refunds',
     15_000,
   )
   const active = tab === 'returns' ? requests : refunds
+  const stats = active.data?.stats
+  const finishedStatuses =
+    tab === 'returns' ? ['rejected', 'withdrawn', 'closed'] : ['settled']
+  const statusOptions = Object.entries(
+    tab === 'returns' ? returnStatusLabels : refundStatusLabels,
+  ).filter(([value]) => {
+    if (view === 'all') return true
+    if (view === 'finished') return finishedStatuses.includes(value)
+    if (tab === 'refunds' && value === 'settled')
+      return actor.data?.role === 'admin'
+    return !finishedStatuses.includes(value) && value !== 'voided'
+  })
+  const hasFilters = Boolean(q || status || category || date)
+  const recordLabel = tab === 'returns' ? 'yêu cầu trả hàng' : 'khoản hoàn tiền'
+  const emptyTitle = hasFilters
+    ? `Không tìm thấy ${recordLabel} phù hợp`
+    : view === 'pending'
+      ? `Không có ${recordLabel} cần xử lý`
+      : view === 'finished'
+        ? tab === 'returns'
+          ? 'Không có yêu cầu trả hàng đã kết thúc'
+          : 'Chưa có khoản hoàn tiền đã hoàn đủ'
+        : `Không có ${recordLabel}`
   const visible =
     tab === 'returns'
       ? requests.data?.items.map(({ request }) => request)
@@ -110,6 +203,20 @@ function ReturnsContent() {
   useEffect(() => {
     if (selected && active.isSuccess && !selectedVisible) setSelected(null)
   }, [selected, active.isSuccess, selectedVisible])
+  const resetFilters = () => {
+    setQ('')
+    setText('')
+    setStatus('')
+    setCategory('')
+    setDate('')
+    setOffset(0)
+    setSelected(null)
+  }
+  const selectTab = (value: 'returns' | 'refunds') => {
+    setTab(value)
+    setView('pending')
+    resetFilters()
+  }
   return (
     <>
       <PageHeading
@@ -121,11 +228,7 @@ function ReturnsContent() {
           <button
             type="button"
             className={tab === 'returns' ? 'is-active' : ''}
-            onClick={() => {
-              setTab('returns')
-              setOffset(0)
-              setSelected(null)
-            }}
+            onClick={() => selectTab('returns')}
           >
             Yêu cầu trả hàng
           </button>
@@ -134,17 +237,125 @@ function ReturnsContent() {
           <button
             type="button"
             className={tab === 'refunds' ? 'is-active' : ''}
-            onClick={() => {
-              setTab('refunds')
-              setOffset(0)
-              setSelected(null)
-            }}
+            onClick={() => selectTab('refunds')}
           >
             Hoàn tiền
           </button>
         )}
       </div>
       <Panel className="c-table-panel">
+        <section className="c-tabs" aria-label={`Lọc ${recordLabel}`}>
+          {(
+            [
+              ['all', `Tất cả (${stats?.all ?? '—'})`],
+              ['pending', `Cần xử lý (${stats?.pending ?? '—'})`],
+              [
+                'finished',
+                `${tab === 'refunds' ? 'Đã hoàn' : 'Đã kết thúc'} (${stats?.finished ?? '—'})`,
+              ],
+            ] as const
+          ).map(([value, label]) => (
+            <button
+              type="button"
+              key={value}
+              className={view === value ? 'is-active' : ''}
+              aria-pressed={view === value}
+              onClick={() => {
+                setView(value)
+                setStatus('')
+                setOffset(0)
+                setSelected(null)
+              }}
+            >
+              {label}
+            </button>
+          ))}
+        </section>
+        <form
+          className="c-filters"
+          onSubmit={(event) => {
+            event.preventDefault()
+            setQ(text.trim())
+            setOffset(0)
+            setSelected(null)
+          }}
+        >
+          <label className="c-filter-search">
+            <Search size={16} aria-hidden="true" />
+            <input
+              type="search"
+              aria-label={`Tìm ${recordLabel} theo mã đơn, mã yêu cầu, tên hoặc số điện thoại người nhận`}
+              placeholder={
+                tab === 'returns'
+                  ? 'Mã đơn, mã trả hàng, tên hoặc SĐT…'
+                  : 'Mã đơn, mã hoàn tiền, tên hoặc SĐT…'
+              }
+              value={text}
+              maxLength={120}
+              onChange={(event) => setText(event.target.value)}
+            />
+          </label>
+          <Action type="submit" variant="secondary">
+            Tìm
+          </Action>
+          <select
+            aria-label={`Trạng thái ${recordLabel}`}
+            value={status}
+            onChange={(event) => {
+              setStatus(event.target.value)
+              setOffset(0)
+              setSelected(null)
+            }}
+          >
+            <option value="">Tất cả trạng thái</option>
+            {statusOptions.map(([value, label]) => (
+              <option key={value} value={value}>
+                {label}
+              </option>
+            ))}
+          </select>
+          <select
+            aria-label={
+              tab === 'refunds' ? 'Lý do hoàn tiền' : 'Bên chịu trách nhiệm'
+            }
+            value={category}
+            onChange={(event) => {
+              setCategory(event.target.value)
+              setOffset(0)
+              setSelected(null)
+            }}
+          >
+            <option value="">
+              {tab === 'refunds' ? 'Tất cả lý do' : 'Bên chịu trách nhiệm'}
+            </option>
+            {Object.entries(
+              tab === 'refunds' ? refundReasonLabels : responsibilityLabels,
+            ).map(([value, label]) => (
+              <option key={value} value={value}>
+                {label}
+              </option>
+            ))}
+          </select>
+          <input
+            type="date"
+            aria-label={
+              tab === 'refunds'
+                ? 'Ngày tạo khoản hoàn tiền (giờ Việt Nam)'
+                : 'Ngày yêu cầu trả hàng (giờ Việt Nam)'
+            }
+            value={date}
+            onChange={(event) => {
+              setDate(event.target.value)
+              setOffset(0)
+              setSelected(null)
+            }}
+          />
+          {(hasFilters || text) && (
+            <Action variant="ghost" onClick={resetFilters}>
+              Xóa bộ lọc
+            </Action>
+          )}
+        </form>
         {active.isPending ? (
           <Loading />
         ) : active.isError ? (
@@ -158,41 +369,53 @@ function ReturnsContent() {
                     <tr>
                       <th>Mã yêu cầu</th>
                       <th>Đơn hàng</th>
+                      <th>Khách hàng</th>
                       <th>Ngày yêu cầu</th>
                       <th>Lý do</th>
                       <th>Trạng thái</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {requests.data?.items.map(({ request, orderCode }) => (
-                      <tr
-                        key={request.id}
-                        className={
-                          selection?.id === request.id ? 'is-selected' : ''
-                        }
-                      >
-                        <td>
-                          <button
-                            type="button"
-                            className="c-row-select"
-                            onClick={() =>
-                              setSelected({
-                                orderId: request.orderId,
-                                id: request.id,
-                              })
-                            }
-                          >
-                            #{shortId(request.id)}
-                          </button>
-                        </td>
-                        <td>#{orderCode}</td>
-                        <td>{formatDate(request.createdAt)}</td>
-                        <td>{request.reason}</td>
-                        <td>
-                          <Badge status={request.status} />
-                        </td>
-                      </tr>
-                    ))}
+                    {requests.data?.items.map(
+                      ({ request, orderCode, recipient }) => (
+                        <tr
+                          key={request.id}
+                          className={
+                            selection?.id === request.id ? 'is-selected' : ''
+                          }
+                        >
+                          <td>
+                            <button
+                              type="button"
+                              className="c-row-select"
+                              onClick={() =>
+                                setSelected({
+                                  orderId: request.orderId,
+                                  id: request.id,
+                                })
+                              }
+                            >
+                              #{shortId(request.id)}
+                            </button>
+                          </td>
+                          <td>#{orderCode}</td>
+                          <td>
+                            <strong>{recipient.name}</strong>
+                            <small>{recipient.phone}</small>
+                          </td>
+                          <td>{formatDate(request.createdAt)}</td>
+                          <td>
+                            {request.reason}
+                            <small>
+                              {responsibilityLabels[request.responsibility]}
+                            </small>
+                          </td>
+                          <td>
+                            <Badge status={request.status} />
+                          </td>
+                        </tr>
+                      ),
+                    )}
                   </tbody>
                 </table>
               </div>
@@ -203,61 +426,75 @@ function ReturnsContent() {
                     <tr>
                       <th>Mã hoàn tiền</th>
                       <th>Đơn hàng</th>
+                      <th>Khách hàng</th>
+                      <th>Lý do</th>
                       <th className="c-number">Nghĩa vụ hoàn</th>
                       <th className="c-number">Còn phải hoàn</th>
                       <th>Trạng thái</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {refunds.data?.items.map(({ refund, orderCode }) => (
-                      <tr
-                        key={refund.id}
-                        className={
-                          selection?.id === refund.id ? 'is-selected' : ''
-                        }
-                      >
-                        <td>
-                          <button
-                            type="button"
-                            className="c-row-select"
-                            onClick={() =>
-                              setSelected({
-                                orderId: refund.orderId,
-                                id: refund.id,
-                              })
-                            }
-                          >
-                            #{shortId(refund.id)}
-                          </button>
-                        </td>
-                        <td>#{orderCode}</td>
-                        <td className="c-number">
-                          {formatMoney(refund.amountVnd)}
-                        </td>
-                        <td className="c-number">
-                          {formatMoney(refund.remainingVnd)}
-                        </td>
-                        <td>
-                          <Badge status={refund.status} />
-                        </td>
-                      </tr>
-                    ))}
+                    {refunds.data?.items.map(
+                      ({ refund, orderCode, recipient }) => (
+                        <tr
+                          key={refund.id}
+                          className={
+                            selection?.id === refund.id ? 'is-selected' : ''
+                          }
+                        >
+                          <td>
+                            <button
+                              type="button"
+                              className="c-row-select"
+                              onClick={() =>
+                                setSelected({
+                                  orderId: refund.orderId,
+                                  id: refund.id,
+                                })
+                              }
+                            >
+                              #{shortId(refund.id)}
+                            </button>
+                            <small>{formatDate(refund.createdAt)}</small>
+                          </td>
+                          <td>#{orderCode}</td>
+                          <td>
+                            <strong>{recipient.name}</strong>
+                            <small>{recipient.phone}</small>
+                          </td>
+                          <td>
+                            {refundReasonLabels[refund.reason] ?? refund.reason}
+                          </td>
+                          <td className="c-number">
+                            {formatMoney(refund.amountVnd)}
+                          </td>
+                          <td className="c-number">
+                            {formatMoney(refund.remainingVnd)}
+                          </td>
+                          <td>
+                            <Badge status={refund.status} />
+                          </td>
+                        </tr>
+                      ),
+                    )}
                   </tbody>
                 </table>
               </div>
             )}
             {active.data.items.length === 0 && (
               <Empty
-                title={
-                  tab === 'returns'
-                    ? 'Không có yêu cầu trả hàng cần xử lý'
-                    : 'Không có khoản hoàn tiền cần xử lý'
+                title={emptyTitle}
+                description={
+                  hasFilters
+                    ? 'Thử từ khóa khác hoặc đổi bộ lọc trạng thái.'
+                    : undefined
                 }
               />
             )}
             <Pagination
               offset={offset}
               limit={10}
+              total={active.data.total}
               count={active.data.items.length}
               onChange={(value) => {
                 setOffset(value)
@@ -960,7 +1197,7 @@ export function RefundCard({ refund }: { refund: Refund }) {
           <div>
             <h3>Lịch sử xử lý hoàn tiền</h3>
             {refund.attempts.map((attempt) => (
-              <div key={attempt.id} className="c-detail-meta">
+              <div key={attempt.id} className="c-detail-meta c-refund-attempt">
                 <span>
                   Lần {attempt.number} · {formatDate(attempt.createdAt)}
                   <br />
@@ -975,7 +1212,18 @@ export function RefundCard({ refund }: { refund: Refund }) {
                     </>
                   )}
                 </span>
-                <Badge status={attempt.status} />
+                <Badge
+                  status={attempt.status}
+                  tone={
+                    attempt.status === 'settled'
+                      ? 'green'
+                      : attempt.status === 'failed'
+                        ? 'red'
+                        : attempt.status === 'partially_settled'
+                          ? 'blue'
+                          : 'amber'
+                  }
+                />
               </div>
             ))}
           </div>
@@ -1074,12 +1322,16 @@ function RefundOutcomeDrawer({
         </Field>
         {outcome === 'settled' ? (
           <>
-            <Field label="Số tiền thực tế đã hoàn (VND) *">
+            <Field
+              label="Số tiền thực tế đã hoàn (VND) *"
+              hint="Điền sẵn số tiền còn lại của lần xử lý. Điều chỉnh theo số tiền đã hoàn trên chứng từ thực tế."
+            >
               <input
                 name="amount"
                 type="number"
                 min={1}
                 max={maxAmount}
+                defaultValue={maxAmount > 0 ? maxAmount : undefined}
                 step={1}
                 required
                 disabled={command.isPending}
@@ -1100,11 +1352,15 @@ function RefundOutcomeDrawer({
                 disabled={command.isPending}
               />
             </Field>
-            <Field label="Thời điểm hoàn tiền (giờ Việt Nam) *">
+            <Field
+              label="Thời điểm hoàn tiền (giờ Việt Nam) *"
+              hint="Điền sẵn thời điểm hiện tại theo giờ Việt Nam. Điều chỉnh theo thời điểm chuyển tiền thực tế."
+            >
               <input
                 type="datetime-local"
                 step={0.001}
                 name="time"
+                defaultValue={vietnamDateInput()}
                 required
                 min={vietnamDateInput(latest.createdAt)}
                 max={vietnamDateInput()}

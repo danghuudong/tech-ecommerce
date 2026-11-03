@@ -56,11 +56,21 @@ function previousDeliveryStatus(
       [
         'shipment_handed_over',
         'delivery_failed',
+        'delivery_retried',
         'delivery_retry_started',
+        'delivery_retry_requested',
       ].includes(event.type),
     )
   if (previous?.type === 'delivery_failed') return 'delivery_failed'
-  if (previous?.type === 'delivery_retry_started') return 'in_transit'
+  if (
+    previous &&
+    [
+      'delivery_retried',
+      'delivery_retry_started',
+      'delivery_retry_requested',
+    ].includes(previous.type)
+  )
+    return 'in_transit'
   if (
     previous?.type === 'shipment_handed_over' &&
     shipment.failedAttempts === 0
