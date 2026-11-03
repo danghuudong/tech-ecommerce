@@ -242,6 +242,12 @@ export async function createReceiptInTransaction(
   actor: Actor,
   input: PaymentReceiptCreateInput,
 ) {
+  if (input.remittanceNote && input.source !== 'carrier')
+    fail(
+      422,
+      'CARRIER_REMITTANCE_NOTE_NOT_ALLOWED',
+      'Remittance notes are only available for carrier receipts',
+    )
   if (
     input.allocations.some((row) => row.purpose === 'refund_recovery') &&
     actor.role !== 'admin'
@@ -276,6 +282,7 @@ export async function createReceiptInTransaction(
       (existing.source === 'carrier') !== (input.source === 'carrier') ||
       existing.amountVnd !== input.amountVnd ||
       existing.currency !== input.currency ||
+      existing.remittanceNote !== (input.remittanceNote ?? null) ||
       existing.receivedAt.getTime() !== input.receivedAt.getTime() ||
       plan.length !== input.allocations.length ||
       !plan.every((row) =>
@@ -328,6 +335,7 @@ export async function createReceiptInTransaction(
       receivingAccountId: account.id,
       receiptReconciliationRequired: false,
       reference: input.reference,
+      remittanceNote: input.remittanceNote ?? null,
       amountVnd: input.amountVnd,
       currency: input.currency,
       receivedAt: input.receivedAt,

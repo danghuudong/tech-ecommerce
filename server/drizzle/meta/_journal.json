@@ -225,6 +225,13 @@
       "when": 1793610319356,
       "tag": "0031_revert_ghn_shipping",
       "breakpoints": true
+    },
+    {
+      "idx": 32,
+      "version": "7",
+      "when": 1793696452449,
+      "tag": "0032_carrier_remittance_notes",
+      "breakpoints": true
     }
   ]
 }

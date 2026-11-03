@@ -13,6 +13,12 @@ import {
 export const idSchema = z.uuid().transform((value) => value.toLowerCase())
 const note = z.string().trim().min(3).max(1000)
 const reference = z.string().trim().min(3).max(200)
+const remittanceNote = z
+  .string()
+  .trim()
+  .max(1000)
+  .transform((value) => value || undefined)
+  .optional()
 const money = z.number().int().min(1).max(MAX_VND)
 const quantity = z.number().int().min(1).max(MAX_QUANTITY)
 const productCategorySchema = z.enum(productCategoryCodes)
@@ -486,6 +492,7 @@ export const paymentReceiptCreateSchema = paymentSchema
     // Accepted for old callers as recording metadata; eligibility is per allocation.
     method: paymentSchema.shape.method.optional(),
     source: z.enum(['customer', 'carrier']),
+    remittanceNote,
     ...classificationEvidence,
     allocations: allocationPlanSchema.pipe(
       z.array(allocationLineSchema).min(1),
@@ -629,10 +636,9 @@ export const codCollectionAdjustmentSchema =
         'Each remittance can have only one allocation',
       ),
   })
-const carrierRemittanceFields = paymentSchema.omit({
-  method: true,
-  source: true,
-})
+const carrierRemittanceFields = paymentSchema
+  .omit({ method: true, source: true })
+  .extend({ remittanceNote })
 const carrierRemittanceAllocations = z
   .array(
     z.strictObject({

@@ -273,6 +273,7 @@ export function recordCarrierRemittance(
           receiptVerified: input.receiptVerified,
           source: 'carrier',
           method: 'cod',
+          remittanceNote: input.remittanceNote,
           allocations,
           evidenceReference: input.reference,
           evidenceVerified: true,

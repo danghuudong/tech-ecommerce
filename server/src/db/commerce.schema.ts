@@ -703,6 +703,7 @@ export const payments = pgTable(
     duplicateOfId: uuid('duplicate_of_id'),
     revision: integer('revision').default(1).notNull(),
     reference: text('reference').notNull(),
+    remittanceNote: text('remittance_note'),
     amountVnd: money('amount_vnd'),
     currency: text('currency').default('VND').notNull(),
     receivedAt: timestamp('received_at', { withTimezone: true }).notNull(),
@@ -731,6 +732,10 @@ export const payments = pgTable(
     check(
       'commerce_payments_values_check',
       sql`${t.method} in ('cod', 'bank_transfer') and ${t.amountVnd} between 1 and 9999999999 and ${t.currency} = 'VND'`,
+    ),
+    check(
+      'commerce_payments_remittance_note_check',
+      sql`${t.remittanceNote} is null or char_length(${t.remittanceNote}) between 1 and 1000`,
     ),
     index('commerce_payments_collection_idx').on(t.codCollectionId),
     foreignKey({

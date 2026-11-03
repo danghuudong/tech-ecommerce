@@ -777,6 +777,9 @@ export async function getOrder(
           refundedVnd,
           recoveredRefundVnd: paymentSummary.recoveredRefundVnd,
           netRefundedVnd: paymentSummary.netRefundedVnd,
+          completedOverpaymentRefundVnd: verifiedMoney(
+            paymentSummary.completedOverpaymentRefundVnd,
+          ),
           refundDiscrepancyVnd: verifiedMoney(
             paymentSummary.refundDiscrepancyVnd,
           ),
@@ -940,6 +943,7 @@ export async function getOrder(
             duplicate: record.duplicateOfId !== null,
             ...(canFinance
               ? {
+                  remittanceNote: record.remittanceNote,
                   allocationSummary: {
                     totalVnd: record.receiptAmountVnd,
                     orders: allocationsByReceipt.get(record.id) ?? [],
@@ -1334,6 +1338,9 @@ export async function listOrders(
             id: order.id,
             code: order.code,
             paymentStatus: paymentStatus(summary),
+            completedOverpaymentRefundVnd: verifiedMoney(
+              summary.completedOverpaymentRefundVnd,
+            ),
             status: order.status,
             revision: order.revision,
             recipient: order.recipient,
