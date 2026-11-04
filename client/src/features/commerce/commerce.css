@@ -1016,6 +1016,39 @@
   border: 1px solid #dce4f0;
   border-radius: 7px;
 }
+:where(.c-transfer-qr) {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 20px;
+  padding: 22px 16px;
+  border: 1px solid var(--c-line);
+  border-radius: 12px;
+  background: #f8faff;
+  text-align: center;
+}
+:where(.c-transfer-qr__code) {
+  width: 286px;
+  max-width: 100%;
+  padding: 12px;
+  border: 1px solid var(--c-line);
+  border-radius: 10px;
+  background: #fff;
+}
+:where(.c-transfer-qr__code canvas) {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+:where(.c-transfer-qr__amount) {
+  display: grid;
+  gap: 3px;
+}
+:where(.c-transfer-qr__amount strong) {
+  color: var(--c-red);
+  font-size: 26px;
+}
 :where(.c-copy-row) {
   display: grid;
   grid-template-columns: minmax(130px, 1fr) minmax(0, 1.5fr) 32px;
@@ -1042,23 +1075,58 @@
   color: var(--c-red);
   font-size: 25px;
 }
-:where(.c-success-heading) {
-  display: flex;
-  align-items: center;
-  gap: 20px;
+:where(.c-bank-transfer-heading h1) {
+  font-size: 26px;
+  font-weight: 650;
+  letter-spacing: -0.3px;
 }
-:where(.c-success-icon) {
-  display: grid;
-  width: 70px;
-  height: 70px;
-  flex-shrink: 0;
-  place-items: center;
-  border-radius: 50%;
-  background: #ddf8e6;
-  color: #06993e;
+:where(.c-bank-transfer-heading p) {
+  font-size: 13px;
 }
 :where(.c-payment-notice) {
   margin-bottom: 20px;
+}
+:where(.c-payment-countdown) {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px 28px;
+  padding: 20px;
+  border: 1px solid #ffe0a0;
+  border-radius: 10px;
+  background: #fff8e9;
+  color: #975004;
+  font-size: 14px;
+}
+:where(.c-payment-countdown > div:first-child) {
+  flex: 1 1 280px;
+}
+:where(.c-payment-countdown strong) {
+  font-size: 15px;
+}
+:where(.c-payment-countdown p) {
+  margin: 6px 0;
+}
+:where(.c-payment-countdown small) {
+  color: inherit;
+  font-size: 12px;
+}
+:where(.c-payment-countdown__time) {
+  display: grid;
+  gap: 2px;
+  text-align: center;
+}
+:where(.c-payment-countdown__time time) {
+  font-size: clamp(24px, 4vw, 28px);
+  font-weight: 750;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.2;
+}
+:where(.c-payment-countdown--urgent) {
+  border-color: #ffc5cc;
+  background: #fff0f2;
+  color: #c5142b;
 }
 :where(.c-payment-actions) {
   display: flex;
@@ -2118,14 +2186,7 @@
   :where(.c-copy-row--highlight strong) {
     font-size: 22px;
   }
-  :where(.c-success-heading) {
-    gap: 13px;
-  }
-  :where(.c-success-icon) {
-    width: 50px;
-    height: 50px;
-  }
-  :where(.c-success-heading h1) {
+  :where(.c-bank-transfer-heading h1) {
     font-size: 23px;
   }
   :where(.c-compact-line) {

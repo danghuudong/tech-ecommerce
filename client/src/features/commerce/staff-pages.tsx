@@ -388,6 +388,7 @@ function StaffOrdersContent() {
                             </Badge>
                             <PaymentStatusBadge
                               status={order.paymentStatus}
+                              orderStatus={order.status}
                               completedOverpaymentRefundVnd={
                                 order.completedOverpaymentRefundVnd
                               }
@@ -557,7 +558,7 @@ function FulfillmentContent() {
       >
         <div className="c-badges">
           <Badge status={order.status} />
-          <PaymentStatusBadge {...order.payment} />
+          <PaymentStatusBadge {...order.payment} orderStatus={order.status} />
           <Badge tone="neutral">
             {order.paymentMethod === 'cod' ? 'COD' : 'Chuyển khoản'}
           </Badge>

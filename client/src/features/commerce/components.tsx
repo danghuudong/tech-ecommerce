@@ -165,14 +165,22 @@ export function Badge({
 
 export function PaymentStatusBadge({
   status,
+  orderStatus,
   completedOverpaymentRefundVnd,
 }: {
   status: string
+  orderStatus: OrderStatus
   completedOverpaymentRefundVnd: number | null
 }) {
+  const cancelledPaymentLabels: Record<string, string> = {
+    overpaid: 'Chờ hoàn tiền',
+    partially_refunded: 'Chờ hoàn phần còn lại',
+  }
+  const cancelledLabel =
+    orderStatus === 'cancelled' ? cancelledPaymentLabels[status] : undefined
   return (
     <span className="c-payment-status">
-      <Badge status={status} />
+      <Badge status={status}>{cancelledLabel}</Badge>
       {status === 'paid' &&
         completedOverpaymentRefundVnd != null &&
         completedOverpaymentRefundVnd > 0 && (
@@ -662,6 +670,11 @@ const eventLabels: Record<string, string> = {
   return_withdrawn: 'Rút yêu cầu trả hàng',
   payment_recorded: 'Ghi nhận thanh toán',
   payment_receipt_recorded: 'Ghi nhận khoản tiền nhận',
+  payment_received: 'Đã xác minh khoản tiền khách trả',
+  bank_transfer_reported: 'Khách báo đã chuyển khoản',
+  bank_transfer_demo_completed: 'Chuyển khoản thành công',
+  bank_transfer_report_reviewed: 'Đã đối chiếu thông báo chuyển khoản',
+  refund_required: 'Phát sinh khoản cần hoàn',
   bank_deadline_reconciled: 'Đối soát hạn thanh toán',
   delivery_failed: 'Giao hàng không thành công',
   delivery_retried: 'Giao lại',
@@ -821,6 +834,52 @@ export function OrderEventList({
               <small>Bởi {event.actorName}</small>
             )}
             <OrderEventDetails collapsible={collapsibleDetails}>
+              {[
+                'bank_transfer_reported',
+                'bank_transfer_demo_completed',
+                'payment_received',
+                'refund_required',
+              ].includes(event.type) && (
+                <>
+                  {typeof event.details?.amountVnd === 'number' && (
+                    <small>
+                      {event.type === 'bank_transfer_reported'
+                        ? 'Số tiền khách khai báo'
+                        : event.type === 'refund_required'
+                          ? 'Số tiền cần hoàn'
+                          : 'Số tiền thực nhận phân bổ'}
+                      : {formatMoney(event.details.amountVnd)}
+                    </small>
+                  )}
+                  {typeof event.details?.reference === 'string' && (
+                    <small>
+                      Mã giao dịch / nội dung: {event.details.reference}
+                    </small>
+                  )}
+                  {typeof event.details?.transferredAt === 'string' && (
+                    <small>
+                      Khách chuyển lúc:{' '}
+                      {formatDate(event.details.transferredAt)}
+                    </small>
+                  )}
+                  {typeof event.details?.receivedAt === 'string' && (
+                    <small>
+                      Tiền vào lúc: {formatDate(event.details.receivedAt)}
+                    </small>
+                  )}
+                  {typeof event.details?.evidenceReference === 'string' && (
+                    <small>
+                      Tham chiếu bằng chứng: {event.details.evidenceReference}
+                    </small>
+                  )}
+                  {typeof event.details?.note === 'string' && (
+                    <small>Ghi chú: {event.details.note}</small>
+                  )}
+                </>
+              )}
+              {event.type === 'bank_transfer_report_reviewed' && (
+                <BankTransferReviewHistory details={event.details} />
+              )}
               {event.type === 'carrier_remittance_reverted' && (
                 <>
                   {typeof event.details?.reference === 'string' && (
@@ -1102,6 +1161,36 @@ function CollectionFailureCorrectionHistory({
         <small>Lý do hiệu chỉnh: {details.reason}</small>
       )}
       <OrderUndoDocumentHistory orderId={orderId} details={details} />
+    </>
+  )
+}
+
+function BankTransferReviewHistory({
+  details,
+}: {
+  details: Record<string, unknown> | undefined
+}) {
+  const value = details?.review
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return null
+  const review = value as Record<string, unknown>
+  return (
+    <>
+      <small>
+        {review.outcome === 'recorded'
+          ? 'Đã đối chiếu với khoản thực nhận của đơn'
+          : 'Chưa tìm thấy khoản chuyển trên sao kê'}
+      </small>
+      {typeof review.statementCheckedThrough === 'string' && (
+        <small>
+          Đã kiểm tra đến: {formatDate(review.statementCheckedThrough)}
+        </small>
+      )}
+      {typeof review.reason === 'string' && (
+        <small>Kết luận: {review.reason}</small>
+      )}
+      {typeof review.evidenceReference === 'string' && (
+        <small>Bằng chứng: {review.evidenceReference}</small>
+      )}
     </>
   )
 }

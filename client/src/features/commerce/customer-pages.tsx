@@ -1246,6 +1246,7 @@ function CustomerOrdersContent() {
                         <td>
                           <PaymentStatusBadge
                             status={order.paymentStatus}
+                            orderStatus={order.status}
                             completedOverpaymentRefundVnd={
                               order.completedOverpaymentRefundVnd
                             }

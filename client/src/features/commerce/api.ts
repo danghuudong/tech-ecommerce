@@ -594,6 +594,23 @@ const messages: Record<string, string> = {
   INVALID_ORDER_STATE: 'Trạng thái đơn hàng đã thay đổi. Vui lòng tải lại.',
   INVALID_RETURN_STATE:
     'Trạng thái yêu cầu trả hàng đã thay đổi. Vui lòng tải lại.',
+  BANK_TRANSFER_ORDER_REQUIRED:
+    'Thông báo chuyển khoản chỉ áp dụng cho đơn thanh toán chuyển khoản.',
+  BANK_TRANSFER_PAYMENT_UNAVAILABLE:
+    'Đơn hàng hiện chưa thể thanh toán. Vui lòng cập nhật trạng thái hoặc liên hệ cửa hàng.',
+  BANK_TRANSFER_NOTICE_PENDING:
+    'Cần đối chiếu thông báo khách đã chuyển khoản trước khi tiếp tục. Không gửi thêm thông báo khi thông báo trước còn chờ kiểm tra.',
+  BANK_TRANSFER_NOTICE_NOT_FOUND: 'Không tìm thấy thông báo chuyển khoản này.',
+  BANK_TRANSFER_NOTICES_REVIEW_REQUIRED:
+    'Cần đối chiếu các thông báo khách đã chuyển khoản trước khi hủy đơn do chưa thanh toán đúng hạn.',
+  BANK_TRANSFER_NOTICE_ALREADY_REVIEWED:
+    'Thông báo đã được đối chiếu với khoản thu hợp lệ. Vui lòng xem dữ liệu mới.',
+  BANK_TRANSFER_RECEIPT_REQUIRED:
+    'Chọn khoản chuyển khoản thực nhận đã xác minh và được phân bổ cho đơn này.',
+  BANK_TRANSFER_RECEIPT_ALREADY_MATCHED:
+    'Khoản thu này đã đối chiếu với một thông báo khác của cùng đơn hàng.',
+  BANK_TRANSFER_NOTICE_ALLOCATION_REQUIRED:
+    'Khoản thu của khách phải được phân bổ cho đơn có thông báo chuyển khoản.',
   BANK_TRANSFER_NOT_CONFIGURED:
     'Chuyển khoản chưa được cấu hình. Vui lòng chọn COD.',
   PENDING_ORDER_LIMIT:

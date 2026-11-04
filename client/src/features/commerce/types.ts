@@ -116,6 +116,7 @@ export interface OrderSummary {
   paymentReviewRequired: boolean
   paymentReviewOverdue: boolean
   bankPaymentApproved: boolean
+  bankTransferNoticePending: boolean
   paymentDeadlineAt: string | null
   createdAt: string
   assignedTo?: string | null
@@ -147,6 +148,7 @@ export interface OrderStats {
   shipped: number
   paymentReviewRequired: number
   paymentReviewOverdue: number
+  bankTransferNoticePending: number
 }
 
 export interface OrderPage extends Page<OrderSummary> {
@@ -336,6 +338,34 @@ export interface WaybillVerificationProof {
   actorName: string | null
 }
 
+export interface BankTransferNotice {
+  id: string
+  amountVnd: number
+  currency: 'VND'
+  reference: string
+  transferredAt: string
+  evidenceReference: string | null
+  note: string | null
+  reportedAt: string
+  reportedBy?: string | null
+  reportedByName?: string | null
+  status: 'pending' | 'recorded' | 'not_found'
+  matchedReceipt: {
+    paymentId: string
+    allocatedAmountVnd: number
+    receivedAt: string
+  } | null
+  review: {
+    outcome: 'recorded' | 'not_found'
+    reviewedAt: string
+    reviewedBy?: string | null
+    paymentId?: string
+    statementCheckedThrough?: string
+    reason?: string
+    evidenceReference?: string
+  } | null
+}
+
 export interface OrderDetail {
   id: string
   code: string
@@ -353,10 +383,14 @@ export interface OrderDetail {
   paymentMethod: PaymentMethod
   bankInstructions: {
     bankName: string
+    bankBin?: string | null
     accountNumber: string
     accountHolder: string
   } | null
   bankTransferReference: string | null
+  bankTransferDemoEnabled?: boolean
+  bankTransferNoticePending: boolean
+  bankTransferNotices: BankTransferNotice[]
   paymentDeadlineAt: string | null
   paymentReviewRequired: boolean
   paymentReview: {
@@ -402,6 +436,7 @@ export interface OrderDetail {
       receivedAt: string
       duplicate: boolean
       receiptReconciliationRequired: boolean
+      bankTransferNoticeMatchable?: boolean
       allocationSummary?: {
         totalVnd: number
         orders: {

@@ -713,7 +713,11 @@ function StepDetails({
           ? ['Người xác nhận', actor]
           : [
               'Tình trạng thanh toán hiện tại',
-              <PaymentStatusBadge key="payment" {...order.payment} />,
+              <PaymentStatusBadge
+                key="payment"
+                {...order.payment}
+                orderStatus={order.status}
+              />,
             ],
         audience === 'staff'
           ? [
@@ -818,7 +822,11 @@ function StepDetails({
         ['Thời điểm hoàn tất', date(milestone?.createdAt)],
         [
           'Tình trạng thanh toán hiện tại',
-          <PaymentStatusBadge key="payment" {...order.payment} />,
+          <PaymentStatusBadge
+            key="payment"
+            {...order.payment}
+            orderStatus={order.status}
+          />,
         ],
         [
           'Khách còn phải thanh toán',
