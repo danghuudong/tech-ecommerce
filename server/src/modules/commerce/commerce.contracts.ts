@@ -144,6 +144,10 @@ export const orderListSchema = paginationSchema.extend({
     .enum(['true', 'false'])
     .transform((value) => value === 'true')
     .optional(),
+  bankTransferNoticePending: z
+    .enum(['true', 'false'])
+    .transform((value) => value === 'true')
+    .optional(),
   codReconciliationRequired: z
     .enum(['true', 'false'])
     .transform((value) => value === 'true')
@@ -421,6 +425,34 @@ export const paymentSchema = z.strictObject({
     .transform((value) => new Date(value)),
   receiptVerified: z.literal(true),
 })
+export const bankTransferReportSchema = z.strictObject({
+  amountVnd: money,
+  currency: z.literal('VND'),
+  reference,
+  transferredAt: z.iso
+    .datetime({ offset: true })
+    .transform((value) => new Date(value)),
+  evidenceReference: reference.optional(),
+  note: note.optional(),
+})
+export const bankTransferNoticeReviewSchema = z.discriminatedUnion('outcome', [
+  z.strictObject({
+    outcome: z.literal('recorded'),
+    paymentId: idSchema,
+    reason: note,
+    evidenceReference: reference,
+    evidenceVerified: z.literal(true),
+  }),
+  z.strictObject({
+    outcome: z.literal('not_found'),
+    statementCheckedThrough: z.iso
+      .datetime({ offset: true })
+      .transform((value) => new Date(value)),
+    reason: note,
+    evidenceReference: reference,
+    evidenceVerified: z.literal(true),
+  }),
+])
 export const collectionResolutionSchema = z.strictObject({
   party: z.enum(['customer', 'carrier']).default('customer'),
   disposition: z.enum(['debt', 'written_off']),
@@ -493,6 +525,9 @@ export const paymentReceiptCreateSchema = paymentSchema
     method: paymentSchema.shape.method.optional(),
     source: z.enum(['customer', 'carrier']),
     remittanceNote,
+    bankTransferNotice: z
+      .strictObject({ orderId: idSchema, noticeId: idSchema })
+      .optional(),
     ...classificationEvidence,
     allocations: allocationPlanSchema.pipe(
       z.array(allocationLineSchema).min(1),
@@ -784,6 +819,10 @@ export type ShipmentCarrierInput = z.infer<typeof shipmentCarrierSchema>
 export type ProductCreateInput = z.infer<typeof productCreateSchema>
 export type ProductUpdateInput = z.infer<typeof productUpdateSchema>
 export type PaymentInput = z.infer<typeof paymentSchema>
+export type BankTransferReportInput = z.infer<typeof bankTransferReportSchema>
+export type BankTransferNoticeReviewInput = z.infer<
+  typeof bankTransferNoticeReviewSchema
+>
 export type PaymentReceiptCreateInput = z.infer<
   typeof paymentReceiptCreateSchema
 >

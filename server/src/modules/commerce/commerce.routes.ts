@@ -7,6 +7,11 @@ import {
   requireAdminAuth,
   requireAuth,
 } from '../../middlewares/auth.middleware.js'
+import { completeDemoBankTransfer } from './bank-transfer-demo.service.js'
+import {
+  reportBankTransfer,
+  reviewBankTransferNotice,
+} from './bank-transfer-notice.service.js'
 import { clearCart, getCart, setCartItem } from './cart.service.js'
 import {
   adjustStock,
@@ -39,6 +44,8 @@ import {
   addressUpdateSchema,
   assignmentSchema,
   bankReconciliationSchema,
+  bankTransferNoticeReviewSchema,
+  bankTransferReportSchema,
   carrierCreateSchema,
   carrierRecipientResultSchema,
   carrierRemittanceSchema,
@@ -342,6 +349,23 @@ mutation(
 )
 mutation(
   'post',
+  '/orders/:orderId/bank-transfer-payment',
+  'payments:complete_demo_bank_transfer',
+  z.strictObject({}),
+  (command, _input, request) =>
+    completeDemoBankTransfer(command, id(request, 'orderId')),
+)
+mutation(
+  'post',
+  '/orders/:orderId/bank-transfer-notices',
+  'payments:report_bank_transfer',
+  bankTransferReportSchema,
+  (command, input, request) =>
+    reportBankTransfer(command, id(request, 'orderId'), input),
+  201,
+)
+mutation(
+  'post',
   '/orders/:orderId/cancel',
   'orders:cancel',
   reasonSchema,
@@ -611,6 +635,19 @@ mutation(
   paymentReceiptCreateSchema,
   (command, input) => recordPaymentReceipt(command, input),
   201,
+)
+mutation(
+  'post',
+  '/staff/orders/:orderId/bank-transfer-notices/:noticeId/review',
+  'payments:review_bank_transfer_notice',
+  bankTransferNoticeReviewSchema,
+  (command, input, request) =>
+    reviewBankTransferNotice(
+      command,
+      id(request, 'orderId'),
+      id(request, 'noticeId'),
+      input,
+    ),
 )
 commerceRouter.get(
   '/admin/payment-receipts/unallocated',

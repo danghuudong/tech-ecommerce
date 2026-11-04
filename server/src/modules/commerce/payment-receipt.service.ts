@@ -4,6 +4,7 @@ import {
   paymentBalanceReviews,
   payments,
 } from '../../db/schema.js'
+import { reviewBankTransferNoticeInTransaction } from './bank-transfer-notice.service.js'
 import { verifiedCodCollection } from './cod-reconciliation.service.js'
 import type {
   PaymentAllocationInput,
@@ -237,11 +238,51 @@ export async function validateAllocationPlan(
   return verified
 }
 
+async function reviewReceiptNotice(
+  tx: Transaction,
+  actor: Actor,
+  input: PaymentReceiptCreateInput,
+  lockedOrders: Order[],
+  paymentId: string,
+) {
+  const notice = input.bankTransferNotice
+  if (!notice) return
+  const order = lockedOrders.find((item) => item.id === notice.orderId)
+  if (!order) fail(404, 'ORDER_NOT_FOUND', 'Order was not found')
+  await reviewBankTransferNoticeInTransaction(
+    tx,
+    actor,
+    order,
+    notice.noticeId,
+    {
+      outcome: 'recorded',
+      paymentId,
+      reason: input.reason,
+      evidenceReference: input.evidenceReference,
+      evidenceVerified: input.evidenceVerified,
+    },
+  )
+}
+
 export async function createReceiptInTransaction(
   tx: Transaction,
   actor: Actor,
   input: PaymentReceiptCreateInput,
 ) {
+  if (
+    input.bankTransferNotice &&
+    (input.source !== 'customer' ||
+      !input.allocations.some(
+        (allocation) =>
+          allocation.orderId === input.bankTransferNotice?.orderId &&
+          (allocation.purpose ?? 'payment') === 'payment',
+      ))
+  )
+    fail(
+      422,
+      'BANK_TRANSFER_NOTICE_ALLOCATION_REQUIRED',
+      'Allocate the customer receipt to the transfer notice order',
+    )
   if (input.remittanceNote && input.source !== 'carrier')
     fail(
       422,
@@ -301,6 +342,7 @@ export async function createReceiptInTransaction(
         'PAYMENT_REFERENCE_CONFLICT',
         'The physical receipt already has different facts or current allocations',
       )
+    await reviewReceiptNotice(tx, actor, input, orders, existing.id)
     return {
       paymentId: existing.id,
       revision: existing.revision,
@@ -388,6 +430,7 @@ export async function createReceiptInTransaction(
       },
     )
   }
+  await reviewReceiptNotice(tx, actor, input, orders, receipt.id)
   return {
     paymentId: receipt.id,
     revision: receipt.revision,
