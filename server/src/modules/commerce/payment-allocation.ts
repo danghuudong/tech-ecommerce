@@ -134,6 +134,7 @@ export function allocationSnapshot(
     receiptAmountVnd: receipt.amountVnd,
     source: receipt.source,
     reference: receipt.reference,
+    remittanceNote: receipt.remittanceNote,
     receivedAt: receipt.receivedAt.toISOString(),
     receivingAccountId: receipt.receivingAccountId,
     recordedForOrderId: receipt.orderId,

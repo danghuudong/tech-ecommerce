@@ -18,6 +18,7 @@ import {
   useOrder,
   write,
 } from './api'
+import { BankTransferNoticeWork } from './bank-transfer-notices'
 import {
   type CarrierRemittanceDraft,
   CarrierRemittanceFields,
@@ -38,8 +39,10 @@ import {
   PageHeading,
   Pagination,
   Panel,
+  PaymentStatusBadge,
   QueryError,
   RecipientCard,
+  SelectableTableRow,
 } from './components'
 import { inputToIso, vietnamDateInput } from './date-time'
 import { BalanceReviews, UnallocatedReceipts } from './finance-admin'
@@ -49,6 +52,7 @@ import {
   ReceiptAllocationFields,
 } from './receipt-allocation-fields'
 import { AccountSelect } from './receiving-account-select'
+import { RefundCard } from './returns-page'
 import { ShipmentCarrierForm } from './shipment-carrier-form'
 import { Stat } from './staff-pages'
 import type { OrderDetail, OrderPage } from './types'
@@ -75,6 +79,7 @@ function FinanceContent() {
   const [text, setText] = useState('')
   const [offset, setOffset] = useState(0)
   const [overdue, setOverdue] = useState(false)
+  const [pendingNotices, setPendingNotices] = useState(false)
   const actor = useActor()
   useEffect(() => {
     setSelected(selectedFromUrl)
@@ -86,11 +91,18 @@ function FinanceContent() {
       offset,
       paymentMethod: tab === 'cod' ? 'cod' : 'bank_transfer',
       q: q || undefined,
-      paymentReviewOverdue: overdue ? true : undefined,
+      paymentReviewOverdue: tab === 'bank' && overdue ? true : undefined,
+      bankTransferNoticePending:
+        tab === 'bank' && pendingNotices ? true : undefined,
       deletion: 'all',
     },
     ['bank', 'cod'].includes(tab),
+    tab === 'bank' ? 30_000 : false,
   )
+  const firstOrderId = orders.data?.items[0]?.id
+  useEffect(() => {
+    if (!selected && firstOrderId) setSelected(firstOrderId)
+  }, [selected, firstOrderId])
   const selectedId = selected || orders.data?.items[0]?.id
   return (
     <>
@@ -146,6 +158,7 @@ function FinanceContent() {
               setSelected('')
               setOffset(0)
               setOverdue(false)
+              setPendingNotices(false)
             }}
           >
             {label}
@@ -190,18 +203,33 @@ function FinanceContent() {
                 Tìm
               </Action>
               {tab === 'bank' && (
-                <label className="c-check">
-                  <input
-                    type="checkbox"
-                    checked={overdue}
-                    onChange={(event) => {
-                      setOverdue(event.target.checked)
-                      setOffset(0)
-                      setSelected('')
-                    }}
-                  />
-                  Quá hạn xử lý
-                </label>
+                <>
+                  <label className="c-check">
+                    <input
+                      type="checkbox"
+                      checked={pendingNotices}
+                      onChange={(event) => {
+                        setPendingNotices(event.target.checked)
+                        setOffset(0)
+                        setSelected('')
+                      }}
+                    />
+                    Khách báo đã chuyển (
+                    {orders.data?.stats.bankTransferNoticePending ?? 0})
+                  </label>
+                  <label className="c-check">
+                    <input
+                      type="checkbox"
+                      checked={overdue}
+                      onChange={(event) => {
+                        setOverdue(event.target.checked)
+                        setOffset(0)
+                        setSelected('')
+                      }}
+                    />
+                    Quá hạn xử lý
+                  </label>
+                </>
               )}
             </form>
             {orders.isPending ? (
@@ -223,16 +251,16 @@ function FinanceContent() {
                       </thead>
                       <tbody>
                         {orders.data.items.map((order) => (
-                          <tr
+                          <SelectableTableRow
                             key={order.id}
-                            className={
-                              order.id === selectedId ? 'is-selected' : ''
-                            }
+                            selected={order.id === selectedId}
+                            onSelect={() => setSelected(order.id)}
                           >
                             <td>
                               <button
                                 className="c-row-select"
                                 type="button"
+                                aria-pressed={order.id === selectedId}
                                 onClick={() => setSelected(order.id)}
                               >
                                 #{order.code}
@@ -265,12 +293,21 @@ function FinanceContent() {
                               )}
                             </td>
                             <td>
-                              <Badge status={order.paymentStatus} />
+                              <PaymentStatusBadge
+                                status={order.paymentStatus}
+                                orderStatus={order.status}
+                                completedOverpaymentRefundVnd={
+                                  order.completedOverpaymentRefundVnd
+                                }
+                              />
+                              {order.bankTransferNoticePending && (
+                                <Badge tone="amber">Khách báo đã chuyển</Badge>
+                              )}
                               {order.paymentReviewOverdue && (
                                 <small className="c-red">Quá hạn xử lý</small>
                               )}
                             </td>
-                          </tr>
+                          </SelectableTableRow>
                         ))}
                       </tbody>
                     </table>
@@ -292,7 +329,12 @@ function FinanceContent() {
             )}
           </Panel>
           {selectedId ? (
-            <PaymentDetail key={selectedId} id={selectedId} onMethod={setTab} />
+            <PaymentDetail
+              key={selectedId}
+              id={selectedId}
+              onMethod={setTab}
+              onReceiptStart={() => setSelected(selectedId)}
+            />
           ) : (
             <Panel>
               <Empty title="Chọn đơn hàng để đối soát" />
@@ -307,11 +349,13 @@ function FinanceContent() {
 function PaymentDetail({
   id,
   onMethod,
+  onReceiptStart,
 }: {
   id: string
   onMethod: (tab: 'bank' | 'cod') => void
+  onReceiptStart: () => void
 }) {
-  const query = useOrder(id)
+  const query = useOrder(id, true)
   const paymentMethod = query.data?.paymentMethod
   useEffect(() => {
     if (paymentMethod) onMethod(paymentMethod === 'cod' ? 'cod' : 'bank')
@@ -322,17 +366,27 @@ function PaymentDetail({
         <Loading />
       </Panel>
     )
-  if (query.isError)
+  if (query.isError || !query.data)
     return <QueryError error={query.error} retry={() => query.refetch()} />
   const order = query.data
   return (
     <div className="c-stack">
       <Panel
         title={`Đối soát #${order.code}`}
-        aside={<Badge status={order.payment.status} />}
+        aside={
+          <PaymentStatusBadge {...order.payment} orderStatus={order.status} />
+        }
       >
         <RecipientCard recipient={order.recipient} />
         <div className="c-actions">
+          <Action
+            variant="secondary"
+            pending={query.isFetching}
+            onClick={() => query.refetch()}
+          >
+            <RefreshCw size={14} />
+            Cập nhật đối soát
+          </Action>
           <Link
             to="/staff/orders/$orderId"
             params={{ orderId: id }}
@@ -360,14 +414,39 @@ function PaymentDetail({
               </div>
             </div>
             <div className="c-divider" />
-            {order.permittedActions.staff.includes('verify_payment_receipt') ? (
-              <BankReceiptForm key={`${id}-${order.revision}`} order={order} />
-            ) : (
-              <Notice>
-                Không có thao tác ghi nhận thanh toán khả dụng cho tài khoản
-                này.
-              </Notice>
-            )}
+            <dl className="c-financial-dl">
+              <div>
+                <dt>Giá trị đơn hiện tại</dt>
+                <dd>{formatMoney(order.prices.adjustedTotalVnd)}</dd>
+              </div>
+              <div>
+                <dt>Đã nhận từ khách</dt>
+                <dd>
+                  {formatMoney(
+                    order.payment.balancesVerified
+                      ? order.payment.paidVnd
+                      : null,
+                  )}
+                </dd>
+              </div>
+              <div>
+                <dt>Khách còn phải thanh toán</dt>
+                <dd>{formatMoney(order.payment.purchaseAmountDueVnd)}</dd>
+              </div>
+              {order.payment.refundDueVnd !== null &&
+                order.payment.refundDueVnd > 0 && (
+                  <div>
+                    <dt>Còn phải hoàn cho khách</dt>
+                    <dd>{formatMoney(order.payment.refundDueVnd)}</dd>
+                  </div>
+                )}
+              {order.payment.netRefundedVnd > 0 && (
+                <div>
+                  <dt>Đã hoàn tiền (ròng)</dt>
+                  <dd>{formatMoney(order.payment.netRefundedVnd)}</dd>
+                </div>
+              )}
+            </dl>
             {order.payment.bankPaymentApproved && (
               <div className="c-actions">
                 <Notice tone="green">
@@ -376,9 +455,29 @@ function PaymentDetail({
                 </Notice>
               </div>
             )}
+            <BankTransferNoticeWork
+              order={order}
+              onReviewStart={onReceiptStart}
+            />
+            {order.permittedActions.staff.includes('verify_payment_receipt') ? (
+              <BankReceiptForm
+                key={`${id}-${order.revision}`}
+                order={order}
+                onReceiptStart={onReceiptStart}
+              />
+            ) : (
+              <Notice>
+                Không có thao tác ghi nhận thanh toán khả dụng cho tài khoản
+                này.
+              </Notice>
+            )}
           </>
         ) : (
-          <CodPaymentForms key={`${id}-${order.revision}`} order={order} />
+          <CodPaymentForms
+            key={`${id}-${order.revision}`}
+            order={order}
+            onReceiptStart={onReceiptStart}
+          />
         )}
       </Panel>
       {order.paymentMethod === 'bank_transfer' &&
@@ -392,6 +491,10 @@ function PaymentDetail({
           />
         )}
       {order.payment.receipts.length > 0 && <RecordedReceipts order={order} />}
+      {order.paymentMethod === 'bank_transfer' &&
+        order.refunds.map((refund) => (
+          <RefundCard key={refund.id} refund={refund} />
+        ))}
     </div>
   )
 }
@@ -449,6 +552,12 @@ function RecordedReceipts({ order }: { order: OrderDetail }) {
                   <dd>{formatDate(receipt.receivedAt)}</dd>
                 </div>
               </dl>
+              {receipt.remittanceNote && (
+                <div>
+                  <strong>Ghi chú / lý do nộp bổ sung</strong>
+                  <p className="c-receipt-note">{receipt.remittanceNote}</p>
+                </div>
+              )}
               {otherOrders.length > 0 && (
                 <details className="c-receipt-orders">
                   <summary>Xem {otherOrders.length} đơn khác</summary>
@@ -477,13 +586,36 @@ function RecordedReceipts({ order }: { order: OrderDetail }) {
   )
 }
 
-function BankReceiptForm({ order }: { order: OrderDetail }) {
+function BankReceiptForm({
+  order,
+  onReceiptStart,
+}: {
+  order: OrderDetail
+  onReceiptStart: () => void
+}) {
+  const noticeOptions = order.bankTransferNotices.filter(
+    (notice) => notice.status !== 'recorded',
+  )
+  const [selectedNoticeId, setSelectedNoticeId] = useState(
+    () => noticeOptions.find((notice) => notice.status === 'pending')?.id ?? '',
+  )
+  const selectedNotice = noticeOptions.find(
+    (notice) => notice.id === selectedNoticeId,
+  )
+  const noCustomerAmountDue =
+    order.payment.balancesVerified && order.payment.purchaseAmountDueVnd === 0
+  const [recordAdditional, setRecordAdditional] = useState(false)
   const [enteredReceived, setEnteredReceived] = useState<number | null>(null)
   const [allocations, setAllocations] = useState<ReceiptAllocationDraft[]>([
     {
       orderId: order.id,
       code: order.code,
-      amountVnd: order.payment.amountDueVnd ?? Number.NaN,
+      amountVnd:
+        !noCustomerAmountDue &&
+        order.payment.amountDueVnd !== null &&
+        order.payment.amountDueVnd > 0
+          ? order.payment.amountDueVnd
+          : Number.NaN,
       paymentDeadlineAt: order.paymentDeadlineAt,
     },
   ])
@@ -510,31 +642,106 @@ function BankReceiptForm({ order }: { order: OrderDetail }) {
     (input: Record<string, unknown>) => write('staff/payment-receipts', input),
     paymentQueryPaths,
   )
+  if (noCustomerAmountDue && !recordAdditional)
+    return (
+      <div className="c-actions">
+        <Action
+          variant="secondary"
+          onClick={() => {
+            setRecordAdditional(true)
+            setReceivedAt(vietnamDateInput())
+            setVerified(false)
+            command.reset()
+          }}
+        >
+          Ghi nhận khoản tiền phát sinh
+        </Action>
+      </div>
+    )
   return (
     <form
       className="c-form-section"
       onSubmit={async (event) => {
         event.preventDefault()
-        if (!verified || !validAllocations) return
+        if (command.isPending || !verified || !validAllocations) return
         const data = new FormData(event.currentTarget)
-        await command.run({
+        const reference = String(data.get('reference')).trim()
+        const receivedTime = inputToIso(String(data.get('time')))
+        onReceiptStart()
+        const result = await command.run({
           receivingAccountId: String(data.get('account')),
           source: 'customer',
           amountVnd: received,
           currency: 'VND',
-          reference: String(data.get('reference')).trim(),
-          receivedAt: inputToIso(String(data.get('time'))),
+          reference,
+          receivedAt: receivedTime,
           receiptVerified: true,
-          evidenceReference: String(data.get('reference')).trim(),
+          evidenceReference: reference,
           evidenceVerified: true,
+          ...(selectedNotice
+            ? {
+                bankTransferNotice: {
+                  orderId: order.id,
+                  noticeId: selectedNotice.id,
+                },
+              }
+            : {}),
           reason: String(data.get('reason')).trim(),
           allocations: allocations.map(({ orderId, amountVnd }) => ({
             orderId,
             amountVnd,
           })),
         })
+        if (result) setRecordAdditional(false)
       }}
     >
+      {noCustomerAmountDue && (
+        <>
+          <Notice>
+            Khách không còn khoản phải thanh toán. Chỉ ghi nhận khoản tiền thực
+            tế mới nhận, sử dụng mã giao dịch riêng.
+          </Notice>
+          <div className="c-actions">
+            <Action
+              variant="secondary"
+              disabled={command.isPending}
+              onClick={() => setRecordAdditional(false)}
+            >
+              Đóng biểu mẫu phát sinh
+            </Action>
+          </div>
+        </>
+      )}
+      {noticeOptions.length > 0 && (
+        <>
+          <Field label="Đối chiếu thông báo của khách">
+            <select
+              value={selectedNotice?.id ?? ''}
+              onChange={(event) => {
+                setSelectedNoticeId(event.target.value)
+                setVerified(false)
+              }}
+              disabled={command.isPending}
+            >
+              <option value="">Không gắn thông báo</option>
+              {noticeOptions.map((notice) => (
+                <option key={notice.id} value={notice.id}>
+                  {formatMoney(notice.amountVnd)} · {notice.reference} ·{' '}
+                  {formatDate(notice.reportedAt)}
+                </option>
+              ))}
+            </select>
+          </Field>
+          {selectedNotice && (
+            <Notice>
+              Khách khai báo {formatMoney(selectedNotice.amountVnd)}. Nhập số
+              tiền và thời điểm thực nhận theo sao kê bên dưới. Nếu toàn bộ
+              khoản thu thuộc đơn này, phân bổ cả phần dư cho đơn để tính khoản
+              cần hoàn.
+            </Notice>
+          )}
+        </>
+      )}
       <AccountSelect channel="bank_transfer" disabled={command.isPending} />
       <Field label="Mã giao dịch *">
         <input
@@ -590,6 +797,25 @@ function BankReceiptForm({ order }: { order: OrderDetail }) {
         receivedVnd={received}
         disabled={command.isPending}
       />
+      {allocations.length === 1 &&
+        allocations[0]?.orderId === order.id &&
+        Number.isSafeInteger(received) &&
+        received > 0 &&
+        received <= 9999999999 &&
+        allocation !== received && (
+          <Action
+            variant="secondary"
+            disabled={command.isPending}
+            onClick={() => {
+              setAllocations((rows) =>
+                rows.map((row) => ({ ...row, amountVnd: received })),
+              )
+              setVerified(false)
+            }}
+          >
+            Phân bổ toàn bộ {formatMoney(received)} cho #{order.code}
+          </Action>
+        )}
       {Number.isFinite(allocation) && allocation > received && (
         <Notice tone="red">Tổng phân bổ vượt số tiền thực nhận.</Notice>
       )}
@@ -637,20 +863,21 @@ function BankReceiptForm({ order }: { order: OrderDetail }) {
         </div>
       </div>
       <ErrorNotice error={command.error} />
-      {command.isSuccess && (
-        <Notice tone="green">
-          Đã ghi nhận khoản tiền và cập nhật số dư đơn hàng.
-        </Notice>
-      )}
       <Action
         type="submit"
         pending={command.isPending}
         disabled={!verified || !Number.isFinite(received) || !validAllocations}
       >
         <Landmark size={16} />
-        Xác nhận đối soát
+        {command.isPending
+          ? 'Đang ghi nhận khoản thu…'
+          : noCustomerAmountDue
+            ? 'Ghi nhận khoản tiền phát sinh'
+            : 'Xác nhận đối soát'}
       </Action>
-      <small>Chỉ cho phép đóng gói sau khi thanh toán được xác minh.</small>
+      {!noCustomerAmountDue && (
+        <small>Chỉ cho phép đóng gói sau khi thanh toán được xác minh.</small>
+      )}
     </form>
   )
 }
@@ -688,6 +915,12 @@ function DeadlineReconciliation({ order }: { order: OrderDetail }) {
           Ghi nhận đủ các khoản tiền thực nhận trước khi kết luận đối soát sau
           hạn.
         </Notice>
+        {order.bankTransferNoticePending && outcome === 'cancel_unpaid' && (
+          <Notice tone="amber">
+            Cần đối chiếu thông báo khách đã chuyển khoản ở phía trên trước khi
+            kết luận hủy đơn do chưa thanh toán đúng hạn.
+          </Notice>
+        )}
         <Field label="Kết luận">
           <select
             value={outcome}
@@ -750,6 +983,9 @@ function DeadlineReconciliation({ order }: { order: OrderDetail }) {
           type="submit"
           pending={command.isPending}
           variant={outcome === 'cancel_unpaid' ? 'danger' : 'primary'}
+          disabled={
+            outcome === 'cancel_unpaid' && order.bankTransferNoticePending
+          }
         >
           {outcome === 'cancel_unpaid'
             ? 'Xác nhận hủy đơn sau đối soát'
@@ -760,8 +996,17 @@ function DeadlineReconciliation({ order }: { order: OrderDetail }) {
   )
 }
 
-function CodPaymentForms({ order }: { order: OrderDetail }) {
+function CodPaymentForms({
+  order,
+  onReceiptStart,
+}: {
+  order: OrderDetail
+  onReceiptStart: () => void
+}) {
   const actions = order.permittedActions.staff
+  const noCustomerAmountDue =
+    order.payment.balancesVerified && order.payment.purchaseAmountDueVnd === 0
+  const [recordAdditional, setRecordAdditional] = useState(false)
   const [kind, setKind] = useState('collection')
   const [enteredReceived, setEnteredReceived] = useState<number | null>(null)
   const [receivedAt, setReceivedAt] = useState(() => vietnamDateInput())
@@ -781,19 +1026,29 @@ function CodPaymentForms({ order }: { order: OrderDetail }) {
   const remittanceAllowed = actions.includes('verify_carrier_remittance')
   const directAllowed = actions.includes('verify_payment_receipt')
   const choices = [
-    ...(collectionAllowed
-      ? [{ value: 'collection', label: 'Khách trả tiền cho đơn vị vận chuyển' }]
+    ...(collectionAllowed && (!noCustomerAmountDue || recordAdditional)
+      ? [
+          {
+            value: 'collection' as const,
+            label: 'Khách trả tiền cho đơn vị vận chuyển',
+          },
+        ]
       : []),
     ...(remittanceAllowed
       ? [
           {
-            value: 'remittance',
+            value: 'remittance' as const,
             label: 'Đơn vị vận chuyển nộp tiền về cửa hàng',
           },
         ]
       : []),
-    ...(directAllowed
-      ? [{ value: 'direct', label: 'Khách trả tiền trực tiếp cho cửa hàng' }]
+    ...(directAllowed && (!noCustomerAmountDue || recordAdditional)
+      ? [
+          {
+            value: 'direct' as const,
+            label: 'Khách trả tiền trực tiếp cho cửa hàng',
+          },
+        ]
       : []),
   ]
   const effectiveKind =
@@ -804,7 +1059,9 @@ function CodPaymentForms({ order }: { order: OrderDetail }) {
       ? allocations.length
         ? allocationTotal
         : Number.NaN
-      : (order.payment.purchaseAmountDueVnd ?? Number.NaN))
+      : noCustomerAmountDue
+        ? Number.NaN
+        : (order.payment.purchaseAmountDueVnd ?? Number.NaN))
   const validAllocations =
     allocations.length > 0 &&
     allocations.every(
@@ -859,18 +1116,30 @@ function CodPaymentForms({ order }: { order: OrderDetail }) {
       </dl>
       {effectiveKind ? (
         <form
+          key={effectiveKind}
           className="c-form-section"
           onSubmit={async (event) => {
             event.preventDefault()
-            if (effectiveKind === 'remittance' && !validAllocations) return
+            if (
+              command.isPending ||
+              (effectiveKind === 'remittance' && !validAllocations)
+            )
+              return
             const data = new FormData(event.currentTarget)
-            await command.run({
+            const reference = String(data.get('reference')).trim()
+            const receivedTime = inputToIso(String(data.get('time')))
+            const remittanceNote =
+              effectiveKind === 'remittance'
+                ? String(data.get('remittanceNote') ?? '').trim() || undefined
+                : undefined
+            onReceiptStart()
+            const result = await command.run({
               path: `staff/orders/${order.id}/${effectiveKind === 'collection' ? 'cod-collections' : effectiveKind === 'remittance' ? 'carrier-remittances' : 'payments'}`,
               body: {
                 amountVnd: received,
                 currency: 'VND',
-                reference: String(data.get('reference')).trim(),
-                receivedAt: inputToIso(String(data.get('time'))),
+                reference,
+                receivedAt: receivedTime,
                 receiptVerified: true,
                 ...(effectiveKind === 'collection'
                   ? { carrierId: order.shipment?.carrierId }
@@ -878,6 +1147,7 @@ function CodPaymentForms({ order }: { order: OrderDetail }) {
                       receivingAccountId: String(data.get('account')),
                       ...(effectiveKind === 'remittance'
                         ? {
+                            remittanceNote,
                             allocations: allocations.map(
                               ({ orderId, collectionId, amountVnd }) => ({
                                 orderId,
@@ -890,15 +1160,24 @@ function CodPaymentForms({ order }: { order: OrderDetail }) {
                     }),
               },
             })
+            if (result) setRecordAdditional(false)
           }}
         >
           <div className="c-divider" />
+          {noCustomerAmountDue && effectiveKind !== 'remittance' && (
+            <Notice>
+              Khách không còn khoản phải thanh toán. Chỉ ghi nhận khoản tiền
+              thực tế mới nhận, sử dụng mã giao dịch riêng.
+            </Notice>
+          )}
           <Field label="Nghiệp vụ">
             <select
               value={effectiveKind}
               onChange={(event) => {
                 setKind(event.target.value)
                 setEnteredReceived(null)
+                setReceivedAt(vietnamDateInput())
+                command.reset()
               }}
               disabled={command.isPending}
             >
@@ -932,12 +1211,16 @@ function CodPaymentForms({ order }: { order: OrderDetail }) {
             label={
               effectiveKind === 'remittance'
                 ? 'Tổng tiền thực nhận (VND) *'
-                : 'Số tiền thực nhận (VND) *'
+                : noCustomerAmountDue
+                  ? 'Số tiền khách trả thêm (VND) *'
+                  : 'Số tiền thực nhận (VND) *'
             }
             hint={
               effectiveKind === 'remittance'
                 ? undefined
-                : 'Điền sẵn số khách còn phải trả. Có thể chỉnh theo số tiền thực nhận.'
+                : noCustomerAmountDue
+                  ? 'Chỉ nhập số tiền nhận thêm trong giao dịch này.'
+                  : 'Điền sẵn số khách còn phải trả. Có thể chỉnh theo số tiền thực nhận.'
             }
           >
             <input
@@ -974,6 +1257,17 @@ function CodPaymentForms({ order }: { order: OrderDetail }) {
                   received > allocationTotal &&
                   ` Còn ${formatMoney(received - allocationTotal)} chưa gắn với khoản thu hộ nào, chờ quản trị viên xử lý.`}
               </Notice>
+              <Field
+                label="Ghi chú / lý do nộp bổ sung"
+                hint="Không bắt buộc, tối đa 1.000 ký tự. Ví dụ: Hãng chuyển bổ sung phần thiếu của đợt trước."
+              >
+                <textarea
+                  name="remittanceNote"
+                  maxLength={1000}
+                  rows={3}
+                  disabled={command.isPending}
+                />
+              </Field>
             </>
           )}
           <Field label="Mã giao dịch *">
@@ -1020,25 +1314,51 @@ function CodPaymentForms({ order }: { order: OrderDetail }) {
             Đã xác minh bằng chứng nhận tiền thực tế
           </label>
           <ErrorNotice error={command.error} />
-          {command.isSuccess && (
-            <Notice tone="green">
-              Đã ghi nhận khoản thu và cập nhật số dư.
-            </Notice>
-          )}
           <Action
             type="submit"
             pending={command.isPending}
             disabled={effectiveKind === 'remittance' && !validAllocations}
           >
             <Truck size={16} />
-            Xác nhận khoản thu
+            {command.isPending
+              ? 'Đang ghi nhận khoản thu…'
+              : effectiveKind === 'collection'
+                ? 'Xác nhận khách đã trả cho hãng'
+                : effectiveKind === 'remittance'
+                  ? 'Xác nhận hãng đã nộp tiền'
+                  : 'Xác nhận khách đã trả cho cửa hàng'}
           </Action>
         </form>
-      ) : (
+      ) : !noCustomerAmountDue ? (
         <Notice>
           Chưa có thao tác thu hộ khả dụng. Chỉ ghi nhận COD sau khi đơn hàng đã
           được xác nhận giao thành công.
         </Notice>
+      ) : null}
+      {noCustomerAmountDue && (collectionAllowed || directAllowed) && (
+        <div className="c-actions">
+          <Action
+            variant="secondary"
+            disabled={command.isPending}
+            onClick={() => {
+              setRecordAdditional(!recordAdditional)
+              setKind(
+                recordAdditional
+                  ? 'remittance'
+                  : collectionAllowed
+                    ? 'collection'
+                    : 'direct',
+              )
+              setEnteredReceived(null)
+              setReceivedAt(vietnamDateInput())
+              command.reset()
+            }}
+          >
+            {recordAdditional
+              ? 'Đóng biểu mẫu khách trả thêm'
+              : 'Ghi nhận khách trả thêm'}
+          </Action>
+        </div>
       )}
       <CodCollectionWork key={`${order.id}-${order.revision}`} order={order} />
     </div>

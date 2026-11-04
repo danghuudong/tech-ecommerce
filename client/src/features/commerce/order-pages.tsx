@@ -1,6 +1,5 @@
 import { Link } from '@tanstack/react-router'
 import {
-  CircleCheck,
   CreditCard,
   Landmark,
   MapPin,
@@ -12,6 +11,7 @@ import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { orderQueryPaths, useCommand, useOrder, write } from './api'
+import { CustomerBankTransfers } from './bank-transfer-notices'
 import {
   AccessGate,
   Action,
@@ -29,6 +29,7 @@ import {
   OrderHistory,
   PageHeading,
   Panel,
+  PaymentStatusBadge,
   PriceSummary,
   ProductThumb,
   Quantity,
@@ -40,6 +41,7 @@ import {
 import { RecipientFields, recipientSchema } from './customer-pages'
 import { CustomerLayout } from './layouts'
 import { OrderProgress } from './order-progress'
+import { OrderTransferQr } from './order-transfer-qr'
 import type { OrderDetail, Recipient } from './types'
 
 export function CustomerOrderPage() {
@@ -88,7 +90,7 @@ function OrderContent() {
       </PageHeading>
       <div className="c-badges">
         <Badge status={order.status} />
-        <Badge status={order.payment.status} />
+        <PaymentStatusBadge {...order.payment} orderStatus={order.status} />
       </div>
       <OrderProgress order={order} audience="customer" />
       {order.cancellationReason && (
@@ -183,6 +185,13 @@ function OrderContent() {
                 <dt>Còn phải thanh toán</dt>
                 <dd>{formatMoney(order.payment.amountDueVnd)}</dd>
               </div>
+              {order.payment.refundDueVnd !== null &&
+                order.payment.refundDueVnd > 0 && (
+                  <div>
+                    <dt>Còn phải hoàn cho bạn</dt>
+                    <dd>{formatMoney(order.payment.refundDueVnd)}</dd>
+                  </div>
+                )}
             </dl>
             {order.paymentMethod === 'bank_transfer' &&
               order.status !== 'cancelled' && (
@@ -199,6 +208,7 @@ function OrderContent() {
               )}
             <CustomerOrderActions order={order} />
           </Panel>
+          <CustomerBankTransfers order={order} />
           {order.refunds.length > 0 && (
             <Panel title="Theo dõi hoàn tiền">
               {order.refunds.map((refund) => (
@@ -232,7 +242,7 @@ export function CustomerOrderActions({ order }: { order: OrderDetail }) {
       <div className="c-payment-actions">
         {actions.includes('update_recipient') && (
           <Action variant="secondary" onClick={() => setDialog('address')}>
-            Sửa địa chỉ
+            Sửa thông tin người nhận
           </Action>
         )}
         {actions.includes('request_return') && (
@@ -247,7 +257,7 @@ export function CustomerOrderActions({ order }: { order: OrderDetail }) {
           </Action>
         )}
       </div>
-      {dialog === 'address' && (
+      {dialog === 'address' && actions.includes('update_recipient') && (
         <AddressDrawer order={order} onClose={() => setDialog(null)} />
       )}
       {dialog === 'cancel' && (
@@ -305,6 +315,12 @@ export function AddressDrawer({
           if (await command.run(parsed.data)) onClose()
         })}
       >
+        {staff && order.status === 'packing' && (
+          <Notice>
+            Bạn có thể sửa thông tin người nhận khi chưa chốt vận đơn. Sau khi
+            lưu, cần đối chiếu lại thông tin trên vận đơn trước khi bàn giao.
+          </Notice>
+        )}
         <RecipientFields form={form} />
         <ErrorNotice error={command.error} />
         <div className="c-actions">
@@ -602,6 +618,7 @@ function BankTransferContent() {
     paymentDeadline !== null && serverNow >= paymentDeadline
   const showTransfer =
     order.status !== 'cancelled' &&
+    !order.bankTransferNoticePending &&
     !order.paymentReviewRequired &&
     !order.reservationExpired &&
     !order.payment.latePaymentApprovalRequired &&
@@ -609,109 +626,180 @@ function BankTransferContent() {
     paymentWindowOpen &&
     order.payment.amountDueVnd !== null &&
     order.payment.amountDueVnd > 0
+  const paymentConfirmed =
+    order.payment.balancesVerified &&
+    order.payment.bankPaymentApproved &&
+    order.payment.amountDueVnd === 0
+  const paymentTitle = (() => {
+    if (order.status === 'cancelled') return 'Đơn hàng đã hủy'
+    if (
+      order.bankTransferNoticePending ||
+      order.payment.latePaymentApprovalRequired ||
+      !order.payment.balancesVerified
+    )
+      return 'Đang chờ xác minh thanh toán'
+    if (paymentConfirmed) return 'Chuyển khoản thành công'
+    if (
+      order.payment.amountDueVnd === 0 &&
+      [
+        'refunded',
+        'partially_refunded',
+        'settled_after_return',
+        'not_due',
+      ].includes(order.payment.status)
+    )
+      return 'Đã đối soát thanh toán'
+    if (
+      order.paymentReviewRequired ||
+      order.reservationExpired ||
+      paymentDeadlinePassed
+    )
+      return 'Hết hạn thanh toán'
+    return showTransfer
+      ? 'Đã tạo đơn – Chờ thanh toán'
+      : 'Đang chờ xác minh thanh toán'
+  })()
+  const remainingSeconds =
+    paymentDeadline !== null && Number.isFinite(serverNow)
+      ? Math.max(0, Math.ceil((paymentDeadline - serverNow) / 1000))
+      : 0
+  const countdown = [
+    Math.floor(remainingSeconds / 3600),
+    Math.floor((remainingSeconds % 3600) / 60),
+    remainingSeconds % 60,
+  ]
+    .map((value) => String(value).padStart(2, '0'))
+    .join(':')
   return (
     <>
-      <div className="c-page-heading">
-        <div className="c-success-heading">
-          <span className="c-success-icon">
-            <CircleCheck size={39} />
-          </span>
-          <div>
-            <h1>
-              {order.status === 'cancelled'
-                ? 'Đơn hàng đã hủy'
-                : order.payment.bankPaymentApproved
-                  ? 'Thanh toán đã được xác minh'
-                  : 'Đặt hàng thành công'}
-            </h1>
-            <p>
-              Đơn hàng #{order.code}
-              {showTransfer ? ' đang chờ thanh toán.' : '.'}
-            </p>
-          </div>
+      <div className="c-page-heading c-bank-transfer-heading">
+        <div>
+          <h1>{paymentTitle}</h1>
+          <p>Đơn hàng #{order.code}</p>
         </div>
         <div className="c-badges">
           <Badge status={order.status} />
-          <Badge status={order.payment.status} />
+          <PaymentStatusBadge {...order.payment} orderStatus={order.status} />
         </div>
       </div>
       {showTransfer && order.paymentDeadlineAt && (
         <div className="c-payment-notice">
-          <Notice tone="amber">
-            <strong>
-              Vui lòng chuyển khoản trước {formatDate(order.paymentDeadlineAt)}
-            </strong>
-            Thanh toán được đối soát theo thời điểm tiền vào tài khoản.
-          </Notice>
+          <div
+            className={`c-payment-countdown${remainingSeconds <= 300 ? ' c-payment-countdown--urgent' : ''}`}
+          >
+            <div>
+              <strong>Thời gian còn lại để thanh toán</strong>
+              <p>Vui lòng hoàn tất chuyển khoản trước khi hết thời gian.</p>
+              <small>
+                Hạn thanh toán: {formatDate(order.paymentDeadlineAt)} (giờ Việt
+                Nam)
+              </small>
+            </div>
+            <div
+              role="timer"
+              aria-live="off"
+              className="c-payment-countdown__time"
+            >
+              <time dateTime={`PT${remainingSeconds}S`}>{countdown}</time>
+              <small>Giờ : Phút : Giây</small>
+            </div>
+          </div>
         </div>
       )}
       <div className="c-columns c-columns--balanced">
-        <Panel title="Thông tin chuyển khoản" icon={<Landmark size={21} />}>
-          {showTransfer && order.bankInstructions ? (
-            <>
-              <div className="c-copy-list">
-                <CopyValue
-                  label="Ngân hàng"
-                  value={order.bankInstructions.bankName}
+        <div className="c-stack">
+          <Panel title="Thông tin chuyển khoản" icon={<Landmark size={21} />}>
+            {showTransfer && order.bankInstructions ? (
+              <>
+                <OrderTransferQr
+                  instructions={order.bankInstructions}
+                  amountVnd={order.payment.amountDueVnd ?? 0}
+                  reference={order.bankTransferReference ?? order.code}
                 />
-                <CopyValue
-                  label="Chủ tài khoản"
-                  value={order.bankInstructions.accountHolder}
-                />
-                <CopyValue
-                  label="Số tài khoản"
-                  value={order.bankInstructions.accountNumber}
-                />
-                <CopyValue
-                  label="Nội dung chuyển khoản"
-                  value={order.bankTransferReference ?? order.id}
-                />
-                <CopyValue
-                  label="Số tiền thanh toán (VND)"
-                  value={String(order.payment.amountDueVnd)}
-                  highlight
-                />
-              </div>
-              <div className="c-actions">
-                <Notice>
-                  <strong>
-                    Thanh toán được xác nhận sau khi đối soát giao dịch.
-                  </strong>
-                  Chuyển đúng số tiền và nội dung để cửa hàng xác minh khoản
-                  thanh toán.
-                </Notice>
-              </div>
-            </>
-          ) : (
-            <Notice
-              tone={order.payment.bankPaymentApproved ? 'green' : 'amber'}
-            >
-              {order.payment.bankPaymentApproved
-                ? 'Cửa hàng đã xác minh thanh toán cho đơn hàng này.'
-                : order.status === 'cancelled'
+                <div className="c-copy-list">
+                  <CopyValue
+                    label="Ngân hàng"
+                    value={order.bankInstructions.bankName}
+                  />
+                  <CopyValue
+                    label="Chủ tài khoản"
+                    value={order.bankInstructions.accountHolder}
+                  />
+                  <CopyValue
+                    label="Số tài khoản"
+                    value={order.bankInstructions.accountNumber}
+                  />
+                  <CopyValue
+                    label="Nội dung chuyển khoản"
+                    value={order.bankTransferReference ?? order.code}
+                  />
+                  <CopyValue
+                    label="Số tiền thanh toán (VND)"
+                    value={String(order.payment.amountDueVnd)}
+                    highlight
+                  />
+                </div>
+                <div className="c-actions">
+                  <Notice>
+                    <strong>
+                      Thanh toán được xác nhận sau khi đối soát giao dịch.
+                    </strong>
+                    Chuyển đúng số tiền và nội dung để cửa hàng xác minh khoản
+                    thanh toán.
+                  </Notice>
+                </div>
+              </>
+            ) : (
+              <Notice
+                tone={
+                  order.status === 'cancelled'
+                    ? 'red'
+                    : paymentConfirmed
+                      ? 'green'
+                      : 'amber'
+                }
+              >
+                {order.status === 'cancelled'
                   ? 'Vui lòng không chuyển khoản cho đơn hàng đã hủy.'
-                  : order.payment.latePaymentApprovalRequired
-                    ? 'Khoản thanh toán vào sau hạn đang chờ quản trị viên xem xét. Vui lòng không chuyển thêm tiền.'
-                    : order.paymentReviewRequired ||
-                        order.reservationExpired ||
-                        paymentDeadlinePassed
-                      ? 'Đã hết hạn thanh toán. Vui lòng chờ cửa hàng đối soát khoản đã chuyển và không chuyển thêm tiền.'
-                      : showTransfer && !order.bankInstructions
-                        ? 'Chưa có thông tin tài khoản nhận cho đơn hàng này. Vui lòng liên hệ cửa hàng trước khi chuyển tiền.'
-                        : 'Số dư đang được kiểm tra. Vui lòng chờ kết quả đối soát trước khi chuyển thêm tiền.'}
-            </Notice>
-          )}
-          <div className="c-actions">
-            <Action
-              variant="secondary"
-              pending={query.isFetching}
-              onClick={() => query.refetch()}
-            >
-              <RefreshCw size={16} />
-              Kiểm tra trạng thái
-            </Action>
-          </div>
-        </Panel>
+                  : paymentConfirmed
+                    ? 'Cửa hàng đã xác minh thanh toán cho đơn hàng này.'
+                    : order.bankTransferNoticePending
+                      ? 'Cửa hàng đang kiểm tra thông báo đã chuyển khoản của bạn. Vui lòng chờ kết quả trước khi chuyển thêm tiền.'
+                      : order.payment.latePaymentApprovalRequired
+                        ? 'Khoản thanh toán vào sau hạn đang chờ quản trị viên xem xét. Vui lòng không chuyển thêm tiền.'
+                        : order.paymentReviewRequired ||
+                            order.reservationExpired ||
+                            paymentDeadlinePassed
+                          ? 'Đã hết hạn thanh toán. Vui lòng chờ cửa hàng đối soát khoản đã chuyển và không chuyển thêm tiền.'
+                          : showTransfer && !order.bankInstructions
+                            ? 'Chưa có thông tin tài khoản nhận cho đơn hàng này. Vui lòng liên hệ cửa hàng trước khi chuyển tiền.'
+                            : 'Số dư đang được kiểm tra. Vui lòng chờ kết quả đối soát trước khi chuyển thêm tiền.'}
+              </Notice>
+            )}
+            <div className="c-actions">
+              <Action
+                variant="secondary"
+                pending={query.isFetching}
+                onClick={() => query.refetch()}
+              >
+                <RefreshCw size={16} />
+                Kiểm tra trạng thái
+              </Action>
+            </div>
+          </Panel>
+          <CustomerBankTransfers
+            order={order}
+            paymentAvailable={showTransfer}
+          />
+          {order.payment.refundDueVnd !== null &&
+            order.payment.refundDueVnd > 0 && (
+              <Notice tone="amber">
+                Khoản cửa hàng còn phải hoàn cho bạn:{' '}
+                {formatMoney(order.payment.refundDueVnd)}. Bạn có thể theo dõi
+                tiến độ trong chi tiết đơn hàng.
+              </Notice>
+            )}
+        </div>
         <Panel title={`Thông tin đơn hàng #${order.code}`}>
           <small>Đặt lúc {formatDate(order.createdAt)}</small>
           <div className="c-divider" />

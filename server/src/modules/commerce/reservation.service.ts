@@ -1,6 +1,7 @@
 import { eq } from 'drizzle-orm'
 import { env } from '../../config/env.js'
 import { orders } from '../../db/schema.js'
+import { bankTransferAutoCancellationFilter } from './bank-payment-expiry-policy.js'
 import {
   appendOrderEvent,
   databaseNow,
@@ -69,11 +70,32 @@ export async function cancelReservedOrder(
   order: Order,
   reason: string,
   now: Date,
-  cause: 'requested' | 'bank_reconciled' = 'requested',
+  cause: 'requested' | 'bank_reconciled' | 'payment_timeout' = 'requested',
 ) {
+  // The caller holds the order lock. Recheck the full policy here so a timeout
+  // never bypasses reconciliation merely because a scheduler selected it earlier.
+  if (cause === 'payment_timeout') {
+    if (actor.role !== 'system')
+      fail(
+        403,
+        'SYSTEM_ACCESS_REQUIRED',
+        'Only the system can expire bank payments',
+      )
+    const [eligibility] = await tx
+      .select({ allowed: bankTransferAutoCancellationFilter(now) })
+      .from(orders)
+      .where(eq(orders.id, order.id))
+    if (!eligibility?.allowed)
+      fail(
+        409,
+        'BANK_RECONCILIATION_REQUIRED',
+        'Reconcile recorded money and transfer notices before cancelling',
+      )
+  }
   if (
     bankReviewState(order, now).required &&
     cause !== 'bank_reconciled' &&
+    cause !== 'payment_timeout' &&
     actor.userId !== order.userId
   )
     fail(
@@ -118,6 +140,15 @@ export async function cancelReservedOrder(
     balancesVerified: payment.balancesVerified,
     refundRequired: payment.balancesVerified ? payment.refundDueVnd > 0 : null,
     automatic: actor.role === 'system',
+    cause,
+    ...(cause === 'payment_timeout'
+      ? {
+          paymentDeadlineAt: order.paymentDeadlineAt?.toISOString() ?? null,
+          expiredAt: now.toISOString(),
+          noReceiptsRecorded: true,
+          noPendingTransferNotice: true,
+        }
+      : {}),
   })
   return cancelled
 }
@@ -131,6 +162,23 @@ export async function expireOrderReservation(
     return order
   const payment = await paymentSummaryForOrder(tx, order)
   if (order.paymentMethod === 'bank_transfer') {
+    const [eligibility] = await tx
+      .select({ allowed: bankTransferAutoCancellationFilter(now) })
+      .from(orders)
+      .where(eq(orders.id, order.id))
+    if (
+      payment.balancesVerified &&
+      payment.paidVnd === 0 &&
+      eligibility?.allowed
+    )
+      return cancelReservedOrder(
+        tx,
+        systemActor,
+        order,
+        'Quá hạn thanh toán',
+        now,
+        'payment_timeout',
+      )
     const review = bankReviewState(order, now)
     const escalate =
       !payment.bankPaymentApproved &&

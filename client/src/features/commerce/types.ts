@@ -105,6 +105,7 @@ export interface OrderSummary {
   totalVnd: number
   paymentMethod: PaymentMethod
   paymentStatus: string
+  completedOverpaymentRefundVnd: number | null
   paidVnd: number
   amountDueVnd: number | null
   refundedVnd: number
@@ -115,6 +116,7 @@ export interface OrderSummary {
   paymentReviewRequired: boolean
   paymentReviewOverdue: boolean
   bankPaymentApproved: boolean
+  bankTransferNoticePending: boolean
   paymentDeadlineAt: string | null
   createdAt: string
   assignedTo?: string | null
@@ -146,6 +148,7 @@ export interface OrderStats {
   shipped: number
   paymentReviewRequired: number
   paymentReviewOverdue: number
+  bankTransferNoticePending: number
 }
 
 export interface OrderPage extends Page<OrderSummary> {
@@ -306,6 +309,7 @@ export type OrderUndoBlockReason =
   | 'ORDER_UNDO_RECONCILIATION_REQUIRED'
   | 'ORDER_UNDO_RESERVATION_EXPIRED'
   | 'ORDER_UNDO_STATE_MISMATCH'
+  | 'ORDER_UNDO_WAYBILL_CONFIRMED'
   | 'ORDER_UNDO_HISTORY_REQUIRED'
   | 'ORDER_UNDO_CONFIRMATION_EXPIRED'
   | 'ORDER_UNDO_SHIPMENT_ACTIVITY'
@@ -327,6 +331,41 @@ export interface OrderUndo {
   originalConfirmationExpiresAt: string | null
 }
 
+export interface WaybillVerificationProof {
+  eventId: string
+  verifiedAt: string
+  actorUserId: string | null
+  actorName: string | null
+}
+
+export interface BankTransferNotice {
+  id: string
+  amountVnd: number
+  currency: 'VND'
+  reference: string
+  transferredAt: string
+  evidenceReference: string | null
+  note: string | null
+  reportedAt: string
+  reportedBy?: string | null
+  reportedByName?: string | null
+  status: 'pending' | 'recorded' | 'not_found'
+  matchedReceipt: {
+    paymentId: string
+    allocatedAmountVnd: number
+    receivedAt: string
+  } | null
+  review: {
+    outcome: 'recorded' | 'not_found'
+    reviewedAt: string
+    reviewedBy?: string | null
+    paymentId?: string
+    statementCheckedThrough?: string
+    reason?: string
+    evidenceReference?: string
+  } | null
+}
+
 export interface OrderDetail {
   id: string
   code: string
@@ -344,10 +383,14 @@ export interface OrderDetail {
   paymentMethod: PaymentMethod
   bankInstructions: {
     bankName: string
+    bankBin?: string | null
     accountNumber: string
     accountHolder: string
   } | null
   bankTransferReference: string | null
+  bankTransferDemoEnabled?: boolean
+  bankTransferNoticePending: boolean
+  bankTransferNotices: BankTransferNotice[]
   paymentDeadlineAt: string | null
   paymentReviewRequired: boolean
   paymentReview: {
@@ -374,6 +417,7 @@ export interface OrderDetail {
     balancesVerified: boolean
     refundedVnd: number
     netRefundedVnd: number
+    completedOverpaymentRefundVnd: number | null
     refundDueVnd: number | null
     pendingRefundVnd: number
     bankPaymentApproved: boolean
@@ -387,10 +431,12 @@ export interface OrderDetail {
     receipts: {
       id: string
       reference: string
+      remittanceNote?: string | null
       amountVnd: number
       receivedAt: string
       duplicate: boolean
       receiptReconciliationRequired: boolean
+      bankTransferNoticeMatchable?: boolean
       allocationSummary?: {
         totalVnd: number
         orders: {
@@ -436,9 +482,15 @@ export interface OrderDetail {
   shipment: {
     id: string
     createdAt: string
+    handedOverAt: string | null
+    recipientSnapshot: Recipient | null
     carrierId: string | null
     carrier: Carrier | null
     trackingReference: string
+    verification?: {
+      recipient: WaybillVerificationProof | null
+      payment: WaybillVerificationProof | null
+    }
     status: string
     failedAttempts: number
     failureReason: string | null

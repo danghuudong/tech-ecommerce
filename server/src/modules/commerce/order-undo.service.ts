@@ -116,7 +116,7 @@ export function undoOrderStep(
             onHandDelta: item.quantity,
             reservedDelta: 0,
             reason: input.reason,
-            reference: shipment.id,
+            reference: `${shipment.id}:undo:${order.revision}`,
           })
           await changeStock(tx, actor, {
             productId: item.productId,
@@ -125,7 +125,7 @@ export function undoOrderStep(
             onHandDelta: 0,
             reservedDelta: item.quantity,
             reason: input.reason,
-            reference: shipment.id,
+            reference: `${shipment.id}:undo:${order.revision}`,
           })
         }
       }
@@ -234,6 +234,7 @@ export function undoOrderStep(
           ? {
               ...shipment,
               createdAt: shipment.createdAt.toISOString(),
+              handedOverAt: shipment.handedOverAt?.toISOString() ?? null,
               updatedAt: shipment.updatedAt.toISOString(),
               deliveredAt: shipment.deliveredAt?.toISOString() ?? null,
               returnedAt: shipment.returnedAt?.toISOString() ?? null,
@@ -261,9 +262,15 @@ export function undoOrderStep(
         )
       }
       if (input.action === 'handover' && shipment) {
-        // Keep the invalid document's full snapshot in the immutable event
-        // above. Removing only its active projection permits a new handover.
-        await tx.delete(shipments).where(eq(shipments.id, shipment.id))
+        // Reversing physical handover does not undo a waybill confirmed with the carrier.
+        await tx
+          .update(shipments)
+          .set({
+            status: 'ready_to_ship',
+            handedOverAt: null,
+            updatedAt: now,
+          })
+          .where(eq(shipments.id, shipment.id))
       }
       return {
         orderId,

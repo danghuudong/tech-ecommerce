@@ -7,6 +7,11 @@ import {
   requireAdminAuth,
   requireAuth,
 } from '../../middlewares/auth.middleware.js'
+import { completeDemoBankTransfer } from './bank-transfer-demo.service.js'
+import {
+  reportBankTransfer,
+  reviewBankTransferNotice,
+} from './bank-transfer-notice.service.js'
 import { clearCart, getCart, setCartItem } from './cart.service.js'
 import {
   adjustStock,
@@ -39,7 +44,10 @@ import {
   addressUpdateSchema,
   assignmentSchema,
   bankReconciliationSchema,
+  bankTransferNoticeReviewSchema,
+  bankTransferReportSchema,
   carrierCreateSchema,
+  carrierRecipientResultSchema,
   carrierRemittanceSchema,
   cartItemSchema,
   catalogListSchema,
@@ -49,9 +57,9 @@ import {
   codCollectionSchema,
   collectionFailureSchema,
   collectionResolutionSchema,
+  deliveryRetrySchema,
   deliverySchema,
   dispatchSchema,
-  emptySchema,
   idSchema,
   manualRefundAttemptSchema,
   orderDeletionSchema,
@@ -75,17 +83,22 @@ import {
   receivingAccountListSchema,
   refundAttemptSchema,
   refundExceptionSettlementSchema,
+  refundListSchema,
   refundOutcomeSchema,
   refundRecoveryReceiptSchema,
   returnApprovalSchema,
+  returnListSchema,
   returnReceiptSchema,
   returnRequestSchema,
   roleUpdateSchema,
+  savedWaybillVerificationSchema,
   shipmentCarrierSchema,
   shipmentReturnSchema,
   staffOrderSettingsSchema,
   staffUserListSchema,
   stockAdjustmentSchema,
+  waybillCorrectionSchema,
+  waybillSchema,
 } from './commerce.contracts.js'
 import { type Command, fail, resolveActor } from './commerce.persistence.js'
 import type { CommandResult } from './commerce.types.js'
@@ -165,6 +178,12 @@ import {
   getShipmentCarrierContext,
   identifyShipmentCarrier,
 } from './shipment-carrier.service.js'
+import {
+  confirmWaybill,
+  correctWaybill,
+  recordCarrierRecipientResult,
+  verifyWaybill,
+} from './waybill.service.js'
 
 export const commerceRouter = Router()
 
@@ -327,6 +346,23 @@ mutation(
   addressUpdateSchema,
   (command, input, request) =>
     updateAddress(command, id(request, 'orderId'), input),
+)
+mutation(
+  'post',
+  '/orders/:orderId/bank-transfer-payment',
+  'payments:complete_demo_bank_transfer',
+  z.strictObject({}),
+  (command, _input, request) =>
+    completeDemoBankTransfer(command, id(request, 'orderId')),
+)
+mutation(
+  'post',
+  '/orders/:orderId/bank-transfer-notices',
+  'payments:report_bank_transfer',
+  bankTransferReportSchema,
+  (command, input, request) =>
+    reportBankTransfer(command, id(request, 'orderId'), input),
+  201,
 )
 mutation(
   'post',
@@ -510,22 +546,20 @@ commerceRouter.get(
   '/staff/returns',
   async (request: AuthenticatedRequest, response) =>
     response.json({
-      data: await listAfterSaleWork(
-        userId(request),
-        paginationSchema.parse(request.query),
-        'returns',
-      ),
+      data: await listAfterSaleWork(userId(request), {
+        kind: 'returns',
+        filters: returnListSchema.parse(request.query),
+      }),
     }),
 )
 commerceRouter.get(
   '/staff/refunds',
   async (request: AuthenticatedRequest, response) =>
     response.json({
-      data: await listAfterSaleWork(
-        userId(request),
-        paginationSchema.parse(request.query),
-        'refunds',
-      ),
+      data: await listAfterSaleWork(userId(request), {
+        kind: 'refunds',
+        filters: refundListSchema.parse(request.query),
+      }),
     }),
 )
 mutation(
@@ -601,6 +635,19 @@ mutation(
   paymentReceiptCreateSchema,
   (command, input) => recordPaymentReceipt(command, input),
   201,
+)
+mutation(
+  'post',
+  '/staff/orders/:orderId/bank-transfer-notices/:noticeId/review',
+  'payments:review_bank_transfer_notice',
+  bankTransferNoticeReviewSchema,
+  (command, input, request) =>
+    reviewBankTransferNotice(
+      command,
+      id(request, 'orderId'),
+      id(request, 'noticeId'),
+      input,
+    ),
 )
 commerceRouter.get(
   '/admin/payment-receipts/unallocated',
@@ -919,6 +966,39 @@ mutation(
 )
 mutation(
   'post',
+  '/staff/orders/:orderId/waybill',
+  'fulfillment:confirm_waybill',
+  waybillSchema,
+  (command, input, request) =>
+    confirmWaybill(command, id(request, 'orderId'), input),
+  201,
+)
+mutation(
+  'post',
+  '/staff/orders/:orderId/waybill/correction',
+  'fulfillment:correct_waybill',
+  waybillCorrectionSchema,
+  (command, input, request) =>
+    correctWaybill(command, id(request, 'orderId'), input),
+)
+mutation(
+  'post',
+  '/staff/orders/:orderId/waybill/verification',
+  'fulfillment:verify_waybill',
+  savedWaybillVerificationSchema,
+  (command, input, request) =>
+    verifyWaybill(command, id(request, 'orderId'), input),
+)
+mutation(
+  'post',
+  '/staff/orders/:orderId/shipment/recipient-result',
+  'fulfillment:carrier_recipient_result',
+  carrierRecipientResultSchema,
+  (command, input, request) =>
+    recordCarrierRecipientResult(command, id(request, 'orderId'), input),
+)
+mutation(
+  'post',
   '/staff/orders/:orderId/dispatch',
   'fulfillment:dispatch',
   dispatchSchema,
@@ -974,8 +1054,9 @@ mutation(
   'post',
   '/staff/orders/:orderId/retry-delivery',
   'fulfillment:retry',
-  emptySchema,
-  (command, _input, request) => retryDelivery(command, id(request, 'orderId')),
+  deliveryRetrySchema,
+  (command, input, request) =>
+    retryDelivery(command, id(request, 'orderId'), input),
 )
 mutation(
   'post',

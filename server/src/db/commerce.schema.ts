@@ -703,6 +703,7 @@ export const payments = pgTable(
     duplicateOfId: uuid('duplicate_of_id'),
     revision: integer('revision').default(1).notNull(),
     reference: text('reference').notNull(),
+    remittanceNote: text('remittance_note'),
     amountVnd: money('amount_vnd'),
     currency: text('currency').default('VND').notNull(),
     receivedAt: timestamp('received_at', { withTimezone: true }).notNull(),
@@ -731,6 +732,10 @@ export const payments = pgTable(
     check(
       'commerce_payments_values_check',
       sql`${t.method} in ('cod', 'bank_transfer') and ${t.amountVnd} between 1 and 9999999999 and ${t.currency} = 'VND'`,
+    ),
+    check(
+      'commerce_payments_remittance_note_check',
+      sql`${t.remittanceNote} is null or char_length(${t.remittanceNote}) between 1 and 1000`,
     ),
     index('commerce_payments_collection_idx').on(t.codCollectionId),
     foreignKey({
@@ -1019,8 +1024,16 @@ export const shipments = pgTable(
     // Historical shipments can remain unknown until their carrier is verified.
     carrierId: uuid('carrier_id').references(() => carriers.id),
     trackingReference: text('tracking_reference').notNull(),
+    recipientSnapshot: jsonb('recipient_snapshot').$type<Recipient>(),
+    handedOverAt: timestamp('handed_over_at', { withTimezone: true }),
     status: text('status', {
-      enum: ['in_transit', 'delivery_failed', 'delivered', 'returned'],
+      enum: [
+        'ready_to_ship',
+        'in_transit',
+        'delivery_failed',
+        'delivered',
+        'returned',
+      ],
     })
       .default('in_transit')
       .notNull(),
@@ -1043,16 +1056,21 @@ export const shipments = pgTable(
       .where(sql`${t.carrierId} is null`),
     check(
       'commerce_shipments_status_check',
-      sql`${t.status} in ('in_transit', 'delivery_failed', 'delivered', 'returned')`,
+      sql`${t.status} in ('ready_to_ship', 'in_transit', 'delivery_failed', 'delivered', 'returned')`,
     ),
     check(
       'commerce_shipments_attempts_check',
       sql`${t.failedAttempts} between 0 and 3`,
     ),
     check(
+      'commerce_shipments_handover_check',
+      sql`(${t.status} = 'ready_to_ship' and ${t.handedOverAt} is null and ${t.failedAttempts} = 0)
+        or (${t.status} <> 'ready_to_ship' and ${t.handedOverAt} is not null and ${t.handedOverAt} >= ${t.createdAt})`,
+    ),
+    check(
       'commerce_shipments_lifecycle_check',
       sql`
-      (${t.status} in ('in_transit', 'delivery_failed') and ${t.deliveredAt} is null and ${t.returnedAt} is null)
+      (${t.status} in ('ready_to_ship', 'in_transit', 'delivery_failed') and ${t.deliveredAt} is null and ${t.returnedAt} is null)
       or (${t.status} = 'delivered' and ${t.deliveredAt} is not null and ${t.returnedAt} is null)
       or (${t.status} = 'returned' and ${t.returnedAt} is not null and ${t.deliveredAt} is null)`,
     ),

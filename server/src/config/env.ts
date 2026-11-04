@@ -130,8 +130,24 @@ const envSchema = z
     ORDER_BANK_NAME: optionalSetting,
     ORDER_BANK_ACCOUNT_NUMBER: optionalSetting,
     ORDER_BANK_ACCOUNT_HOLDER: optionalSetting,
+    ORDER_DEMO_BANK_TRANSFER_ENABLED: z
+      .enum(['true', 'false'])
+      .default('false')
+      .transform((value) => value === 'true'),
   })
   .superRefine((value, context) => {
+    if (
+      value.ORDER_DEMO_BANK_TRANSFER_ENABLED &&
+      (value.NODE_ENV !== 'development' ||
+        !['localhost', '127.0.0.1', '[::1]'].includes(
+          new URL(value.DATABASE_URL).hostname,
+        ))
+    )
+      context.addIssue({
+        code: 'custom',
+        message: 'Demo bank transfers require development and a local database',
+        path: ['ORDER_DEMO_BANK_TRANSFER_ENABLED'],
+      })
     if (value.NODE_ENV !== 'production') {
       return
     }
@@ -201,4 +217,6 @@ export const env: Env = envSchema.parse({
   ORDER_BANK_NAME: process.env.ORDER_BANK_NAME,
   ORDER_BANK_ACCOUNT_NUMBER: process.env.ORDER_BANK_ACCOUNT_NUMBER,
   ORDER_BANK_ACCOUNT_HOLDER: process.env.ORDER_BANK_ACCOUNT_HOLDER,
+  ORDER_DEMO_BANK_TRANSFER_ENABLED:
+    process.env.ORDER_DEMO_BANK_TRANSFER_ENABLED,
 })

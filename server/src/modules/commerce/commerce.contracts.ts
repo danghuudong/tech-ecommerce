@@ -13,6 +13,12 @@ import {
 export const idSchema = z.uuid().transform((value) => value.toLowerCase())
 const note = z.string().trim().min(3).max(1000)
 const reference = z.string().trim().min(3).max(200)
+const remittanceNote = z
+  .string()
+  .trim()
+  .max(1000)
+  .transform((value) => value || undefined)
+  .optional()
 const money = z.number().int().min(1).max(MAX_VND)
 const quantity = z.number().int().min(1).max(MAX_QUANTITY)
 const productCategorySchema = z.enum(productCategoryCodes)
@@ -40,6 +46,45 @@ export const paginationSchema = z.strictObject({
   limit: z.coerce.number().int().min(1).max(100).default(20),
   offset: z.coerce.number().int().min(0).max(100_000).default(0),
 })
+const afterSaleListSchema = paginationSchema.extend({
+  q: z.string().trim().max(120).optional(),
+  createdOn: z.iso.date().optional(),
+})
+export const returnListSchema = afterSaleListSchema.extend({
+  view: z.enum(['pending', 'closed', 'all']).default('pending'),
+  status: z
+    .enum([
+      'requested',
+      'approved',
+      'receiving',
+      'received',
+      'rejected',
+      'withdrawn',
+      'closed',
+    ])
+    .optional(),
+  responsibility: z.enum(['customer', 'store', 'carrier']).optional(),
+})
+export type ReturnListInput = z.infer<typeof returnListSchema>
+export const refundListSchema = afterSaleListSchema.extend({
+  view: z.enum(['pending', 'settled', 'all']).default('pending'),
+  status: z
+    .enum([
+      'awaiting_payment',
+      'pending',
+      'processing',
+      'unknown',
+      'needs_review',
+      'partially_settled',
+      'settled',
+      'voided',
+    ])
+    .optional(),
+  reason: z
+    .enum(['cancellation', 'return', 'return_to_sender', 'overpayment'])
+    .optional(),
+})
+export type RefundListInput = z.infer<typeof refundListSchema>
 export const productListSchema = paginationSchema.extend({
   q: z.string().trim().max(120).optional(),
 })
@@ -96,6 +141,10 @@ export const orderListSchema = paginationSchema.extend({
     .optional(),
   placedOn: z.iso.date().optional(),
   paymentReviewOverdue: z
+    .enum(['true', 'false'])
+    .transform((value) => value === 'true')
+    .optional(),
+  bankTransferNoticePending: z
     .enum(['true', 'false'])
     .transform((value) => value === 'true')
     .optional(),
@@ -278,10 +327,59 @@ export const staffOrderSettingsSchema = z
     message: 'Choose a shift end before accepting orders',
     path: ['shiftEndsAt'],
   })
-export const dispatchSchema = z.strictObject({
+export const packingChecklistSchema = z.strictObject({
+  productsChecked: z.literal(true),
+  conditionChecked: z.literal(true),
+  packagingChecked: z.literal(true),
+})
+export const waybillVerificationSchema = z.strictObject({
+  recipientVerified: z.literal(true),
+  paymentVerified: z.literal(true),
+})
+export const waybillSchema = z.strictObject({
   ...orderRevisionSchema.shape,
   carrierId: idSchema,
   trackingReference: reference,
+  ...waybillVerificationSchema.shape,
+})
+export const waybillCorrectionSchema = waybillSchema.extend({
+  shipmentId: idSchema,
+  reason: note,
+})
+const optionalWaybillVerification = {
+  recipientVerified: z.literal(true).optional(),
+  paymentVerified: z.literal(true).optional(),
+}
+export const savedWaybillVerificationSchema = orderRevisionSchema
+  .extend({
+    shipmentId: idSchema,
+    ...optionalWaybillVerification,
+  })
+  .refine((input) => input.recipientVerified || input.paymentVerified, {
+    message: 'Select at least one verification to record',
+  })
+export const dispatchSchema = waybillSchema
+  .omit({
+    recipientVerified: true,
+    paymentVerified: true,
+  })
+  .extend({
+    ...optionalWaybillVerification,
+    packingChecklist: packingChecklistSchema,
+  })
+export const carrierRecipientResultSchema = z.strictObject({
+  ...orderRevisionSchema.shape,
+  shipmentId: idSchema,
+  carrierId: idSchema,
+  trackingReference: reference,
+  recipient: recipientSchema,
+  outcome: z.enum(['accepted', 'rejected']),
+  reference,
+  reason: note,
+  confirmedAt: z.iso
+    .datetime({ offset: true })
+    .transform((value) => new Date(value)),
+  evidenceVerified: z.literal(true),
 })
 export const shipmentCarrierSchema = z.strictObject({
   carrierId: idSchema,
@@ -310,6 +408,11 @@ export const deliverySchema = z.strictObject({
     .datetime({ offset: true })
     .transform((value) => new Date(value)),
 })
+export const deliveryRetrySchema = orderRevisionSchema.extend({
+  shipmentId: idSchema,
+  reason: note,
+  reference: reference.optional(),
+})
 export const paymentSchema = z.strictObject({
   method: z.enum(['cod', 'bank_transfer']),
   source: z.literal('customer'),
@@ -322,6 +425,34 @@ export const paymentSchema = z.strictObject({
     .transform((value) => new Date(value)),
   receiptVerified: z.literal(true),
 })
+export const bankTransferReportSchema = z.strictObject({
+  amountVnd: money,
+  currency: z.literal('VND'),
+  reference,
+  transferredAt: z.iso
+    .datetime({ offset: true })
+    .transform((value) => new Date(value)),
+  evidenceReference: reference.optional(),
+  note: note.optional(),
+})
+export const bankTransferNoticeReviewSchema = z.discriminatedUnion('outcome', [
+  z.strictObject({
+    outcome: z.literal('recorded'),
+    paymentId: idSchema,
+    reason: note,
+    evidenceReference: reference,
+    evidenceVerified: z.literal(true),
+  }),
+  z.strictObject({
+    outcome: z.literal('not_found'),
+    statementCheckedThrough: z.iso
+      .datetime({ offset: true })
+      .transform((value) => new Date(value)),
+    reason: note,
+    evidenceReference: reference,
+    evidenceVerified: z.literal(true),
+  }),
+])
 export const collectionResolutionSchema = z.strictObject({
   party: z.enum(['customer', 'carrier']).default('customer'),
   disposition: z.enum(['debt', 'written_off']),
@@ -393,6 +524,10 @@ export const paymentReceiptCreateSchema = paymentSchema
     // Accepted for old callers as recording metadata; eligibility is per allocation.
     method: paymentSchema.shape.method.optional(),
     source: z.enum(['customer', 'carrier']),
+    remittanceNote,
+    bankTransferNotice: z
+      .strictObject({ orderId: idSchema, noticeId: idSchema })
+      .optional(),
     ...classificationEvidence,
     allocations: allocationPlanSchema.pipe(
       z.array(allocationLineSchema).min(1),
@@ -536,10 +671,9 @@ export const codCollectionAdjustmentSchema =
         'Each remittance can have only one allocation',
       ),
   })
-const carrierRemittanceFields = paymentSchema.omit({
-  method: true,
-  source: true,
-})
+const carrierRemittanceFields = paymentSchema
+  .omit({ method: true, source: true })
+  .extend({ remittanceNote })
 const carrierRemittanceAllocations = z
   .array(
     z.strictObject({
@@ -671,10 +805,24 @@ export const roleUpdateSchema = z.strictObject({
 })
 
 export type CheckoutInput = z.infer<typeof checkoutSchema>
+export type DispatchInput = z.infer<typeof dispatchSchema>
+export type DeliveryRetryInput = z.infer<typeof deliveryRetrySchema>
+export type WaybillInput = z.infer<typeof waybillSchema>
+export type WaybillCorrectionInput = z.infer<typeof waybillCorrectionSchema>
+export type SavedWaybillVerificationInput = z.infer<
+  typeof savedWaybillVerificationSchema
+>
+export type CarrierRecipientResultInput = z.infer<
+  typeof carrierRecipientResultSchema
+>
 export type ShipmentCarrierInput = z.infer<typeof shipmentCarrierSchema>
 export type ProductCreateInput = z.infer<typeof productCreateSchema>
 export type ProductUpdateInput = z.infer<typeof productUpdateSchema>
 export type PaymentInput = z.infer<typeof paymentSchema>
+export type BankTransferReportInput = z.infer<typeof bankTransferReportSchema>
+export type BankTransferNoticeReviewInput = z.infer<
+  typeof bankTransferNoticeReviewSchema
+>
 export type PaymentReceiptCreateInput = z.infer<
   typeof paymentReceiptCreateSchema
 >

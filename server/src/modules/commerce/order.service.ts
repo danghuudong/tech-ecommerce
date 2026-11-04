@@ -1,6 +1,12 @@
 import { and, eq, inArray, ne, or, sql } from 'drizzle-orm'
 import { env } from '../../config/env.js'
-import { orders, returns, roleChanges, user } from '../../db/schema.js'
+import {
+  orders,
+  returns,
+  roleChanges,
+  shipments,
+  user,
+} from '../../db/schema.js'
 import { revokeAdminSessions } from '../auth/session-revocation.js'
 import { assertBankPaymentApproved } from './bank-payment-policy.js'
 import {
@@ -25,6 +31,7 @@ import {
   lockOrderRouting,
   setOrderAssignee,
 } from './order-assignment.service.js'
+import { canEditOrderRecipient } from './order-recipient-policy.js'
 import { paymentSummaryForOrder } from './payment-ledger.js'
 import { assertPendingRefundsKeepChecker } from './refund-policy.js'
 import {
@@ -126,12 +133,17 @@ export function updateAddress(
         ? identity
         : { ...identity, role: 'customer' as const }
       const order = await lockOrder(tx, orderId)
-      assertOwnerOrProcessor(actor, order)
-      if (!['placed', 'confirmed'].includes(order.status))
+      if (staff) assertOrderAccess(actor, order, true)
+      else assertOwnerOrProcessor(actor, order)
+      const [waybill] = await tx
+        .select({ id: shipments.id })
+        .from(shipments)
+        .where(eq(shipments.orderId, orderId))
+      if (!canEditOrderRecipient(actor.role, order, Boolean(waybill)))
         fail(
           409,
           'ADDRESS_CHANGE_CLOSED',
-          'Recipient can only change before packing',
+          'Customers may edit before confirmation; staff may edit before the waybill is confirmed',
         )
       await assertReservationActive(tx, order)
       if (order.revision !== input.expectedRevision)
@@ -150,6 +162,7 @@ export function updateAddress(
         })
         .where(eq(orders.id, orderId))
       await appendOrderEvent(tx, actor, orderId, 'recipient_changed', {
+        stage: order.status,
         previousRecipient: { ...order.recipient },
         recipient: { ...input.recipient },
       })

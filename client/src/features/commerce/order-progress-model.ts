@@ -25,6 +25,10 @@ const milestones: Record<string, OrderStage> = {
 
 const relatedEvents: Record<string, OrderStage> = {
   recipient_changed: 'placed',
+  waybill_confirmed: 'packing',
+  waybill_corrected: 'packing',
+  waybill_verified: 'packing',
+  carrier_recipient_change_recorded: 'shipped',
   order_assigned: 'placed',
   bank_deadline_reconciled: 'confirmed',
   shipment_carrier_identified: 'shipped',
@@ -33,6 +37,7 @@ const relatedEvents: Record<string, OrderStage> = {
   delivery_failed: 'shipped',
   delivery_retried: 'shipped',
   delivery_retry_started: 'shipped',
+  delivery_retry_requested: 'shipped',
   undelivered_shipment_received: 'shipped',
   payment_recorded: 'completed',
   payment_receipt_recorded: 'completed',
@@ -70,7 +75,13 @@ export function orderProgressModel(
   let lastStage: OrderStage = 'placed'
   for (const event of events) {
     const milestone = milestones[event.type]
-    const stage = milestone ?? relatedEvents[event.type]
+    const stage =
+      milestone ??
+      (['recipient_changed', 'carrier_recipient_change_recorded'].includes(
+        event.type,
+      ) && isStage(event.details?.stage)
+        ? event.details.stage
+        : relatedEvents[event.type])
     if (stage) history.get(stage)?.push(event)
     if (milestone) {
       recorded.set(milestone, event)
@@ -121,7 +132,7 @@ export function orderProgressModel(
   // missing, including an undelivered shipment returned before cancellation.
   if (
     cancelled &&
-    order.shipment &&
+    order.shipment?.handedOverAt &&
     orderStages.indexOf(lastStage) < orderStages.indexOf('shipped')
   )
     lastStage = 'shipped'

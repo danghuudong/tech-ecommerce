@@ -357,6 +357,15 @@ function summarizeOrderFinancials(
   )
   const fullyPaid =
     balancesVerified && paidVnd > 0 && netPaidVnd >= order.totalVnd
+  const completedOverpaymentRefundVnd =
+    fullyPaid &&
+    order.status !== 'cancelled' &&
+    returnedGoodsVnd === 0 &&
+    refundDueVnd === 0 &&
+    committedRefundVnd === 0 &&
+    netRefundedVnd > 0
+      ? netRefundedVnd
+      : 0
   // A store loss can fund fulfillment only by an explicit admin decision. It
   // never becomes customer cash or changes the actual fully-paid balance.
   const refundLossFulfillmentEligible =
@@ -418,6 +427,7 @@ function summarizeOrderFinancials(
     refundedVnd,
     recoveredRefundVnd,
     netRefundedVnd,
+    completedOverpaymentRefundVnd,
     refundDiscrepancyVnd,
     refundDiscrepancy,
     postDeliveryShortfallVnd,
@@ -504,6 +514,12 @@ export function paymentStatus(
     return 'awaiting_late_payment_approval'
   if (payment.paidVnd === 0)
     return payment.adjustedTotalVnd === 0 ? 'not_due' : 'unpaid'
+  if (
+    payment.completedOverpaymentRefundVnd > 0 &&
+    refundedVnd - payment.recoveredRefundVnd ===
+      payment.completedOverpaymentRefundVnd
+  )
+    return 'paid'
   if (refundedVnd - payment.recoveredRefundVnd === payment.paidVnd)
     return 'refunded'
   if (refundedVnd - payment.recoveredRefundVnd > 0) return 'partially_refunded'

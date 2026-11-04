@@ -400,6 +400,8 @@ export const orderDeletionMessages: Record<OrderDeletionBlockReason, string> = {
 }
 
 export const orderUndoMessages: Record<OrderUndoBlockReason, string> = {
+  ORDER_UNDO_WAYBILL_CONFIRMED:
+    'Đơn đã lưu vận đơn nên chưa thể quay lại bước trước. Nếu nhập nhầm hãng hoặc mã vận đơn, hãy dùng Sửa vận đơn trước khi bàn giao.',
   ORDER_UNDO_DELETED: 'Hãy khôi phục đơn hàng trước khi sửa thao tác.',
   STAFF_ACCESS_REQUIRED: 'Thao tác này cần quyền nhân viên hoặc quản trị viên.',
   ORDER_ASSIGNED_ELSEWHERE: 'Bạn chỉ được sửa đơn hàng được giao cho mình.',
@@ -473,6 +475,28 @@ const messages: Record<string, string> = {
     'Mã đơn vị vận chuyển đã tồn tại. Vui lòng tìm và chọn đơn vị vận chuyển đó.',
   TRACKING_REFERENCE_IN_USE:
     'Mã vận đơn đã được sử dụng cho một đơn khác của cùng đơn vị vận chuyển.',
+  PACKING_CHECKLIST_REQUIRED:
+    'Vui lòng kiểm tra đủ sản phẩm, phụ kiện và kiện hàng trước khi bàn giao.',
+  WAYBILL_VERIFICATION_REQUIRED:
+    'Vui lòng đối chiếu người nhận, phương thức thanh toán và số tiền hãng phải thu trên vận đơn.',
+  WAYBILL_ALREADY_CONFIRMED:
+    'Vận đơn đã lưu không khớp với thông tin đang gửi. Hãy tải lại đơn; nếu nhập nhầm, dùng Sửa vận đơn trước khi bàn giao.',
+  WAYBILL_CORRECTION_CLOSED:
+    'Chỉ được lưu hoặc sửa vận đơn khi đơn còn đang đóng gói và chưa bàn giao. Hãy tải lại để xem trạng thái mới nhất.',
+  WAYBILL_UNCHANGED:
+    'Hãng và mã vận đơn chưa thay đổi. Hãy sửa thông tin nhập nhầm trước khi lưu.',
+  WAYBILL_RECIPIENT_MISMATCH:
+    'Người nhận trên vận đơn đã chốt chưa khớp với đơn. Cần xác minh và ghi nhận kết quả đổi thông tin qua hãng trước khi bàn giao.',
+  CARRIER_RESULT_OUTDATED:
+    'Đã có phản hồi đổi người nhận mới hơn hoặc trùng thời điểm. Hãy đối soát kết quả mới nhất của hãng trước khi ghi nhận.',
+  ADDRESS_CHANGE_CLOSED:
+    'Khách chỉ được tự sửa trước khi xác nhận đơn. Nhân viên được sửa trước khi chốt vận đơn; sau đó cần ghi nhận kết quả đổi thông tin qua hãng.',
+  CARRIER_RECIPIENT_CHANGE_CLOSED:
+    'Chỉ ghi nhận đổi người nhận cho vận đơn đã xác định hãng và chưa giao thành công, nhận hoàn hoặc hủy đơn.',
+  CARRIER_EVIDENCE_REQUIRED:
+    'Cần đối chiếu phản hồi thực tế của hãng trước khi cập nhật người nhận.',
+  SHIPMENT_NOT_HANDED_OVER:
+    'Vận đơn mới được chốt. Cần ghi nhận bàn giao thực tế trước khi ghi nhận giao thành công.',
   COD_CARRIER_MISMATCH:
     'Đơn vị vận chuyển thu hộ phải là đơn vị vận chuyển đã nhận bàn giao vận đơn của đơn hàng.',
   SHIPMENT_CARRIER_REQUIRED:
@@ -570,6 +594,23 @@ const messages: Record<string, string> = {
   INVALID_ORDER_STATE: 'Trạng thái đơn hàng đã thay đổi. Vui lòng tải lại.',
   INVALID_RETURN_STATE:
     'Trạng thái yêu cầu trả hàng đã thay đổi. Vui lòng tải lại.',
+  BANK_TRANSFER_ORDER_REQUIRED:
+    'Thông báo chuyển khoản chỉ áp dụng cho đơn thanh toán chuyển khoản.',
+  BANK_TRANSFER_PAYMENT_UNAVAILABLE:
+    'Đơn hàng hiện chưa thể thanh toán. Vui lòng cập nhật trạng thái hoặc liên hệ cửa hàng.',
+  BANK_TRANSFER_NOTICE_PENDING:
+    'Cần đối chiếu thông báo khách đã chuyển khoản trước khi tiếp tục. Không gửi thêm thông báo khi thông báo trước còn chờ kiểm tra.',
+  BANK_TRANSFER_NOTICE_NOT_FOUND: 'Không tìm thấy thông báo chuyển khoản này.',
+  BANK_TRANSFER_NOTICES_REVIEW_REQUIRED:
+    'Cần đối chiếu các thông báo khách đã chuyển khoản trước khi hủy đơn do chưa thanh toán đúng hạn.',
+  BANK_TRANSFER_NOTICE_ALREADY_REVIEWED:
+    'Thông báo đã được đối chiếu với khoản thu hợp lệ. Vui lòng xem dữ liệu mới.',
+  BANK_TRANSFER_RECEIPT_REQUIRED:
+    'Chọn khoản chuyển khoản thực nhận đã xác minh và được phân bổ cho đơn này.',
+  BANK_TRANSFER_RECEIPT_ALREADY_MATCHED:
+    'Khoản thu này đã đối chiếu với một thông báo khác của cùng đơn hàng.',
+  BANK_TRANSFER_NOTICE_ALLOCATION_REQUIRED:
+    'Khoản thu của khách phải được phân bổ cho đơn có thông báo chuyển khoản.',
   BANK_TRANSFER_NOT_CONFIGURED:
     'Chuyển khoản chưa được cấu hình. Vui lòng chọn COD.',
   PENDING_ORDER_LIMIT:

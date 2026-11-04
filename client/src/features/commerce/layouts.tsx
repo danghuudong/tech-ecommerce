@@ -5,6 +5,8 @@ import {
   Landmark,
   Menu,
   Package,
+  PanelLeftClose,
+  PanelLeftOpen,
   RotateCcw,
   Search,
   ShoppingCart,
@@ -12,11 +14,16 @@ import {
   Users,
 } from 'lucide-react'
 import { DropdownMenu } from 'radix-ui'
-import { type ReactNode, useState } from 'react'
+import { type ReactNode, useEffect, useState } from 'react'
 import { StoreHeader } from '@/shared/components/store-layout/store-header'
 import { useActor, useSession } from './api'
 import { Action, ErrorNotice } from './components'
-import { canManageOrders, canManagePayments, roleLabels } from './roles'
+import {
+  canManageOrders,
+  canManagePayments,
+  getAfterSaleLabel,
+  roleLabels,
+} from './roles'
 import { SessionScopeContext } from './session-scope'
 import { SignOut } from './sign-out'
 import { StaffShiftCard } from './staff-shift-card'
@@ -98,13 +105,44 @@ function StaffWorkspace({ children }: { children: ReactNode }) {
   const actor = useActor()
   const location = useLocation()
   const [open, setOpen] = useState(false)
-  const visibleLinks = staffLinks.filter(({ to }) => {
-    if (to === '/staff/payments') return canManagePayments(actor.data?.role)
-    if (to === '/staff/fulfillment') return canManageOrders(actor.data?.role)
-    if (to === '/staff/team') return actor.data?.role === 'admin'
-    if (to === '/staff/receiving-accounts') return actor.data?.role === 'admin'
-    return true
+  const [collapsed, setCollapsed] = useState(() => {
+    try {
+      return (
+        window.localStorage.getItem('commerce:sidebar-collapsed') === 'true'
+      )
+    } catch {
+      return false
+    }
   })
+  useEffect(() => {
+    try {
+      window.localStorage.setItem(
+        'commerce:sidebar-collapsed',
+        String(collapsed),
+      )
+    } catch {
+      // Keep the toggle usable when browser storage is unavailable.
+    }
+  }, [collapsed])
+  const afterSaleLabel = getAfterSaleLabel(actor.data?.role)
+  const visibleLinks = staffLinks
+    .filter(({ to }) => {
+      if (to === '/staff/payments') return canManagePayments(actor.data?.role)
+      if (to === '/staff/fulfillment') return canManageOrders(actor.data?.role)
+      if (to === '/staff/returns')
+        return (
+          canManageOrders(actor.data?.role) ||
+          canManagePayments(actor.data?.role)
+        )
+      if (to === '/staff/team') return actor.data?.role === 'admin'
+      if (to === '/staff/receiving-accounts')
+        return actor.data?.role === 'admin'
+      return true
+    })
+    .map((link) => ({
+      ...link,
+      label: link.to === '/staff/returns' ? afterSaleLabel : link.label,
+    }))
   const active = location.pathname.startsWith('/staff/orders/')
     ? staffLinks[1]
     : (staffLinks.find((link) => location.pathname === link.to) ??
@@ -117,10 +155,27 @@ function StaffWorkspace({ children }: { children: ReactNode }) {
     .join('')
     .toUpperCase()
   return (
-    <div className={`commerce-app c-staff${open ? ' c-staff--menu-open' : ''}`}>
-      <aside className="c-sidebar">
-        <div>
+    <div
+      className={`commerce-app c-staff${open ? ' c-staff--menu-open' : ''}${collapsed ? ' c-staff--sidebar-collapsed' : ''}`}
+    >
+      <aside id="staff-sidebar" className="c-sidebar">
+        <div className="c-sidebar__header">
           <Brand to="/staff/orders" />
+          <button
+            type="button"
+            className="c-sidebar-toggle"
+            onClick={() => setCollapsed((value) => !value)}
+            aria-controls="staff-sidebar"
+            aria-expanded={!collapsed}
+            aria-label={collapsed ? 'Mở rộng sidebar' : 'Thu gọn sidebar'}
+            title={collapsed ? 'Mở rộng sidebar' : 'Thu gọn sidebar'}
+          >
+            {collapsed ? (
+              <PanelLeftOpen size={20} aria-hidden="true" />
+            ) : (
+              <PanelLeftClose size={20} aria-hidden="true" />
+            )}
+          </button>
           <small className="c-sidebar__caption">VẬN HÀNH</small>
         </div>
         <nav aria-label="Điều hướng vận hành">
@@ -130,9 +185,12 @@ function StaffWorkspace({ children }: { children: ReactNode }) {
               to={to}
               onClick={() => setOpen(false)}
               className={active.to === to ? 'is-active' : ''}
+              aria-label={label}
+              aria-current={active.to === to ? 'page' : undefined}
+              title={label}
             >
-              <Icon size={20} />
-              {label}
+              <Icon size={20} aria-hidden="true" />
+              <span className="c-sidebar__label">{label}</span>
             </Link>
           ))}
         </nav>
@@ -142,15 +200,18 @@ function StaffWorkspace({ children }: { children: ReactNode }) {
           <Action
             variant="ghost"
             className="c-mobile-menu"
-            onClick={() => setOpen(!open)}
+            onClick={() => setOpen((value) => !value)}
+            aria-controls="staff-sidebar"
             aria-expanded={open}
-            aria-label="Mở điều hướng"
+            aria-label={open ? 'Đóng điều hướng' : 'Mở điều hướng'}
           >
             <Menu size={21} />
           </Action>
           <span>
             Trang chủ<span className="c-breadcrumb-separator">›</span>
-            <strong>{active.label}</strong>
+            <strong>
+              {active.to === '/staff/returns' ? afterSaleLabel : active.label}
+            </strong>
             {location.pathname.startsWith('/staff/orders/') && (
               <span> / Chi tiết đơn hàng</span>
             )}

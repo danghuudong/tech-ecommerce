@@ -2,6 +2,7 @@ import { and, eq, inArray, isNull, lte, or, sql } from 'drizzle-orm'
 import { db } from '../../config/db.js'
 import { logger } from '../../config/logger.js'
 import { orders } from '../../db/schema.js'
+import { bankTransferAutoCancellationFilter } from './bank-payment-expiry-policy.js'
 import { databaseNow } from './commerce.persistence.js'
 import { expireOrderReservation } from './reservation.service.js'
 
@@ -21,6 +22,9 @@ function expiredReservationFilter() {
     lte(orders.reservationExpiresAt, sql`clock_timestamp()`),
     or(
       eq(orders.paymentMethod, 'cod'),
+      // Include previously queued bank reviews once their pending work is
+      // resolved, without repeatedly selecting blocked reviews ahead of them.
+      bankTransferAutoCancellationFilter(),
       isNull(orders.paymentReviewRequiredAt),
       and(
         isNull(orders.paymentReviewEscalatedAt),

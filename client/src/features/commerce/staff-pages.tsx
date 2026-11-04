@@ -9,7 +9,6 @@ import {
   RefreshCw,
   RotateCcw,
   Search,
-  Send,
   Truck,
   UserRound,
   Wallet,
@@ -25,12 +24,11 @@ import {
   useOrder,
   write,
 } from './api'
-import { CarrierPicker } from './carrier-picker'
+import { CarrierRecipientResultDrawer } from './carrier-recipient-result'
 import {
   AccessGate,
   Action,
   Badge,
-  CompactLines,
   CopyValue,
   Drawer,
   Empty,
@@ -45,6 +43,7 @@ import {
   PageHeading,
   Pagination,
   Panel,
+  PaymentStatusBadge,
   PriceSummary,
   ProductThumb,
   QueryError,
@@ -53,12 +52,15 @@ import {
   useOrderId,
 } from './components'
 import { inputToIso, serverClockNow, vietnamDateInput } from './date-time'
+import { DeliveryRetryDrawer } from './delivery-retry'
+import { DispatchForm } from './dispatch-form'
 import { StaffLayout } from './layouts'
 import { OrderAssignmentOverview } from './order-assignment-settings'
 import { OrderDeletionButton } from './order-deletion'
 import { AddressDrawer, ReasonDrawer } from './order-pages'
 import { OrderProgress } from './order-progress'
 import { OrderUndoControl } from './order-undo'
+import { recipientVerificationKey } from './packing-checklist'
 import { canManagePayments } from './roles'
 import { ShipmentCarrierForm } from './shipment-carrier-form'
 import type { OrderDetail, OrderPage, Page, StaffOrderSettings } from './types'
@@ -114,7 +116,6 @@ function StaffOrdersContent() {
   const [text, setText] = useState(initialQ)
   const [q, setQ] = useState(initialQ)
   const [offset, setOffset] = useState(0)
-  const [selected, setSelected] = useState<string | null>(null)
   const actor = useActor()
   useEffect(() => {
     setQ(initialQ)
@@ -162,9 +163,6 @@ function StaffOrdersContent() {
     setTab('all')
     setFilter(value)
   }
-  const selectedId = orders.data?.items.some((order) => order.id === selected)
-    ? selected
-    : orders.data?.items[0]?.id
   return (
     <>
       <PageHeading
@@ -196,7 +194,7 @@ function StaffOrdersContent() {
           onClick={() => selectStatusStat('packing')}
         />
         <Stat
-          label="Đang giao"
+          label="Đang vận chuyển"
           value={stats?.shipped}
           icon={<Truck size={23} />}
           onClick={() => selectStatusStat('shipped')}
@@ -363,18 +361,9 @@ function StaffOrdersContent() {
                   </thead>
                   <tbody>
                     {orders.data.items.map((order) => (
-                      <tr
-                        key={order.id}
-                        className={order.id === selectedId ? 'is-selected' : ''}
-                      >
+                      <tr key={order.id}>
                         <td>
-                          <button
-                            type="button"
-                            className="c-row-select"
-                            onClick={() => setSelected(order.id)}
-                          >
-                            #{order.code}
-                          </button>
+                          <strong className="c-red">#{order.code}</strong>
                           <small>{formatDate(order.createdAt)}</small>
                         </td>
                         <td>
@@ -397,7 +386,13 @@ function StaffOrdersContent() {
                                 ? 'COD'
                                 : 'Chuyển khoản'}
                             </Badge>
-                            <Badge status={order.paymentStatus} />
+                            <PaymentStatusBadge
+                              status={order.paymentStatus}
+                              orderStatus={order.status}
+                              completedOverpaymentRefundVnd={
+                                order.completedOverpaymentRefundVnd
+                              }
+                            />
                           </div>
                         </td>
                         <td>
@@ -487,87 +482,7 @@ function StaffOrdersContent() {
           </>
         )}
       </Panel>
-      {selectedId && (
-        <div style={{ marginTop: 16 }}>
-          <OrderQueuePreview key={selectedId} id={selectedId} />
-        </div>
-      )}
     </>
-  )
-}
-
-function OrderQueuePreview({ id }: { id: string }) {
-  const order = useOrder(id, true)
-  const advance = useCommand(
-    (action: 'confirm' | 'pack') =>
-      write(`staff/orders/${id}/${action}`, {
-        expectedRevision: order.data?.revision,
-      }),
-    orderQueryPaths,
-  )
-  if (order.isPending)
-    return (
-      <Panel>
-        <Loading />
-      </Panel>
-    )
-  if (order.isError)
-    return <QueryError error={order.error} retry={() => order.refetch()} />
-  const data = order.data
-  const action = data.permittedActions.staff.includes('confirm')
-    ? 'confirm'
-    : data.permittedActions.staff.includes('pack')
-      ? 'pack'
-      : null
-  return (
-    <Panel>
-      <div className="c-queue-preview">
-        <div>
-          <div className="c-badges">
-            <Badge tone="red">#{data.code}</Badge>
-            <Badge status={data.status} />
-          </div>
-          <div className="c-divider" />
-          <RecipientCard recipient={data.recipient} />
-        </div>
-        <div>
-          <strong>Sản phẩm ({data.items.length})</strong>
-          <CompactLines lines={data.items} />
-        </div>
-        <div>
-          <PriceSummary
-            subtotal={data.prices.subtotalVnd}
-            shipping={data.prices.shippingFeeVnd}
-            total={data.prices.totalVnd}
-          />
-          <ErrorNotice error={advance.error} />
-          {action ? (
-            <Action
-              className="c-button--block"
-              pending={advance.isPending}
-              onClick={() => {
-                void advance.run(action)
-              }}
-            >
-              {action === 'confirm' ? 'Xác nhận đơn hàng' : 'Tiếp tục đóng gói'}
-            </Action>
-          ) : (
-            <Link
-              to="/staff/orders/$orderId"
-              params={{ orderId: id }}
-              className="c-button c-button--secondary c-button--block"
-            >
-              Xem chi tiết đơn
-            </Link>
-          )}
-          {data.paymentMethod === 'bank_transfer' &&
-            !data.payment.bankPaymentApproved &&
-            ['placed', 'confirmed'].includes(data.status) && (
-              <small>Cần xác minh thanh toán trước khi đóng gói.</small>
-            )}
-        </div>
-      </div>
-    </Panel>
   )
 }
 
@@ -586,7 +501,13 @@ function FulfillmentContent() {
   const query = useOrder(id, true)
   const actor = useActor()
   const [dialog, setDialog] = useState<
-    'failure' | 'returned' | 'cancel' | 'address' | null
+    | 'failure'
+    | 'retry'
+    | 'returned'
+    | 'cancel'
+    | 'address'
+    | 'carrier-recipient'
+    | null
   >(null)
   const command = useCommand(
     (action: string) =>
@@ -637,7 +558,7 @@ function FulfillmentContent() {
       >
         <div className="c-badges">
           <Badge status={order.status} />
-          <Badge status={order.payment.status} />
+          <PaymentStatusBadge {...order.payment} orderStatus={order.status} />
           <Badge tone="neutral">
             {order.paymentMethod === 'cod' ? 'COD' : 'Chuyển khoản'}
           </Badge>
@@ -660,7 +581,7 @@ function FulfillmentContent() {
                       }}
                     >
                       <Check size={17} />
-                      Xác nhận đơn hàng
+                      Xác nhận và bắt đầu đóng gói
                     </Action>
                   )}
                   {actions.includes('pack') && (
@@ -712,13 +633,11 @@ function FulfillmentContent() {
                   {actions.includes('retry_delivery') && (
                     <Action
                       variant="secondary"
-                      pending={command.isPending}
-                      onClick={() => {
-                        void command.run('retry-delivery')
-                      }}
+                      disabled={command.isPending}
+                      onClick={() => setDialog('retry')}
                     >
                       <RefreshCw size={16} />
-                      Giao lại
+                      Ghi nhận yêu cầu giao lại
                     </Action>
                   )}
                   {actions.includes('receive_undelivered_shipment') && (
@@ -737,7 +656,9 @@ function FulfillmentContent() {
                 <DeliveryForm
                   key={`delivery-${order.id}-${order.shipment.id}`}
                   order={order}
-                  handedOverAt={order.shipment.createdAt}
+                  handedOverAt={
+                    order.shipment.handedOverAt ?? order.shipment.createdAt
+                  }
                   clockReceivedAt={order.clockReceivedAt}
                 />
               )}
@@ -831,6 +752,12 @@ function FulfillmentContent() {
                 </span>
                 <Badge status={order.shipment.status} />
               </div>
+              <p>
+                Các chặng về kho, phân loại, trung chuyển, đến trạm và shipper
+                đi giao được theo dõi chung trong “Đang vận chuyển”. Nhân viên
+                ghi nhận kết quả giao hàng sau khi xác minh với đơn vị vận
+                chuyển.
+              </p>
               <ShipmentCarrierForm order={order} />
             </Panel>
           )}
@@ -848,6 +775,22 @@ function FulfillmentContent() {
                 </Action>
               </div>
             )}
+            {actions.includes('record_carrier_recipient_result') && (
+              <div className="c-actions">
+                <Action
+                  variant="secondary"
+                  onClick={() => setDialog('carrier-recipient')}
+                >
+                  Ghi nhận kết quả đổi thông tin qua hãng
+                </Action>
+              </div>
+            )}
+            {order.shipment && (
+              <small>
+                Vận đơn đã chốt. Việc đổi người nhận cần phản hồi xác nhận của
+                hãng vận chuyển.
+              </small>
+            )}
           </Panel>
           <Panel title="Tổng quan đơn hàng">
             <CopyValue label="Mã đơn đầy đủ" value={order.id} />
@@ -857,12 +800,7 @@ function FulfillmentContent() {
               total={order.prices.totalVnd}
             />
             {order.paymentMethod === 'cod' && order.status !== 'cancelled' && (
-              <Notice tone="amber">
-                <strong>
-                  Còn cần thu COD {formatMoney(order.payment.amountDueVnd)}
-                </strong>
-                Đã thu từ khách: {formatMoney(order.payment.paidVnd)}
-              </Notice>
+              <CodSettlementSummary order={order} />
             )}
             {canManagePayments(actor.data?.role) && (
               <div className="c-actions">
@@ -903,7 +841,7 @@ function FulfillmentContent() {
       </div>
       {dialog === 'address' && actions.includes('update_recipient') && (
         <AddressDrawer
-          key={`${order.id}-${order.revision}`}
+          key={`${order.id}-${recipientVerificationKey(order)}`}
           order={order}
           staff
           onClose={() => setDialog(null)}
@@ -918,6 +856,29 @@ function FulfillmentContent() {
           onClose={() => setDialog(null)}
         />
       )}
+      {dialog === 'retry' &&
+        actions.includes('retry_delivery') &&
+        order.shipment && (
+          <DeliveryRetryDrawer
+            key={`${order.id}-${order.shipment.id}-${order.shipment.failedAttempts}`}
+            order={order}
+            onClose={() => setDialog(null)}
+          />
+        )}
+      {dialog === 'carrier-recipient' &&
+        actions.includes('record_carrier_recipient_result') && (
+          <CarrierRecipientResultDrawer
+            key={JSON.stringify([
+              order.id,
+              order.shipment?.id,
+              order.shipment?.carrierId,
+              order.shipment?.trackingReference,
+              recipientVerificationKey(order),
+            ])}
+            order={order}
+            onClose={() => setDialog(null)}
+          />
+        )}
       {dialog === 'cancel' && (
         <ReasonDrawer
           title="Hủy đơn hàng"
@@ -1168,103 +1129,51 @@ export function AssignmentControl({ order }: { order: OrderDetail }) {
   )
 }
 
-function DispatchForm({ order }: { order: OrderDetail }) {
-  const [checked, setChecked] = useState<boolean[]>([false, false, false])
-  const [carrierId, setCarrierId] = useState('')
-  const [validationError, setValidationError] = useState<string | null>(null)
-  const dispatch = useCommand(
-    (input: { carrierId: string; trackingReference: string }) =>
-      write(`staff/orders/${order.id}/dispatch`, {
-        ...input,
-        expectedRevision: order.revision,
-      }),
-    orderQueryPaths,
-  )
+function CodSettlementSummary({ order }: { order: OrderDetail }) {
+  const payment = order.payment
+  const amount = (value: number | null) =>
+    formatMoney(payment.balancesVerified ? value : null)
   return (
-    <form
-      className="c-form-section"
-      style={{ marginTop: 18 }}
-      noValidate
-      onSubmit={async (event) => {
-        event.preventDefault()
-        if (dispatch.isPending) return
-        const reference = String(
-          new FormData(event.currentTarget).get('tracking') ?? '',
-        ).trim()
-        const error = !checked.every(Boolean)
-          ? 'Vui lòng tích đủ 3 mục kiểm tra đóng gói trước khi bàn giao.'
-          : !carrierId
-            ? 'Vui lòng chọn đơn vị vận chuyển trước khi bàn giao.'
-            : reference.length < 3 || reference.length > 200
-              ? 'Mã vận đơn cần từ 3 đến 200 ký tự, không tính khoảng trắng ở đầu và cuối.'
-              : null
-        setValidationError(error)
-        if (error) return
-        await dispatch.run({ carrierId, trackingReference: reference })
-      }}
+    <Notice
+      tone={
+        payment.balancesVerified && order.status === 'completed'
+          ? 'blue'
+          : 'amber'
+      }
     >
-      <div className="c-packing-checks">
-        <h3>Kiểm tra và đóng gói</h3>
-        {[
-          'Đúng sản phẩm, đủ số lượng',
-          'Hàng không hư hỏng, đủ phụ kiện',
-          'Đã bọc bảo vệ và đóng kín kiện hàng',
-        ].map((label, index) => (
-          <label className="c-check" key={label}>
-            <input
-              type="checkbox"
-              checked={checked[index]}
-              disabled={dispatch.isPending}
-              onChange={(event) => {
-                const isChecked = event.currentTarget.checked
-                setChecked((current) =>
-                  current.map((value, position) =>
-                    position === index ? isChecked : value,
-                  ),
-                )
-                setValidationError(null)
-              }}
-            />
-            {label}
-          </label>
-        ))}
-      </div>
-      <h3>Bàn giao vận chuyển</h3>
-      <CarrierPicker
-        value={carrierId}
-        onChange={(value) => {
-          setCarrierId(value)
-          setValidationError(null)
-        }}
-        disabled={dispatch.isPending}
-      />
-      <Field
-        label="Mã vận đơn *"
-        hint="Nhập mã vận đơn do đơn vị vận chuyển cấp."
-      >
-        <input
-          name="tracking"
-          required
-          minLength={3}
-          maxLength={200}
-          disabled={dispatch.isPending}
-          placeholder="Nhập mã vận đơn thực tế"
-          onChange={() => setValidationError(null)}
-        />
-      </Field>
-      {validationError && (
-        <Notice tone="red">
-          <span role="alert">{validationError}</span>
-        </Notice>
+      <strong>Đối soát COD</strong>
+      <dl className="c-cod-settlement">
+        <div>
+          <dt>Khách đã trả cho hãng</dt>
+          <dd>{amount(payment.customerPaidToCarrierVnd)}</dd>
+        </div>
+        <div>
+          <dt>Khách còn phải thanh toán</dt>
+          <dd>{amount(payment.purchaseAmountDueVnd)}</dd>
+        </div>
+        <div>
+          <dt>Hãng đã nộp về cửa hàng</dt>
+          <dd>{amount(payment.carrierRemittedVnd)}</dd>
+        </div>
+        <div>
+          <dt>Hãng còn phải nộp</dt>
+          <dd>{amount(payment.carrierAmountDueVnd)}</dd>
+        </div>
+      </dl>
+      {!payment.balancesVerified ? (
+        <p>Cần đối soát chứng từ trước khi xác định số tiền còn phải thu.</p>
+      ) : order.status === 'delivered' ? (
+        <p>
+          Đã giao thành công. Hệ thống xét hoàn tất sau khi các khoản thanh
+          toán, thu hộ và chênh lệch được xử lý.
+        </p>
+      ) : (
+        <p>
+          Kế toán hoặc quản trị viên ghi nhận riêng tiền khách trả cho hãng và
+          tiền hãng nộp về cửa hàng tại Thanh toán &amp; đối soát.
+        </p>
       )}
-      <ErrorNotice error={dispatch.error} />
-      <div className="c-actions c-actions--end">
-        <Action type="submit" pending={dispatch.isPending}>
-          <Send size={16} />
-          Xác nhận bàn giao
-        </Action>
-      </div>
-    </form>
+    </Notice>
   )
 }
 

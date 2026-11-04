@@ -26,6 +26,7 @@ import {
   type ReactNode,
   useEffect,
   useId,
+  useMemo,
   useRef,
   useState,
 } from 'react'
@@ -75,9 +76,9 @@ export const orderLabels: Record<OrderStatus, string> = {
   placed: 'Chờ xác nhận',
   confirmed: 'Đã xác nhận',
   packing: 'Đang đóng gói',
-  shipped: 'Đang giao',
+  shipped: 'Đang vận chuyển',
   delivered: 'Đã giao',
-  completed: 'Hoàn thành',
+  completed: 'Hoàn tất',
   cancelled: 'Đã hủy',
 }
 
@@ -119,6 +120,7 @@ const labels: Record<string, string> = {
   partially_settled: 'Đã hoàn một phần',
   voided: 'Đã hủy nghĩa vụ',
   in_transit: 'Đang vận chuyển',
+  ready_to_ship: 'Đã chốt vận đơn, chờ bàn giao',
   delivery_failed: 'Giao không thành công',
   returned: 'Đã nhận hàng hoàn',
 }
@@ -161,6 +163,35 @@ export function Badge({
   )
 }
 
+export function PaymentStatusBadge({
+  status,
+  orderStatus,
+  completedOverpaymentRefundVnd,
+}: {
+  status: string
+  orderStatus: OrderStatus
+  completedOverpaymentRefundVnd: number | null
+}) {
+  const cancelledPaymentLabels: Record<string, string> = {
+    overpaid: 'Chờ hoàn tiền',
+    partially_refunded: 'Chờ hoàn phần còn lại',
+  }
+  const cancelledLabel =
+    orderStatus === 'cancelled' ? cancelledPaymentLabels[status] : undefined
+  return (
+    <span className="c-payment-status">
+      <Badge status={status}>{cancelledLabel}</Badge>
+      {status === 'paid' &&
+        completedOverpaymentRefundVnd != null &&
+        completedOverpaymentRefundVnd > 0 && (
+          <small className="c-payment-status__note">
+            Đã hoàn đủ tiền dư: {formatMoney(completedOverpaymentRefundVnd)}
+          </small>
+        )}
+    </span>
+  )
+}
+
 export function Action({
   children,
   pending,
@@ -184,6 +215,36 @@ export function Action({
       )}
       {children}
     </button>
+  )
+}
+
+export function SelectableTableRow({
+  selected,
+  onSelect,
+  children,
+}: {
+  selected: boolean
+  onSelect: () => void
+  children: ReactNode
+}) {
+  return (
+    <tr
+      className={`c-selectable-row${selected ? ' is-selected' : ''}`}
+      onClick={(event) => {
+        if (
+          event.defaultPrevented ||
+          !(event.target instanceof Element) ||
+          event.target.closest(
+            'a, button, input, select, textarea, label, summary, [role="button"], [role="link"], [contenteditable]',
+          ) ||
+          window.getSelection()?.isCollapsed === false
+        )
+          return
+        onSelect()
+      }}
+    >
+      {children}
+    </tr>
   )
 }
 
@@ -577,6 +638,11 @@ const eventLabels: Record<string, string> = {
   order_confirmed: 'Đã xác nhận',
   order_packing: 'Bắt đầu đóng gói',
   shipment_handed_over: 'Đã bàn giao vận chuyển',
+  waybill_confirmed: 'Đã lưu vận đơn chốt với hãng',
+  waybill_corrected: 'Đã sửa vận đơn trước bàn giao',
+  waybill_verified: 'Đã lưu đối chiếu vận đơn',
+  carrier_recipient_change_recorded:
+    'Đã ghi nhận kết quả đổi người nhận từ hãng',
   shipment_carrier_identified: 'Đã xác minh đơn vị vận chuyển',
   shipment_carrier_corrected: 'Đã hiệu chỉnh đơn vị vận chuyển',
   cod_carrier_corrected:
@@ -604,34 +670,157 @@ const eventLabels: Record<string, string> = {
   return_withdrawn: 'Rút yêu cầu trả hàng',
   payment_recorded: 'Ghi nhận thanh toán',
   payment_receipt_recorded: 'Ghi nhận khoản tiền nhận',
+  payment_received: 'Đã xác minh khoản tiền khách trả',
+  bank_transfer_reported: 'Khách báo đã chuyển khoản',
+  bank_transfer_demo_completed: 'Chuyển khoản thành công',
+  bank_transfer_report_reviewed: 'Đã đối chiếu thông báo chuyển khoản',
+  refund_required: 'Phát sinh khoản cần hoàn',
   bank_deadline_reconciled: 'Đối soát hạn thanh toán',
   delivery_failed: 'Giao hàng không thành công',
   delivery_retried: 'Giao lại',
   delivery_retry_started: 'Giao lại',
+  delivery_retry_requested: 'Đã ghi nhận yêu cầu giao lại',
   undelivered_shipment_received: 'Đã nhận hàng hoàn từ đơn vị vận chuyển',
   customer_paid_carrier: 'Khách đã thanh toán cho đơn vị vận chuyển',
+  carrier_remittance_reverted: 'Đã hoàn tác ghi nhận hãng nộp tiền',
   cod_collection_resolved: 'Ghi nhận phương án xử lý khoản thu COD',
   refund_attempt_started: 'Bắt đầu xử lý hoàn tiền',
   refund_outcome_recorded: 'Ghi nhận kết quả hoàn tiền',
 }
 
+const HISTORY_PREVIEW_LIMIT = 5
+const HISTORY_PAGE_SIZE = 20
+
 export function OrderHistory({ order }: { order: OrderDetail }) {
+  return <OrderHistoryPanel key={order.id} order={order} />
+}
+
+function OrderHistoryPanel({ order }: { order: OrderDetail }) {
+  const [historyOpen, setHistoryOpen] = useState(false)
+  const events = useMemo(
+    () =>
+      [...order.history]
+        .reverse()
+        .sort(
+          (first, second) =>
+            Date.parse(second.createdAt) - Date.parse(first.createdAt),
+        ),
+    [order.history],
+  )
   return (
-    <Panel title="Lịch sử hoạt động" icon={<Clock3 size={19} />}>
-      <OrderEventList orderId={order.id} events={order.history} />
-    </Panel>
+    <>
+      <Panel title="Lịch sử hoạt động" icon={<Clock3 size={19} />}>
+        {events.length ? (
+          <OrderEventList
+            orderId={order.id}
+            events={events.slice(0, HISTORY_PREVIEW_LIMIT)}
+            collapsibleDetails
+          />
+        ) : (
+          <p>Chưa có hoạt động được ghi nhận.</p>
+        )}
+        {events.length > 0 && (
+          <div className="c-history-footer">
+            <Action variant="secondary" onClick={() => setHistoryOpen(true)}>
+              Xem toàn bộ lịch sử ({events.length} hoạt động)
+            </Action>
+          </div>
+        )}
+      </Panel>
+      {historyOpen && (
+        <OrderHistoryDrawer
+          key={order.id}
+          orderId={order.id}
+          events={events}
+          onClose={() => setHistoryOpen(false)}
+        />
+      )}
+    </>
+  )
+}
+
+function OrderHistoryDrawer({
+  orderId,
+  events,
+  onClose,
+}: {
+  orderId: string
+  events: OrderDetail['history']
+  onClose: () => void
+}) {
+  const [offset, setOffset] = useState(0)
+  const listRef = useRef<HTMLElement>(null)
+  const lastOffset =
+    Math.max(0, Math.ceil(events.length / HISTORY_PAGE_SIZE) - 1) *
+    HISTORY_PAGE_SIZE
+  const pageOffset = Math.min(offset, lastOffset)
+  const page = events.slice(pageOffset, pageOffset + HISTORY_PAGE_SIZE)
+  return (
+    <Drawer title="Toàn bộ lịch sử hoạt động" onClose={onClose} wide>
+      <div className="c-history-browser">
+        <p role="status">
+          {page.length
+            ? `Hoạt động ${pageOffset + 1}–${pageOffset + page.length} trong ${events.length}. Mới nhất ở trên.`
+            : 'Chưa có hoạt động được ghi nhận.'}
+        </p>
+        <section
+          ref={listRef}
+          className="c-history-browser__list"
+          aria-label="Danh sách lịch sử hoạt động"
+          // biome-ignore lint/a11y/noNoninteractiveTabindex: The scrollable history region needs focus for keyboard scrolling.
+          tabIndex={0}
+        >
+          <OrderEventList
+            key={pageOffset}
+            orderId={orderId}
+            events={page}
+            collapsibleDetails
+          />
+        </section>
+        <Pagination
+          offset={pageOffset}
+          limit={HISTORY_PAGE_SIZE}
+          total={events.length}
+          count={page.length}
+          onChange={(nextOffset) => {
+            setOffset(nextOffset)
+            if (listRef.current) listRef.current.scrollTop = 0
+          }}
+        />
+      </div>
+    </Drawer>
+  )
+}
+
+function OrderEventDetails({
+  collapsible,
+  children,
+}: {
+  collapsible: boolean
+  children: ReactNode
+}) {
+  if (!collapsible) return <>{children}</>
+  return (
+    <details className="c-history-details">
+      <summary>Chi tiết</summary>
+      <div className="c-history-details__content">{children}</div>
+    </details>
   )
 }
 
 export function OrderEventList({
   orderId,
   events,
+  collapsibleDetails = false,
 }: {
   orderId: string
   events: OrderDetail['history']
+  collapsibleDetails?: boolean
 }) {
   return (
-    <ol className="c-timeline">
+    <ol
+      className={`c-timeline${collapsibleDetails ? ' c-timeline--compact' : ''}`}
+    >
       {events.map((event) => (
         <li key={event.id}>
           <CircleCheck size={15} />
@@ -641,117 +830,283 @@ export function OrderEventList({
               {formatDate(event.createdAt)}
             </small>
             <strong>{eventLabels[event.type] ?? 'Cập nhật đơn hàng'}</strong>
-            {event.type === 'order_assigned' && (
-              <>
-                <small>
-                  {event.details?.source === 'automatic'
-                    ? 'Hệ thống tự phân công'
-                    : 'Phân công thủ công'}
-                </small>
-                {typeof event.details?.assignedToName === 'string' && (
-                  <small>Người phụ trách: {event.details.assignedToName}</small>
-                )}
-                {typeof event.details?.previousAssigneeName === 'string' && (
-                  <small>
-                    Bàn giao từ: {event.details.previousAssigneeName}
-                  </small>
-                )}
-                {typeof event.details?.reason === 'string' && (
-                  <small>Lý do: {event.details.reason}</small>
-                )}
-              </>
+            {collapsibleDetails && event.actorName && (
+              <small>Bởi {event.actorName}</small>
             )}
-            {event.type === 'order_step_undone' && (
-              <OrderUndoHistory orderId={orderId} details={event.details} />
-            )}
-            {event.type === 'cod_collection_failed' && (
-              <>
-                <small>
-                  {event.details?.party === 'carrier'
-                    ? 'Thu từ đơn vị vận chuyển'
-                    : 'Thu từ khách hàng'}
-                  {typeof event.details?.failureCount === 'number' &&
-                    ` · Lần ${event.details.failureCount}`}
-                </small>
-                {typeof event.details?.reason === 'string' && (
-                  <small>Lý do: {event.details.reason}</small>
-                )}
-              </>
-            )}
-            {event.type === 'cod_collection_failures_corrected' && (
-              <CollectionFailureCorrectionHistory
-                orderId={orderId}
-                details={event.details}
-              />
-            )}
-            {event.type === 'shipment_handed_over' &&
-              typeof event.details?.trackingReference === 'string' && (
-                <small>Mã vận đơn: {event.details.trackingReference}</small>
-              )}
-            {event.type === 'shipment_delivered' && (
-              <>
-                {typeof event.details?.deliveredAt === 'string' && (
-                  <small>
-                    Giao lúc: {formatDate(event.details.deliveredAt)}
-                  </small>
-                )}
-                {typeof event.details?.proofReference === 'string' && (
-                  <small>Xác nhận giao: {event.details.proofReference}</small>
-                )}
-              </>
-            )}
-            {[
-              'delivery_failed',
-              'order_cancelled',
-              'undelivered_shipment_received',
-            ].includes(event.type) &&
-              typeof event.details?.reason === 'string' && (
-                <small>Lý do: {event.details.reason}</small>
-              )}
-            {['order_deleted', 'order_restored'].includes(event.type) &&
-              typeof event.details?.reason === 'string' && (
-                <small>Lý do: {event.details.reason}</small>
-              )}
-            {[
-              'shipment_carrier_identified',
-              'shipment_carrier_corrected',
-              'cod_carrier_corrected',
-            ].includes(event.type) && (
-              <ShipmentCarrierHistory details={event.details} />
-            )}
-            {event.type === 'carrier_responsibility_corrected' &&
-              typeof event.details?.responsibleParty === 'string' && (
+            <OrderEventDetails collapsible={collapsibleDetails}>
+              {[
+                'bank_transfer_reported',
+                'bank_transfer_demo_completed',
+                'payment_received',
+                'refund_required',
+              ].includes(event.type) && (
                 <>
-                  <small>
-                    {String(event.details.previousResponsibleParty)} →{' '}
-                    {event.details.responsibleParty}
-                  </small>
-                  <small>
-                    Quyết định {String(event.details.reference)} thay{' '}
-                    {String(event.details.previousReference)}
-                  </small>
-                  <small>
-                    Hồ sơ: {String(event.details.evidenceReference)} ·{' '}
-                    {String(event.details.reason)}
-                  </small>
-                </>
-              )}
-            {event.type === 'cod_collection_adjusted' &&
-              typeof event.details?.evidenceReference === 'string' && (
-                <>
-                  {Boolean(event.details.crossCarrierMerge) && (
+                  {typeof event.details?.amountVnd === 'number' && (
                     <small>
-                      Đã xác minh, gộp chứng từ trùng giữa các đơn vị vận chuyển
-                      và đối soát phân bổ.
+                      {event.type === 'bank_transfer_reported'
+                        ? 'Số tiền khách khai báo'
+                        : event.type === 'refund_required'
+                          ? 'Số tiền cần hoàn'
+                          : 'Số tiền thực nhận phân bổ'}
+                      : {formatMoney(event.details.amountVnd)}
                     </small>
                   )}
-                  <small>Hồ sơ: {event.details.evidenceReference}</small>
-                  {typeof event.details.reason === 'string' && (
-                    <small>{event.details.reason}</small>
+                  {typeof event.details?.reference === 'string' && (
+                    <small>
+                      Mã giao dịch / nội dung: {event.details.reference}
+                    </small>
+                  )}
+                  {typeof event.details?.transferredAt === 'string' && (
+                    <small>
+                      Khách chuyển lúc:{' '}
+                      {formatDate(event.details.transferredAt)}
+                    </small>
+                  )}
+                  {typeof event.details?.receivedAt === 'string' && (
+                    <small>
+                      Tiền vào lúc: {formatDate(event.details.receivedAt)}
+                    </small>
+                  )}
+                  {typeof event.details?.evidenceReference === 'string' && (
+                    <small>
+                      Tham chiếu bằng chứng: {event.details.evidenceReference}
+                    </small>
+                  )}
+                  {typeof event.details?.note === 'string' && (
+                    <small>Ghi chú: {event.details.note}</small>
                   )}
                 </>
               )}
-            {event.actorName && <small>Bởi {event.actorName}</small>}
+              {event.type === 'bank_transfer_report_reviewed' && (
+                <BankTransferReviewHistory details={event.details} />
+              )}
+              {event.type === 'carrier_remittance_reverted' && (
+                <>
+                  {typeof event.details?.reference === 'string' && (
+                    <small>Mã giao dịch: {event.details.reference}</small>
+                  )}
+                  {typeof event.details?.amountVnd === 'number' && (
+                    <small>
+                      Số tiền đã hoàn tác:{' '}
+                      {formatMoney(event.details.amountVnd)}
+                    </small>
+                  )}
+                  {typeof event.details?.reason === 'string' && (
+                    <small>Lý do: {event.details.reason}</small>
+                  )}
+                </>
+              )}
+              {event.type === 'order_assigned' && (
+                <>
+                  <small>
+                    {event.details?.source === 'automatic'
+                      ? 'Hệ thống tự phân công'
+                      : 'Phân công thủ công'}
+                  </small>
+                  {typeof event.details?.assignedToName === 'string' && (
+                    <small>
+                      Người phụ trách: {event.details.assignedToName}
+                    </small>
+                  )}
+                  {typeof event.details?.previousAssigneeName === 'string' && (
+                    <small>
+                      Bàn giao từ: {event.details.previousAssigneeName}
+                    </small>
+                  )}
+                  {typeof event.details?.reason === 'string' && (
+                    <small>Lý do: {event.details.reason}</small>
+                  )}
+                </>
+              )}
+              {event.type === 'order_step_undone' && (
+                <OrderUndoHistory orderId={orderId} details={event.details} />
+              )}
+              {event.type === 'cod_collection_failed' && (
+                <>
+                  <small>
+                    {event.details?.party === 'carrier'
+                      ? 'Thu từ đơn vị vận chuyển'
+                      : 'Thu từ khách hàng'}
+                    {typeof event.details?.failureCount === 'number' &&
+                      ` · Lần ${event.details.failureCount}`}
+                  </small>
+                  {typeof event.details?.reason === 'string' && (
+                    <small>Lý do: {event.details.reason}</small>
+                  )}
+                </>
+              )}
+              {event.type === 'cod_collection_failures_corrected' && (
+                <CollectionFailureCorrectionHistory
+                  orderId={orderId}
+                  details={event.details}
+                />
+              )}
+              {[
+                'shipment_handed_over',
+                'waybill_confirmed',
+                'waybill_corrected',
+                'waybill_verified',
+                'carrier_recipient_change_recorded',
+                'delivery_retry_requested',
+              ].includes(event.type) &&
+                typeof event.details?.trackingReference === 'string' && (
+                  <small>Mã vận đơn: {event.details.trackingReference}</small>
+                )}
+              {[
+                'waybill_confirmed',
+                'waybill_corrected',
+                'waybill_verified',
+              ].includes(event.type) && (
+                <>
+                  {event.actorName && (
+                    <small>Người xác nhận: {event.actorName}</small>
+                  )}
+                  {event.details?.recipientVerified === true && (
+                    <small>Đã đối chiếu người nhận</small>
+                  )}
+                  {event.details?.paymentVerified === true && (
+                    <small>Đã đối chiếu thanh toán/COD</small>
+                  )}
+                  {event.type === 'waybill_corrected' && (
+                    <>
+                      {typeof event.details?.previousTrackingReference ===
+                        'string' && (
+                        <small>
+                          Mã vận đơn cũ:{' '}
+                          {event.details.previousTrackingReference}
+                        </small>
+                      )}
+                      {typeof event.details?.carrierName === 'string' && (
+                        <small>
+                          Hãng vận chuyển:{' '}
+                          {typeof event.details.previousCarrierName === 'string'
+                            ? event.details.previousCarrierName
+                            : 'Chưa xác định'}
+                          {' → '}
+                          {event.details.carrierName}
+                        </small>
+                      )}
+                      {typeof event.details?.reason === 'string' && (
+                        <small>Lý do sửa: {event.details.reason}</small>
+                      )}
+                    </>
+                  )}
+                </>
+              )}
+              {event.type === 'carrier_recipient_change_recorded' && (
+                <>
+                  <small>
+                    {event.details?.outcome === 'accepted'
+                      ? 'Hãng đã chấp thuận và người nhận đã được cập nhật.'
+                      : 'Hãng từ chối; thông tin người nhận giữ nguyên.'}
+                  </small>
+                  {typeof event.details?.reference === 'string' && (
+                    <small>
+                      Tham chiếu phản hồi: {event.details.reference}
+                    </small>
+                  )}
+                  {typeof event.details?.confirmedAt === 'string' && (
+                    <small>
+                      Hãng phản hồi lúc: {formatDate(event.details.confirmedAt)}
+                    </small>
+                  )}
+                  {typeof event.details?.reason === 'string' && (
+                    <small>Nội dung: {event.details.reason}</small>
+                  )}
+                </>
+              )}
+              {event.type === 'shipment_delivered' && (
+                <>
+                  {typeof event.details?.deliveredAt === 'string' && (
+                    <small>
+                      Giao lúc: {formatDate(event.details.deliveredAt)}
+                    </small>
+                  )}
+                  {typeof event.details?.proofReference === 'string' && (
+                    <small>Xác nhận giao: {event.details.proofReference}</small>
+                  )}
+                </>
+              )}
+              {event.type === 'delivery_retry_requested' && (
+                <>
+                  {typeof event.details?.retryNumber === 'number' && (
+                    <small>Lần giao lại: {event.details.retryNumber}</small>
+                  )}
+                  {typeof event.details?.reason === 'string' && (
+                    <small>Lý do yêu cầu: {event.details.reason}</small>
+                  )}
+                  {typeof event.details?.reference === 'string' && (
+                    <small>Tham chiếu yêu cầu: {event.details.reference}</small>
+                  )}
+                  {typeof event.details?.previousFailureReason === 'string' && (
+                    <small>
+                      Lý do giao thất bại trước đó:{' '}
+                      {event.details.previousFailureReason}
+                    </small>
+                  )}
+                </>
+              )}
+              {event.type === 'delivery_failed' &&
+                typeof event.details?.failedAttempts === 'number' && (
+                  <small>
+                    Lần giao thất bại: {event.details.failedAttempts}
+                  </small>
+                )}
+              {[
+                'delivery_failed',
+                'order_cancelled',
+                'undelivered_shipment_received',
+              ].includes(event.type) &&
+                typeof event.details?.reason === 'string' && (
+                  <small>Lý do: {event.details.reason}</small>
+                )}
+              {['order_deleted', 'order_restored'].includes(event.type) &&
+                typeof event.details?.reason === 'string' && (
+                  <small>Lý do: {event.details.reason}</small>
+                )}
+              {[
+                'shipment_carrier_identified',
+                'shipment_carrier_corrected',
+                'cod_carrier_corrected',
+              ].includes(event.type) && (
+                <ShipmentCarrierHistory details={event.details} />
+              )}
+              {event.type === 'carrier_responsibility_corrected' &&
+                typeof event.details?.responsibleParty === 'string' && (
+                  <>
+                    <small>
+                      {String(event.details.previousResponsibleParty)} →{' '}
+                      {event.details.responsibleParty}
+                    </small>
+                    <small>
+                      Quyết định {String(event.details.reference)} thay{' '}
+                      {String(event.details.previousReference)}
+                    </small>
+                    <small>
+                      Hồ sơ: {String(event.details.evidenceReference)} ·{' '}
+                      {String(event.details.reason)}
+                    </small>
+                  </>
+                )}
+              {event.type === 'cod_collection_adjusted' &&
+                typeof event.details?.evidenceReference === 'string' && (
+                  <>
+                    {Boolean(event.details.crossCarrierMerge) && (
+                      <small>
+                        Đã xác minh, gộp chứng từ trùng giữa các đơn vị vận
+                        chuyển và đối soát phân bổ.
+                      </small>
+                    )}
+                    <small>Hồ sơ: {event.details.evidenceReference}</small>
+                    {typeof event.details.reason === 'string' && (
+                      <small>{event.details.reason}</small>
+                    )}
+                  </>
+                )}
+            </OrderEventDetails>
+            {!collapsibleDetails && event.actorName && (
+              <small>Bởi {event.actorName}</small>
+            )}
           </div>
         </li>
       ))}
@@ -806,6 +1161,36 @@ function CollectionFailureCorrectionHistory({
         <small>Lý do hiệu chỉnh: {details.reason}</small>
       )}
       <OrderUndoDocumentHistory orderId={orderId} details={details} />
+    </>
+  )
+}
+
+function BankTransferReviewHistory({
+  details,
+}: {
+  details: Record<string, unknown> | undefined
+}) {
+  const value = details?.review
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return null
+  const review = value as Record<string, unknown>
+  return (
+    <>
+      <small>
+        {review.outcome === 'recorded'
+          ? 'Đã đối chiếu với khoản thực nhận của đơn'
+          : 'Chưa tìm thấy khoản chuyển trên sao kê'}
+      </small>
+      {typeof review.statementCheckedThrough === 'string' && (
+        <small>
+          Đã kiểm tra đến: {formatDate(review.statementCheckedThrough)}
+        </small>
+      )}
+      {typeof review.reason === 'string' && (
+        <small>Kết luận: {review.reason}</small>
+      )}
+      {typeof review.evidenceReference === 'string' && (
+        <small>Bằng chứng: {review.evidenceReference}</small>
+      )}
     </>
   )
 }

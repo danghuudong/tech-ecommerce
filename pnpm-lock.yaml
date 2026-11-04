@@ -139,6 +139,9 @@ importers:
       lucide-react:
         specifier: ^1.54.0
         version: 1.54.0(@types/react@19.3.0)(react@19.3.0)
+      qrcode.react:
+        specifier: 4.2.0
+        version: 4.2.0(react@19.3.0)
       radix-ui:
         specifier: ^1.7.0
         version: 1.7.0(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
@@ -157,6 +160,9 @@ importers:
       tw-animate-css:
         specifier: ^1.4.0
         version: 1.4.0
+      vietnam-qr-pay:
+        specifier: 1.5.1
+        version: 1.5.1
       zod:
         specifier: ^4.6.5
         version: 4.6.5
@@ -3771,6 +3777,11 @@ packages:
   pump@3.0.4:
     resolution: {integrity: sha512-VS7sjc6KR7e1ukRFhQSY5LM2uBWAUPiOPa/A3mkKmiMwSmRFUITt0xuj+/lesgnCv+dPIEYlkzrcyXgquIHMcA==}
 
+  qrcode.react@4.2.0:
+    resolution: {integrity: sha512-QpgqWi8rD9DsS9EP3z7BT+5lY5SFhsqGjpgW5DY/i3mK4M9DTBNz3ErMi8BWYEfI3L0d8GIbGmcdFAS1uIRGjA==}
+    peerDependencies:
+      react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
+
   qs@6.16.0:
     resolution: {integrity: sha512-h6fhOIaRrID2CbEY2fqs+7t+UXZo+MLAnU5gRIq85uFtdiUPCdsApMlHhXogKVM4HM2DVbIjGNTTYH2OcmP1vA==}
     engines: {node: '>=0.6'}
@@ -4242,6 +4253,9 @@ packages:
   vary@1.1.2:
     resolution: {integrity: sha512-BNGbWLfd0eUPabhkXUVm0j8uuvREyTh5ovRa/dyow/BqAbZJyC+5fU+IzQOzmAKzYqYRAISoRhdQr3eIZ/PXqg==}
     engines: {node: '>= 0.8'}
+
+  vietnam-qr-pay@1.5.1:
+    resolution: {integrity: sha512-ECA1DQKFBeOeUX3naRBHJXKOpD+TJ0kOqQsOMGBPd1KqBHdRBnvT6A8sTdRroqDj16tYGj2I4W0GAMxPDe8DBQ==}
 
   vite@8.3.4:
     resolution: {integrity: sha512-IftLE8phJhdNRIGNEV4JCCvfNScoZQVfcXaN8TQropWGJtOHcu+iAB9pHcuGvmEb/kddw0LBe/jS8ztdC6xdiQ==}
@@ -7312,6 +7326,10 @@ snapshots:
       end-of-stream: 1.4.5
       once: 1.4.0
 
+  qrcode.react@4.2.0(react@19.3.0):
+    dependencies:
+      react: 19.3.0
+
   qs@6.16.0:
     dependencies:
       es-define-property: 1.0.1
@@ -7859,6 +7877,8 @@ snapshots:
   validate-npm-package-name@7.0.2: {}
 
   vary@1.1.2: {}
+
+  vietnam-qr-pay@1.5.1: {}
 
   vite@8.3.4(@types/node@24.19.1)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.13):
     dependencies:

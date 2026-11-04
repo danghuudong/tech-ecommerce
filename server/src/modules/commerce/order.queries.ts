@@ -31,7 +31,21 @@ import {
   staffOrderSettings,
   user,
 } from '../../db/schema.js'
+import {
+  BANK_TRANSFER_DEMO_COMPLETED,
+  canCompleteDemoBankTransfer,
+  demoBankTransferEnabled,
+} from './bank-transfer-demo.js'
+import { resolveBankTransferInstructions } from './bank-transfer-instructions.js'
+import {
+  BANK_TRANSFER_REVIEWED,
+  bankTransferNotices,
+  isVerifiedBankTransfer,
+  pendingBankTransferNoticeFilter,
+  publicBankTransferReview,
+} from './bank-transfer-notice.js'
 import { latestCollectionDecision } from './collection-decision.js'
+import type { RefundListInput, ReturnListInput } from './commerce.contracts.js'
 import {
   assertOrderAccess,
   databaseNow,
@@ -61,6 +75,10 @@ import {
   workloadBreakdown,
 } from './order-assignment-policy.js'
 import { orderDeletionBlockReason } from './order-deletion-policy.js'
+import {
+  canEditOrderRecipient,
+  canRecordCarrierRecipientResult,
+} from './order-recipient-policy.js'
 import { orderUndoPolicy, readOrderUndoFacts } from './order-undo-policy.js'
 import { allocatedPaymentsForOrders } from './payment-allocation.js'
 import {
@@ -76,6 +94,7 @@ import {
 } from './refund-policy.js'
 import { bankReviewState } from './reservation.service.js'
 import { returnAllocations } from './return.service.js'
+import { canCorrectWaybill, waybillVerification } from './waybill-policy.js'
 
 type Pagination = { limit: number; offset: number }
 type OrderListInput = Pagination & {
@@ -91,6 +110,7 @@ type OrderListInput = Pagination & {
   status?: typeof orders.$inferSelect.status | undefined
   paymentReviewRequired?: boolean | undefined
   paymentReviewOverdue?: boolean | undefined
+  bankTransferNoticePending?: boolean | undefined
   codReconciliationRequired?: boolean | undefined
 }
 
@@ -231,6 +251,10 @@ export async function getOrder(
         .where(eq(orders.id, orderId))
       if (!order) fail(404, 'ORDER_NOT_FOUND', 'Order was not found')
       assertOrderAccess(actor, order)
+      const bankInstructions = await resolveBankTransferInstructions(
+        tx,
+        order.bankInstructions,
+      )
       const items = await getOrderItems(tx, orderId)
       const paymentRecords = await allocatedPaymentsForOrders(tx, [orderId])
       const collectionRecords = await tx
@@ -285,6 +309,7 @@ export async function getOrder(
         .from(orderEvents)
         .where(eq(orderEvents.orderId, orderId))
         .orderBy(orderEvents.createdAt, orderEvents.id)
+      const transferNotices = bankTransferNotices(events, paymentRecords)
       const allocations = await returnAllocations(tx, orderId)
       const details = returnRecords.length
         ? await tx
@@ -357,6 +382,20 @@ export async function getOrder(
       const actorNames = new Map(
         people.map((person) => [person.id, person.name]),
       )
+      const shipment = shipmentRecords[0] ?? null
+      const verification =
+        staff && shipment ? waybillVerification(order, shipment, events) : null
+      const verificationProof = (event: (typeof events)[number] | null) =>
+        event
+          ? {
+              eventId: event.id,
+              verifiedAt: event.createdAt,
+              actorUserId: event.actorUserId,
+              actorName: event.actorUserId
+                ? (actorNames.get(event.actorUserId) ?? null)
+                : null,
+            }
+          : null
       const canWork =
         (actor.role === 'staff' || actor.role === 'admin') &&
         (actor.role === 'admin' || order.assignedTo === actor.userId)
@@ -412,12 +451,25 @@ export async function getOrder(
           item.quantity - (allocations.get(item.id) ?? 0),
       }))
       const customerActions: string[] = []
+      if (
+        owner &&
+        canCompleteDemoBankTransfer(order, paymentSummary, now) &&
+        !transferNotices.some((notice) => notice.status === 'pending') &&
+        !events.some((event) => event.type === BANK_TRANSFER_DEMO_COMPLETED)
+      )
+        customerActions.push('pay_bank_transfer')
+      if (
+        owner &&
+        order.paymentMethod === 'bank_transfer' &&
+        !transferNotices.some((notice) => notice.status === 'pending')
+      )
+        customerActions.push('report_bank_transfer')
       if (owner && ['placed', 'confirmed'].includes(order.status))
         customerActions.push('cancel')
       if (
         owner &&
         reservationActive &&
-        ['placed', 'confirmed'].includes(order.status)
+        canEditOrderRecipient('customer', order, shipmentRecords.length > 0)
       )
         customerActions.push('update_recipient')
       if (
@@ -427,6 +479,11 @@ export async function getOrder(
         customerActions.push('request_return')
       const staffActions: string[] = []
       if (
+        canFinance &&
+        transferNotices.some((notice) => notice.status !== 'recorded')
+      )
+        staffActions.push('review_bank_transfer_notice')
+      if (
         canProcess &&
         (!paymentReviewRequired || owner) &&
         ['placed', 'confirmed', 'packing'].includes(order.status)
@@ -435,7 +492,7 @@ export async function getOrder(
       if (
         canProcess &&
         reservationActive &&
-        ['placed', 'confirmed'].includes(order.status)
+        canEditOrderRecipient(actor.role, order, shipmentRecords.length > 0)
       )
         staffActions.push('update_recipient')
       if (actor.role === 'admin' && !order.deletedAt)
@@ -458,9 +515,23 @@ export async function getOrder(
         canProcess &&
         reservationActive &&
         order.status === 'packing' &&
+        (!shipmentRecords[0] ||
+          shipmentRecords[0].status === 'ready_to_ship') &&
         (order.paymentMethod === 'cod' || paymentSummary.bankPaymentApproved)
-      )
+      ) {
         staffActions.push('dispatch')
+        if (!shipmentRecords.length) staffActions.push('confirm_waybill')
+        if (canCorrectWaybill(order, shipment)) {
+          staffActions.push('correct_waybill')
+          if (!verification?.recipient || !verification.payment)
+            staffActions.push('verify_waybill')
+        }
+      }
+      if (
+        canProcess &&
+        canRecordCarrierRecipientResult(order, shipmentRecords[0])
+      )
+        staffActions.push('record_carrier_recipient_result')
       if (
         canFinance &&
         (order.paymentMethod === 'bank_transfer' ||
@@ -551,7 +622,6 @@ export async function getOrder(
           staffActions.push('record_collection_debt')
         staffActions.push('write_off_collection')
       }
-      const shipment = shipmentRecords[0] ?? null
       const undo = canWork
         ? orderUndoPolicy(
             actor,
@@ -619,7 +689,10 @@ export async function getOrder(
           staffActions.push('record_delivery_failure')
         if (shipment.status === 'delivery_failed') {
           staffActions.push('receive_undelivered_shipment')
-          if (shipment.failedAttempts < MAX_RECOVERY_ATTEMPTS)
+          if (
+            shipment.failedAttempts > 0 &&
+            shipment.failedAttempts < MAX_RECOVERY_ATTEMPTS
+          )
             staffActions.push('retry_delivery')
         }
       }
@@ -656,9 +729,47 @@ export async function getOrder(
           : {}),
         recipient: order.recipient,
         paymentMethod: order.paymentMethod,
-        bankInstructions: order.bankInstructions,
+        bankInstructions,
         bankTransferReference:
-          order.paymentMethod === 'bank_transfer' ? order.id : null,
+          order.paymentMethod === 'bank_transfer' ? order.code : null,
+        bankTransferDemoEnabled: demoBankTransferEnabled(),
+        bankTransferNoticePending: transferNotices.some(
+          (notice) => notice.status === 'pending',
+        ),
+        bankTransferNotices: transferNotices.map((notice) => ({
+          id: notice.id,
+          amountVnd: notice.amountVnd,
+          currency: notice.currency,
+          reference: notice.reference,
+          transferredAt: notice.transferredAt,
+          evidenceReference: notice.evidenceReference ?? null,
+          note: notice.note ?? null,
+          reportedAt: notice.reportedAt,
+          status: notice.status,
+          matchedReceipt: notice.matchedReceipt,
+          review: notice.review
+            ? canFinance
+              ? notice.review
+              : {
+                  outcome: notice.review.outcome,
+                  reviewedAt: notice.review.reviewedAt,
+                  ...(notice.review.outcome === 'not_found'
+                    ? {
+                        statementCheckedThrough:
+                          notice.review.statementCheckedThrough,
+                      }
+                    : {}),
+                }
+            : null,
+          ...(staff
+            ? {
+                reportedBy: notice.reportedBy,
+                reportedByName: notice.reportedBy
+                  ? (actorNames.get(notice.reportedBy) ?? null)
+                  : null,
+              }
+            : {}),
+        })),
         reservationExpiresAt: order.reservationExpiresAt,
         reservationExpired: !reservationActive,
         paymentReviewRequired,
@@ -741,6 +852,9 @@ export async function getOrder(
           refundedVnd,
           recoveredRefundVnd: paymentSummary.recoveredRefundVnd,
           netRefundedVnd: paymentSummary.netRefundedVnd,
+          completedOverpaymentRefundVnd: verifiedMoney(
+            paymentSummary.completedOverpaymentRefundVnd,
+          ),
           refundDiscrepancyVnd: verifiedMoney(
             paymentSummary.refundDiscrepancyVnd,
           ),
@@ -904,6 +1018,15 @@ export async function getOrder(
             duplicate: record.duplicateOfId !== null,
             ...(canFinance
               ? {
+                  remittanceNote: record.remittanceNote,
+                  bankTransferNoticeMatchable:
+                    order.paymentMethod === 'bank_transfer' &&
+                    isVerifiedBankTransfer(record) &&
+                    !transferNotices.some(
+                      (notice) =>
+                        notice.status === 'recorded' &&
+                        notice.matchedReceipt?.paymentId === record.id,
+                    ),
                   allocationSummary: {
                     totalVnd: record.receiptAmountVnd,
                     orders: allocationsByReceipt.get(record.id) ?? [],
@@ -927,7 +1050,18 @@ export async function getOrder(
           })),
         },
         shipment: shipment
-          ? { ...shipment, carrier: shipmentCarrier ?? null }
+          ? {
+              ...shipment,
+              carrier: shipmentCarrier ?? null,
+              ...(verification
+                ? {
+                    verification: {
+                      recipient: verificationProof(verification.recipient),
+                      payment: verificationProof(verification.payment),
+                    },
+                  }
+                : {}),
+            }
           : null,
         returns: returnRecords.map((record) => ({
           ...record,
@@ -1047,32 +1181,36 @@ export async function getOrder(
                   ![
                     'order_assigned',
                     'cod_collection_failures_corrected',
+                    'waybill_verified',
+                    'waybill_corrected',
                   ].includes(event.type))),
           )
           .map((event) => ({
             id: event.id,
             type: event.type,
             details:
-              !staff && event.type === 'order_step_undone'
-                ? {
-                    previousStatus: event.details.previousStatus,
-                    nextStatus: event.details.nextStatus,
-                  }
-                : actor.role !== 'admin' &&
-                    [
-                      'merchant_receipt_reconciled',
-                      'cod_collection_adjusted',
-                      'payment_allocations_adjusted',
-                      'cod_collections_reconciled',
-                      'payment_balance_review_decided',
-                      'refund_exception_settlement_recorded',
-                      'shipment_carrier_identified',
-                      'shipment_carrier_corrected',
-                      'cod_carrier_corrected',
-                      'carrier_responsibility_corrected',
-                    ].includes(event.type)
-                  ? { paymentRecordsReviewed: true }
-                  : event.details,
+              !canFinance && event.type === BANK_TRANSFER_REVIEWED
+                ? publicBankTransferReview(event.details)
+                : !staff && event.type === 'order_step_undone'
+                  ? {
+                      previousStatus: event.details.previousStatus,
+                      nextStatus: event.details.nextStatus,
+                    }
+                  : actor.role !== 'admin' &&
+                      [
+                        'merchant_receipt_reconciled',
+                        'cod_collection_adjusted',
+                        'payment_allocations_adjusted',
+                        'cod_collections_reconciled',
+                        'payment_balance_review_decided',
+                        'refund_exception_settlement_recorded',
+                        'shipment_carrier_identified',
+                        'shipment_carrier_corrected',
+                        'cod_carrier_corrected',
+                        'carrier_responsibility_corrected',
+                      ].includes(event.type)
+                    ? { paymentRecordsReviewed: true }
+                    : event.details,
             createdAt: event.createdAt,
             ...(staff
               ? {
@@ -1147,6 +1285,7 @@ export async function listOrders(
       const reviewRequired = sql`(${orders.paymentMethod} = 'bank_transfer' and ${orders.stockState} = 'reserved' and ${orders.reservationExpiresAt} is not null and ${orders.reservationExpiresAt} <= ${now})`
       const assignmentOverdue = overdueAssignmentFilter(now)
       const reviewOverdue = sql`(${reviewRequired} and ${orders.paymentReviewDueAt} is not null and ${orders.paymentReviewDueAt} <= ${now})`
+      const transferNoticePending = pendingBankTransferNoticeFilter()
       const query = input.q?.trim().replace(/^#\s*/, '').trim()
       const searchFilter = query
         ? /^TV[1-9][0-9]*$/i.test(query)
@@ -1190,6 +1329,9 @@ export async function listOrders(
         input.paymentReviewOverdue === undefined
           ? undefined
           : sql`${reviewOverdue} = ${input.paymentReviewOverdue}`,
+        input.bankTransferNoticePending === undefined
+          ? undefined
+          : sql`${transferNoticePending} = ${input.bankTransferNoticePending}`,
         input.codReconciliationRequired === undefined
           ? undefined
           : sql`(${orders.paymentMethod} = 'cod' and (exists
@@ -1197,7 +1339,11 @@ export async function listOrders(
           or exists (select 1 from ${codCollections} where ${codCollections.orderId} = ${orders.id} and ${codCollections.reconciliationRequired}))) = ${input.codReconciliationRequired}`,
       )
       const records = await tx
-        .select({ ...getTableColumns(orders), ...assignmentQueueColumns(now) })
+        .select({
+          ...getTableColumns(orders),
+          ...assignmentQueueColumns(now),
+          bankTransferNoticePending: transferNoticePending,
+        })
         .from(orders)
         .where(filter)
         .orderBy(
@@ -1228,6 +1374,7 @@ export async function listOrders(
           shipped: sql<number>`count(*) filter (where ${orders.status} = 'shipped')::int`,
           paymentReviewRequired: sql<number>`count(*) filter (where ${reviewRequired})::int`,
           paymentReviewOverdue: sql<number>`count(*) filter (where ${reviewOverdue})::int`,
+          bankTransferNoticePending: sql<number>`count(*) filter (where ${transferNoticePending})::int`,
         })
         .from(orders)
         .where(
@@ -1285,6 +1432,9 @@ export async function listOrders(
             id: order.id,
             code: order.code,
             paymentStatus: paymentStatus(summary),
+            completedOverpaymentRefundVnd: verifiedMoney(
+              summary.completedOverpaymentRefundVnd,
+            ),
             status: order.status,
             revision: order.revision,
             recipient: order.recipient,
@@ -1292,6 +1442,7 @@ export async function listOrders(
             totalVnd: order.totalVnd,
             adjustedTotalVnd: summary.adjustedTotalVnd,
             paymentMethod: order.paymentMethod,
+            bankTransferNoticePending: order.bankTransferNoticePending,
             collectionFailureCount: order.collectionFailureCount,
             collectionNeedsReview:
               order.paymentMethod === 'cod' &&
@@ -1416,78 +1567,149 @@ export async function listOrders(
 
 export async function listAfterSaleWork(
   userId: string,
-  input: Pagination,
-  kind: 'returns' | 'refunds',
+  input:
+    | { kind: 'returns'; filters: ReturnListInput }
+    | { kind: 'refunds'; filters: RefundListInput },
 ) {
   return db.transaction(
     async (tx) => {
       const actor = await resolveActor(
         tx,
         userId,
-        kind === 'refunds' ? 'accountant' : 'staff',
+        input.kind === 'refunds' ? 'accountant' : 'staff',
       )
       const visibility =
         actor.role !== 'staff' ? undefined : eq(orders.assignedTo, userId)
-      if (kind === 'returns')
+      const record = input.kind === 'returns' ? returns : refunds
+      const query = input.filters.q?.trim().replace(/^#\s*/, '').trim()
+      const searchFilter = query
+        ? /^TV[1-9][0-9]*$/i.test(query)
+          ? eq(orders.code, query.toUpperCase())
+          : sql`strpos(lower(concat_ws(' ', ${orders.code}, ${record.id}::text, ${orders.recipient}->>'name', ${orders.recipient}->>'phone')), lower(${query})) > 0`
+        : undefined
+      const createdOn = input.filters.createdOn
+      const dateFilter = createdOn
+        ? sql`${record.createdAt} >= (${createdOn}::date::timestamp at time zone 'Asia/Ho_Chi_Minh') and ${record.createdAt} < ((${createdOn}::date + 1)::timestamp at time zone 'Asia/Ho_Chi_Minh')`
+        : undefined
+      if (input.kind === 'returns') {
+        const filters = input.filters
+        const pending = inArray(returns.status, [
+          'requested',
+          'approved',
+          'receiving',
+          'received',
+        ])
+        const finished = inArray(returns.status, [
+          'rejected',
+          'withdrawn',
+          'closed',
+        ])
+        const baseFilter = and(
+          visibility,
+          searchFilter,
+          dateFilter,
+          filters.responsibility
+            ? eq(returns.responsibility, filters.responsibility)
+            : undefined,
+        )
+        const selectionFilter = and(
+          filters.view === 'all'
+            ? undefined
+            : filters.view === 'closed'
+              ? finished
+              : pending,
+          filters.status ? eq(returns.status, filters.status) : undefined,
+        )
+        const [counts] = await tx
+          .select({
+            total: sql<number>`count(*) filter (where ${selectionFilter ?? sql`true`})::int`,
+            all: sql<number>`count(*)::int`,
+            pending: sql<number>`count(*) filter (where ${pending})::int`,
+            finished: sql<number>`count(*) filter (where ${finished})::int`,
+          })
+          .from(returns)
+          .innerJoin(orders, eq(orders.id, returns.orderId))
+          .where(baseFilter)
         return {
           items: await tx
             .select({
               request: returns,
               orderCode: orders.code,
+              recipient: orders.recipient,
               assignedTo: orders.assignedTo,
             })
             .from(returns)
             .innerJoin(orders, eq(orders.id, returns.orderId))
-            .where(
-              and(
-                visibility,
-                inArray(returns.status, [
-                  'requested',
-                  'approved',
-                  'receiving',
-                  'received',
-                ]),
-              ),
-            )
+            .where(and(baseFilter, selectionFilter))
             .orderBy(returns.createdAt, returns.id)
-            .limit(input.limit)
-            .offset(input.offset),
-          ...input,
+            .limit(filters.limit)
+            .offset(filters.offset),
+          total: counts?.total ?? 0,
+          stats: {
+            all: counts?.all ?? 0,
+            pending: counts?.pending ?? 0,
+            finished: counts?.finished ?? 0,
+          },
+          ...filters,
         }
+      }
+      const filters = input.filters
+      const pending = or(
+        inArray(refunds.status, [
+          'awaiting_payment',
+          'pending',
+          'processing',
+          'unknown',
+          'needs_review',
+          'partially_settled',
+        ]),
+        actor.role === 'admin'
+          ? and(
+              eq(refunds.status, 'settled'),
+              sql`exists (select 1 from ${paymentBalanceReviews} where ${paymentBalanceReviews.orderId} = ${orders.id} and ${paymentBalanceReviews.status} in ('needs_review', 'debt'))`,
+            )
+          : undefined,
+      )
+      const finished = eq(refunds.status, 'settled')
+      const baseFilter = and(
+        visibility,
+        searchFilter,
+        dateFilter,
+        filters.reason ? eq(refunds.reason, filters.reason) : undefined,
+      )
+      const selectionFilter = and(
+        filters.view === 'all'
+          ? undefined
+          : filters.view === 'settled'
+            ? finished
+            : pending,
+        filters.status ? eq(refunds.status, filters.status) : undefined,
+      )
+      const [counts] = await tx
+        .select({
+          total: sql<number>`count(*) filter (where ${selectionFilter ?? sql`true`})::int`,
+          all: sql<number>`count(*)::int`,
+          pending: sql<number>`count(*) filter (where ${pending})::int`,
+          finished: sql<number>`count(*) filter (where ${finished})::int`,
+        })
+        .from(refunds)
+        .innerJoin(orders, eq(orders.id, refunds.orderId))
+        .where(baseFilter)
       const records = await tx
         .select({ refund: refunds, order: orders })
         .from(refunds)
         .innerJoin(orders, eq(orders.id, refunds.orderId))
-        .where(
-          and(
-            visibility,
-            or(
-              inArray(refunds.status, [
-                'awaiting_payment',
-                'pending',
-                'processing',
-                'unknown',
-                'needs_review',
-                'partially_settled',
-              ]),
-              actor.role === 'admin'
-                ? and(
-                    eq(refunds.status, 'settled'),
-                    sql`exists (select 1 from ${paymentBalanceReviews} where ${paymentBalanceReviews.orderId} = ${orders.id} and ${paymentBalanceReviews.status} in ('needs_review', 'debt'))`,
-                  )
-                : undefined,
-            ),
-          ),
-        )
+        .where(and(baseFilter, selectionFilter))
         .orderBy(refunds.createdAt, refunds.id)
-        .limit(input.limit)
-        .offset(input.offset)
+        .limit(filters.limit)
+        .offset(filters.offset)
       const financials = await readOrderFinancials(tx, [
         ...new Map(records.map((row) => [row.order.id, row.order])).values(),
       ])
       return {
         items: records.map(({ refund, order }) => ({
           orderCode: order.code,
+          recipient: order.recipient,
           refund: {
             ...refund,
             blockedByPaymentReconciliation: !financials.get(order.id)
@@ -1511,7 +1733,13 @@ export async function listAfterSaleWork(
             ? financials.get(order.id)?.refundDiscrepancyVnd
             : null,
         })),
-        ...input,
+        total: counts?.total ?? 0,
+        stats: {
+          all: counts?.all ?? 0,
+          pending: counts?.pending ?? 0,
+          finished: counts?.finished ?? 0,
+        },
+        ...filters,
       }
     },
     { isolationLevel: 'repeatable read' },

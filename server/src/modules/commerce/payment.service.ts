@@ -8,6 +8,7 @@ import {
   payments,
   shipments,
 } from '../../db/schema.js'
+import { pendingBankTransferNoticeFilter } from './bank-transfer-notice.js'
 import {
   lockCodReceiptIdentity,
   verifiedCodCollection,
@@ -273,6 +274,7 @@ export function recordCarrierRemittance(
           receiptVerified: input.receiptVerified,
           source: 'carrier',
           method: 'cod',
+          remittanceNote: input.remittanceNote,
           allocations,
           evidenceReference: input.reference,
           evidenceVerified: true,
@@ -347,6 +349,18 @@ export function reconcileBankDeadline(
           'PAYMENT_RECEIVED_ON_TIME',
           'An order approved for bank fulfillment cannot be cancelled for nonpayment',
         )
+      if (input.outcome === 'cancel_unpaid') {
+        const [noticeWork] = await tx
+          .select({ pending: pendingBankTransferNoticeFilter() })
+          .from(orders)
+          .where(eq(orders.id, orderId))
+        if (noticeWork?.pending)
+          fail(
+            409,
+            'BANK_TRANSFER_NOTICES_REVIEW_REQUIRED',
+            'Review the customer transfer notices before cancelling for nonpayment',
+          )
+      }
       if (
         input.outcome === 'accept_late_payment' &&
         !summary.fulfillmentPaymentSatisfied

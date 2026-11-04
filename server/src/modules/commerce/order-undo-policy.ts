@@ -30,7 +30,7 @@ function previousDeliveryStatus(
   if (shipment?.status !== 'delivered') return null
   const shipmentEvents = events.filter(
     (event) =>
-      event.createdAt >= shipment.createdAt &&
+      event.createdAt >= (shipment.handedOverAt ?? shipment.createdAt) &&
       (!event.details.shipmentId || event.details.shipmentId === shipment.id),
   )
   const acknowledgement = shipmentEvents
@@ -56,11 +56,21 @@ function previousDeliveryStatus(
       [
         'shipment_handed_over',
         'delivery_failed',
+        'delivery_retried',
         'delivery_retry_started',
+        'delivery_retry_requested',
       ].includes(event.type),
     )
   if (previous?.type === 'delivery_failed') return 'delivery_failed'
-  if (previous?.type === 'delivery_retry_started') return 'in_transit'
+  if (
+    previous &&
+    [
+      'delivery_retried',
+      'delivery_retry_started',
+      'delivery_retry_requested',
+    ].includes(previous.type)
+  )
+    return 'in_transit'
   if (
     previous?.type === 'shipment_handed_over' &&
     shipment.failedAttempts === 0
@@ -218,8 +228,11 @@ export function orderUndoPolicy(
       return 'ORDER_UNDO_RESERVATION_EXPIRED'
 
     if (!requiresPhysicalEvidence) {
-      if (order.stockState !== 'reserved' || facts.shipment)
-        return 'ORDER_UNDO_STATE_MISMATCH'
+      if (order.stockState !== 'reserved') return 'ORDER_UNDO_STATE_MISMATCH'
+      if (facts.shipment)
+        return facts.shipment.status === 'ready_to_ship'
+          ? 'ORDER_UNDO_WAYBILL_CONFIRMED'
+          : 'ORDER_UNDO_STATE_MISMATCH'
       if (
         transition.action === 'confirmation' &&
         order.paymentMethod === 'cod'
