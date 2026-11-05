@@ -7,6 +7,10 @@ export const productCategoryCodes = [
   'accessories',
   'gaming',
   'office',
+  'tablet',
+  'watch',
+  'television',
+  'appliance',
 ] as const
 
 export const catalogCategoryCodes = [

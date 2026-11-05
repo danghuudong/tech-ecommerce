@@ -10,6 +10,7 @@ import {
   jsonb,
   pgSequence,
   pgTable,
+  primaryKey,
   text,
   timestamp,
   uniqueIndex,
@@ -19,6 +20,8 @@ import { productCategoryCodes } from '../modules/commerce/catalog-taxonomy.js'
 import type {
   BankInstructions,
   CommandResult,
+  ProductSpecificationGroup,
+  ProductVariantOption,
   QuoteLine,
   ReceiptLine,
   Recipient,
@@ -45,6 +48,28 @@ export const products = pgTable(
     category: text('category', { enum: productCategoryCodes }),
     brand: text('brand'),
     priceVnd: money('price_vnd'),
+    listPriceVnd: bigint('list_price_vnd', { mode: 'number' }),
+    overview: text('overview'),
+    highlights: jsonb('highlights')
+      .$type<string[]>()
+      .default(sql`'[]'::jsonb`)
+      .notNull(),
+    specifications: jsonb('specifications')
+      .$type<ProductSpecificationGroup[]>()
+      .default(sql`'[]'::jsonb`)
+      .notNull(),
+    packageContents: jsonb('package_contents')
+      .$type<string[]>()
+      .default(sql`'[]'::jsonb`)
+      .notNull(),
+    warrantyMonths: integer('warranty_months'),
+    // Each variant is a sellable product; the group joins them into one model.
+    variantGroup: text('variant_group'),
+    variantOptions: jsonb('variant_options')
+      .$type<ProductVariantOption[]>()
+      .default(sql`'[]'::jsonb`)
+      .notNull(),
+    variantRank: integer('variant_rank').default(0).notNull(),
     stockOnHand: integer('stock_on_hand').default(0).notNull(),
     stockReserved: integer('stock_reserved').default(0).notNull(),
     active: boolean('active').default(true).notNull(),
@@ -55,13 +80,21 @@ export const products = pgTable(
   (t) => [
     check('products_price_check', sql`${t.priceVnd} between 1 and 9999999999`),
     check(
+      'products_list_price_check',
+      sql`${t.listPriceVnd} is null or ${t.listPriceVnd} between ${t.priceVnd} + 1 and 9999999999`,
+    ),
+    check(
+      'products_warranty_check',
+      sql`${t.warrantyMonths} is null or ${t.warrantyMonths} between 1 and 120`,
+    ),
+    check(
       'products_stock_check',
       sql`${t.stockOnHand} >= 0 and ${t.stockReserved} between 0 and ${t.stockOnHand}`,
     ),
     check('products_version_check', sql`${t.version} > 0`),
     check(
       'products_category_check',
-      sql`${t.category} in ('laptop', 'phone', 'desktop', 'monitor', 'audio', 'accessories', 'gaming', 'office')`,
+      sql`${t.category} in ('laptop', 'phone', 'desktop', 'monitor', 'audio', 'accessories', 'gaming', 'office', 'tablet', 'watch', 'television', 'appliance')`,
     ),
     check(
       'products_active_category_check',
@@ -71,9 +104,115 @@ export const products = pgTable(
       'products_brand_check',
       sql`char_length(${t.brand}) between 1 and 80 and ${t.brand} ~ '^[a-z0-9]+(-[a-z0-9]+)*$'`,
     ),
+    check(
+      'products_variant_group_check',
+      sql`${t.variantGroup} is null or (char_length(${t.variantGroup}) between 1 and 80 and ${t.variantGroup} ~ '^[a-z0-9]+(-[a-z0-9]+)*$')`,
+    ),
+    check(
+      'products_variant_rank_check',
+      sql`${t.variantRank} between 0 and 9999`,
+    ),
     index('products_catalog_idx').on(t.active, t.id),
+    index('products_variant_group_idx').on(t.variantGroup, t.active),
     index('products_category_catalog_idx').on(t.active, t.category, t.id),
     index('products_brand_catalog_idx').on(t.active, t.brand, t.id),
+  ],
+)
+
+export const productImages = pgTable(
+  'product_images',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    productId: uuid('product_id')
+      .notNull()
+      .references(() => products.id),
+    position: integer('position').default(0).notNull(),
+    altText: text('alt_text').notNull(),
+    mediaType: text('media_type', {
+      enum: ['image/webp', 'image/jpeg', 'image/png'],
+    }).notNull(),
+    content: binary('content').notNull(),
+    sha256: text('sha256').notNull(),
+    uploadedBy: text('uploaded_by')
+      .notNull()
+      .references(() => user.id),
+    createdAt: time('created_at'),
+  },
+  (t) => [
+    index('product_images_product_idx').on(t.productId, t.position),
+    uniqueIndex('product_images_content_idx').on(t.productId, t.sha256),
+    check('product_images_position_check', sql`${t.position} >= 0`),
+    check(
+      'product_images_type_check',
+      sql`${t.mediaType} in ('image/webp', 'image/jpeg', 'image/png')`,
+    ),
+    check(
+      'product_images_alt_check',
+      sql`length(btrim(${t.altText})) between 1 and 200`,
+    ),
+    check(
+      'product_images_content_check',
+      sql`octet_length(${t.content}) between 16 and 524288 and ${t.sha256} = encode(sha256(${t.content}), 'hex')`,
+    ),
+  ],
+)
+
+export const stores = pgTable(
+  'commerce_stores',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    name: text('name').notNull(),
+    address: text('address').notNull(),
+    province: text('province').notNull(),
+    phone: text('phone'),
+    openingHours: text('opening_hours'),
+    active: boolean('active').default(true).notNull(),
+    createdAt: time('created_at'),
+    updatedAt: time('updated_at'),
+  },
+  (t) => [
+    index('commerce_stores_active_idx').on(t.active, t.province),
+    check(
+      'commerce_stores_name_check',
+      sql`length(btrim(${t.name})) between 2 and 120`,
+    ),
+    check(
+      'commerce_stores_address_check',
+      sql`length(btrim(${t.address})) between 5 and 300`,
+    ),
+    check(
+      'commerce_stores_province_check',
+      sql`length(btrim(${t.province})) between 1 and 100`,
+    ),
+  ],
+)
+
+// Staff-maintained display status. It is not stock: orders reserve and ship
+// from products.stock_on_hand and never change these rows.
+export const productStoreAvailability = pgTable(
+  'product_store_availability',
+  {
+    productId: uuid('product_id')
+      .notNull()
+      .references(() => products.id),
+    storeId: uuid('store_id')
+      .notNull()
+      .references(() => stores.id),
+    status: text('status', {
+      enum: ['in_stock', 'low_stock', 'out_of_stock'],
+    }).notNull(),
+    updatedBy: text('updated_by')
+      .notNull()
+      .references(() => user.id),
+    updatedAt: time('updated_at'),
+  },
+  (t) => [
+    primaryKey({ columns: [t.productId, t.storeId] }),
+    index('product_store_availability_store_idx').on(t.storeId),
+    check(
+      'product_store_availability_status_check',
+      sql`${t.status} in ('in_stock', 'low_stock', 'out_of_stock')`,
+    ),
   ],
 )
 
@@ -1417,3 +1556,88 @@ export const roleChanges = pgTable('commerce_role_changes', {
   reason: text('reason').notNull(),
   createdAt: time('created_at').default(sql`clock_timestamp()`),
 })
+
+export const productReviews = pgTable(
+  'product_reviews',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    productId: uuid('product_id')
+      .notNull()
+      .references(() => products.id),
+    userId: text('user_id')
+      .notNull()
+      .references(() => user.id),
+    orderId: uuid('order_id')
+      .notNull()
+      .references(() => orders.id),
+    rating: integer('rating').notNull(),
+    comment: text('comment').notNull(),
+    status: text('status', { enum: ['published', 'hidden'] })
+      .default('published')
+      .notNull(),
+    moderatedBy: text('moderated_by').references(() => user.id),
+    moderatedAt: timestamp('moderated_at', { withTimezone: true }),
+    createdAt: time('created_at'),
+    updatedAt: time('updated_at'),
+  },
+  (t) => [
+    uniqueIndex('product_reviews_author_idx').on(t.productId, t.userId),
+    index('product_reviews_public_idx').on(t.productId, t.status, t.createdAt),
+    index('product_reviews_moderation_idx').on(t.status, t.createdAt),
+    check('product_reviews_rating_check', sql`${t.rating} between 1 and 5`),
+    check(
+      'product_reviews_comment_check',
+      sql`length(btrim(${t.comment})) between 10 and 2000`,
+    ),
+    check(
+      'product_reviews_status_check',
+      sql`${t.status} in ('published', 'hidden')`,
+    ),
+  ],
+)
+
+export const productQuestions = pgTable(
+  'product_questions',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    productId: uuid('product_id')
+      .notNull()
+      .references(() => products.id),
+    userId: text('user_id')
+      .notNull()
+      .references(() => user.id),
+    question: text('question').notNull(),
+    answer: text('answer'),
+    status: text('status', { enum: ['pending', 'answered', 'hidden'] })
+      .default('pending')
+      .notNull(),
+    answeredBy: text('answered_by').references(() => user.id),
+    answeredAt: timestamp('answered_at', { withTimezone: true }),
+    createdAt: time('created_at'),
+  },
+  (t) => [
+    index('product_questions_public_idx').on(
+      t.productId,
+      t.status,
+      t.answeredAt,
+    ),
+    index('product_questions_queue_idx').on(t.status, t.createdAt),
+    index('product_questions_author_idx').on(t.userId, t.status),
+    check(
+      'product_questions_question_check',
+      sql`length(btrim(${t.question})) between 5 and 1000`,
+    ),
+    check(
+      'product_questions_answer_check',
+      sql`${t.answer} is null or length(btrim(${t.answer})) between 2 and 2000`,
+    ),
+    check(
+      'product_questions_status_check',
+      sql`${t.status} in ('pending', 'answered', 'hidden')`,
+    ),
+    check(
+      'product_questions_answered_check',
+      sql`${t.status} <> 'answered' or (${t.answer} is not null and ${t.answeredBy} is not null and ${t.answeredAt} is not null)`,
+    ),
+  ],
+)

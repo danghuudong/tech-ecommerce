@@ -93,12 +93,14 @@ const catalogPrice = z
   .transform((value) => Number(value))
   .pipe(z.number().int().min(0).max(MAX_VND))
   .optional()
+export const catalogFacetSchema = productListSchema.pick({ q: true })
 export const catalogListSchema = productListSchema
   .extend({
     category: z.enum(catalogCategoryCodes).optional(),
     brand: productBrandSchema.optional(),
     minPrice: catalogPrice,
     maxPrice: catalogPrice,
+    discounted: z.literal('true').optional(),
   })
   .refine(
     (input) =>
@@ -168,12 +170,48 @@ export const orderListSchema = paginationSchema.extend({
     ])
     .optional(),
 })
+const productDetailLine = z.string().trim().min(1).max(200)
+const productVariantOptionsSchema = z
+  .array(
+    z.strictObject({
+      name: z.string().trim().min(1).max(40),
+      value: z.string().trim().min(1).max(60),
+    }),
+  )
+  .max(3)
+  .refine(
+    (options) =>
+      new Set(options.map((option) => option.name.toLowerCase())).size ===
+      options.length,
+    'Each variant option must have a different name',
+  )
+const productSpecificationGroupSchema = z.strictObject({
+  title: z.string().trim().min(1).max(80),
+  rows: z
+    .array(
+      z.strictObject({
+        label: z.string().trim().min(1).max(80),
+        value: z.string().trim().min(1).max(300),
+      }),
+    )
+    .min(1)
+    .max(30),
+})
 const productFields = {
   name: z.string().trim().min(2).max(200),
   description: z.string().trim().max(5000),
+  overview: z.string().trim().min(1).max(10000).nullable(),
   category: productCategorySchema.nullable(),
   brand: productBrandSchema.nullable(),
   priceVnd: money,
+  listPriceVnd: money.nullable(),
+  highlights: z.array(productDetailLine).max(8),
+  specifications: z.array(productSpecificationGroupSchema).max(12),
+  packageContents: z.array(productDetailLine).max(20),
+  warrantyMonths: z.number().int().min(1).max(120).nullable(),
+  variantGroup: productBrandSchema.nullable(),
+  variantOptions: productVariantOptionsSchema,
+  variantRank: z.number().int().min(0).max(9999),
   active: z.boolean(),
 }
 export const productCreateSchema = z.strictObject({
@@ -187,6 +225,15 @@ export const productCreateSchema = z.strictObject({
   ...productFields,
   category: productCategorySchema,
   description: productFields.description.default(''),
+  overview: productFields.overview.default(null),
+  listPriceVnd: productFields.listPriceVnd.default(null),
+  highlights: productFields.highlights.default([]),
+  specifications: productFields.specifications.default([]),
+  packageContents: productFields.packageContents.default([]),
+  warrantyMonths: productFields.warrantyMonths.default(null),
+  variantGroup: productFields.variantGroup.default(null),
+  variantOptions: productFields.variantOptions.default([]),
+  variantRank: productFields.variantRank.default(0),
   active: productFields.active.default(true),
 })
 export const productUpdateSchema = z
@@ -199,6 +246,61 @@ export const productUpdateSchema = z
     (value) => Object.keys(value).length > 1,
     'At least one product field is required',
   )
+export const productImageUploadSchema = z.strictObject({
+  mediaType: z.enum(['image/webp', 'image/jpeg', 'image/png']),
+  contentBase64: z.string().min(24).max(699052),
+  altText: z.string().trim().min(1).max(200),
+})
+export const productImageOrderSchema = z.strictObject({
+  imageIds: z.array(idSchema).min(1).max(8),
+})
+export const productReviewSchema = z.strictObject({
+  rating: z.number().int().min(1).max(5),
+  comment: z.string().trim().min(10).max(2000),
+})
+export const productQuestionSchema = z.strictObject({
+  question: z.string().trim().min(5).max(1000),
+})
+export const productFeedbackListSchema = paginationSchema.extend({
+  status: z.enum(['published', 'pending', 'answered', 'hidden']).optional(),
+})
+export const productReviewDecisionSchema = z.strictObject({
+  status: z.enum(['published', 'hidden']),
+})
+export const productQuestionDecisionSchema = z.discriminatedUnion('action', [
+  z.strictObject({
+    action: z.literal('answer'),
+    answer: z.string().trim().min(2).max(2000),
+  }),
+  z.strictObject({ action: z.literal('hide') }),
+  z.strictObject({ action: z.literal('restore') }),
+])
+const storeFields = {
+  name: z.string().trim().min(2).max(120),
+  address: z.string().trim().min(5).max(300),
+  province: z.string().trim().min(1).max(100),
+  phone: z
+    .string()
+    .trim()
+    .regex(/^\+?[0-9 .-]{6,20}$/)
+    .nullable(),
+  openingHours: z.string().trim().min(1).max(120).nullable(),
+  active: z.boolean(),
+}
+export const storeCreateSchema = z.strictObject({
+  ...storeFields,
+  active: storeFields.active.default(true),
+})
+export const storeUpdateSchema = z
+  .strictObject(storeFields)
+  .partial()
+  .refine(
+    (value) => Object.keys(value).length > 0,
+    'At least one store field is required',
+  )
+export const storeAvailabilitySchema = z.strictObject({
+  status: z.enum(['in_stock', 'low_stock', 'out_of_stock']).nullable(),
+})
 export const stockAdjustmentSchema = z.strictObject({
   delta: z
     .number()
@@ -818,6 +920,20 @@ export type CarrierRecipientResultInput = z.infer<
 export type ShipmentCarrierInput = z.infer<typeof shipmentCarrierSchema>
 export type ProductCreateInput = z.infer<typeof productCreateSchema>
 export type ProductUpdateInput = z.infer<typeof productUpdateSchema>
+export type ProductImageUploadInput = z.infer<typeof productImageUploadSchema>
+export type ProductImageOrderInput = z.infer<typeof productImageOrderSchema>
+export type ProductReviewInput = z.infer<typeof productReviewSchema>
+export type ProductQuestionInput = z.infer<typeof productQuestionSchema>
+export type ProductFeedbackListInput = z.infer<typeof productFeedbackListSchema>
+export type ProductReviewDecisionInput = z.infer<
+  typeof productReviewDecisionSchema
+>
+export type ProductQuestionDecisionInput = z.infer<
+  typeof productQuestionDecisionSchema
+>
+export type StoreCreateInput = z.infer<typeof storeCreateSchema>
+export type StoreUpdateInput = z.infer<typeof storeUpdateSchema>
+export type StoreAvailabilityInput = z.infer<typeof storeAvailabilitySchema>
 export type PaymentInput = z.infer<typeof paymentSchema>
 export type BankTransferReportInput = z.infer<typeof bankTransferReportSchema>
 export type BankTransferNoticeReviewInput = z.infer<

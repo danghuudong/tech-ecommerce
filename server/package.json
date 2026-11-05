@@ -12,7 +12,8 @@
     "db:assignment:check": "tsx src/db/order-assignment-history.cli.ts",
     "db:assignment:regression": "tsx src/db/order-assignment-recovery.regression.ts",
     "db:catalog:check": "tsx src/db/catalog-classification.cli.ts check",
-    "db:catalog:classify": "tsx src/db/catalog-classification.cli.ts classify"
+    "db:catalog:classify": "tsx src/db/catalog-classification.cli.ts classify",
+    "db:catalog:import": "tsx src/db/home-catalog.cli.ts"
   },
   "dependencies": {
     "better-auth": "^1.7.7",

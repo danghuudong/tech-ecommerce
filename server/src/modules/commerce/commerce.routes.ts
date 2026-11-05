@@ -15,6 +15,7 @@ import {
 import { clearCart, getCart, setCartItem } from './cart.service.js'
 import {
   adjustStock,
+  catalogFacets,
   createProduct,
   getProduct,
   listProducts,
@@ -50,6 +51,7 @@ import {
   carrierRecipientResultSchema,
   carrierRemittanceSchema,
   cartItemSchema,
+  catalogFacetSchema,
   catalogListSchema,
   checkoutSchema,
   codCollectionAdjustmentSchema,
@@ -60,6 +62,7 @@ import {
   deliveryRetrySchema,
   deliverySchema,
   dispatchSchema,
+  emptySchema,
   idSchema,
   manualRefundAttemptSchema,
   orderDeletionSchema,
@@ -76,7 +79,14 @@ import {
   paymentSchema,
   placeOrderSchema,
   productCreateSchema,
+  productFeedbackListSchema,
+  productImageOrderSchema,
+  productImageUploadSchema,
   productListSchema,
+  productQuestionDecisionSchema,
+  productQuestionSchema,
+  productReviewDecisionSchema,
+  productReviewSchema,
   productUpdateSchema,
   reasonSchema,
   receivingAccountCreateSchema,
@@ -97,6 +107,9 @@ import {
   staffOrderSettingsSchema,
   staffUserListSchema,
   stockAdjustmentSchema,
+  storeAvailabilitySchema,
+  storeCreateSchema,
+  storeUpdateSchema,
   waybillCorrectionSchema,
   waybillSchema,
 } from './commerce.contracts.js'
@@ -158,6 +171,24 @@ import {
   reconcilePaymentReceipt,
 } from './payment-reconciliation.service.js'
 import {
+  askProductQuestion,
+  decideProductQuestion,
+  decideProductReview,
+  getMyProductReview,
+  listProductQuestions,
+  listProductReviews,
+  saveProductReview,
+  staffProductQuestions,
+  staffProductReviews,
+} from './product-feedback.service.js'
+import {
+  addProductImage,
+  getProductImage,
+  removeProductImage,
+  reorderProductImages,
+  staffProductImages,
+} from './product-media.service.js'
+import {
   createReceivingAccount,
   listReceivingAccounts,
   listReceivingBanks,
@@ -178,6 +209,13 @@ import {
   getShipmentCarrierContext,
   identifyShipmentCarrier,
 } from './shipment-carrier.service.js'
+import {
+  createStore,
+  listStores,
+  setProductStoreAvailability,
+  staffProductStoreAvailability,
+  updateStore,
+} from './store.service.js'
 import {
   confirmWaybill,
   correctWaybill,
@@ -238,9 +276,43 @@ commerceRouter.get('/products', async (request, response) => {
     data: await listProducts(input),
   })
 })
+commerceRouter.get('/products/facets', async (request, response) =>
+  response.json({
+    data: await catalogFacets(catalogFacetSchema.parse(request.query).q),
+  }),
+)
 commerceRouter.get('/products/:productId', async (request, response) =>
   response.json({ data: await getProduct(id(request, 'productId')) }),
 )
+commerceRouter.get('/products/:productId/reviews', async (request, response) =>
+  response.json({
+    data: await listProductReviews(
+      id(request, 'productId'),
+      paginationSchema.parse(request.query),
+    ),
+  }),
+)
+commerceRouter.get(
+  '/products/:productId/questions',
+  async (request, response) =>
+    response.json({
+      data: await listProductQuestions(
+        id(request, 'productId'),
+        paginationSchema.parse(request.query),
+      ),
+    }),
+)
+commerceRouter.get('/product-images/:imageId', async (request, response) => {
+  const image = await getProductImage(id(request, 'imageId'))
+  response
+    .type(image.mediaType)
+    .set({
+      // An image row is never rewritten, so its URL can be cached for good.
+      'Cache-Control': 'public, max-age=31536000, immutable',
+      'Cross-Origin-Resource-Policy': 'cross-origin',
+    })
+    .send(image.content)
+})
 
 commerceRouter.use((request, response, next) =>
   /^\/(staff|admin)(\/|$)/i.test(request.path)
@@ -393,11 +465,149 @@ mutation(
 commerceRouter.get(
   '/staff/products',
   async (request: AuthenticatedRequest, response) => {
-    const input = paginationSchema.parse(request.query)
-    response.json({
-      data: await staffProducts(userId(request), input.limit, input.offset),
-    })
+    const input = productListSchema.parse(request.query)
+    response.json({ data: await staffProducts(userId(request), input) })
   },
+)
+commerceRouter.get(
+  '/staff/products/:productId/images',
+  async (request: AuthenticatedRequest, response) =>
+    response.json({
+      data: await staffProductImages(userId(request), id(request, 'productId')),
+    }),
+)
+commerceRouter.get(
+  '/staff/products/:productId/store-availability',
+  async (request: AuthenticatedRequest, response) =>
+    response.json({
+      data: await staffProductStoreAvailability(
+        userId(request),
+        id(request, 'productId'),
+      ),
+    }),
+)
+mutation(
+  'put',
+  '/staff/products/:productId/store-availability/:storeId',
+  'catalog:store-availability',
+  storeAvailabilitySchema,
+  (command, input, request) =>
+    setProductStoreAvailability(
+      command,
+      id(request, 'productId'),
+      id(request, 'storeId'),
+      input,
+    ),
+)
+mutation(
+  'post',
+  '/admin/products/:productId/images',
+  'catalog:image-add',
+  productImageUploadSchema,
+  (command, input, request) =>
+    addProductImage(command, id(request, 'productId'), input),
+  201,
+)
+mutation(
+  'patch',
+  '/admin/products/:productId/images/order',
+  'catalog:image-order',
+  productImageOrderSchema,
+  (command, input, request) =>
+    reorderProductImages(command, id(request, 'productId'), input),
+)
+mutation(
+  'post',
+  '/admin/products/:productId/images/:imageId/remove',
+  'catalog:image-remove',
+  emptySchema,
+  (command, _input, request) =>
+    removeProductImage(
+      command,
+      id(request, 'productId'),
+      id(request, 'imageId'),
+    ),
+)
+commerceRouter.get(
+  '/staff/stores',
+  async (request: AuthenticatedRequest, response) =>
+    response.json({ data: await listStores(userId(request)) }),
+)
+mutation(
+  'post',
+  '/admin/stores',
+  'stores:create',
+  storeCreateSchema,
+  (command, input) => createStore(command, input),
+  201,
+)
+mutation(
+  'patch',
+  '/admin/stores/:storeId',
+  'stores:update',
+  storeUpdateSchema,
+  (command, input, request) =>
+    updateStore(command, id(request, 'storeId'), input),
+)
+commerceRouter.get(
+  '/products/:productId/my-review',
+  async (request: AuthenticatedRequest, response) =>
+    response.json({
+      data: await getMyProductReview(userId(request), id(request, 'productId')),
+    }),
+)
+mutation(
+  'put',
+  '/products/:productId/my-review',
+  'catalog:review',
+  productReviewSchema,
+  (command, input, request) =>
+    saveProductReview(command, id(request, 'productId'), input),
+)
+mutation(
+  'post',
+  '/products/:productId/questions',
+  'catalog:question',
+  productQuestionSchema,
+  (command, input, request) =>
+    askProductQuestion(command, id(request, 'productId'), input),
+  201,
+)
+commerceRouter.get(
+  '/staff/product-reviews',
+  async (request: AuthenticatedRequest, response) =>
+    response.json({
+      data: await staffProductReviews(
+        userId(request),
+        productFeedbackListSchema.parse(request.query),
+      ),
+    }),
+)
+mutation(
+  'patch',
+  '/staff/product-reviews/:reviewId',
+  'catalog:review-decision',
+  productReviewDecisionSchema,
+  (command, input, request) =>
+    decideProductReview(command, id(request, 'reviewId'), input),
+)
+commerceRouter.get(
+  '/staff/product-questions',
+  async (request: AuthenticatedRequest, response) =>
+    response.json({
+      data: await staffProductQuestions(
+        userId(request),
+        productFeedbackListSchema.parse(request.query),
+      ),
+    }),
+)
+mutation(
+  'patch',
+  '/staff/product-questions/:questionId',
+  'catalog:question-decision',
+  productQuestionDecisionSchema,
+  (command, input, request) =>
+    decideProductQuestion(command, id(request, 'questionId'), input),
 )
 commerceRouter.get(
   '/staff/products/:productId/stock-history',

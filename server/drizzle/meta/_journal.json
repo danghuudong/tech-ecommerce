@@ -232,6 +232,27 @@
       "when": 1793696452449,
       "tag": "0032_carrier_remittance_notes",
       "breakpoints": true
+    },
+    {
+      "idx": 33,
+      "version": "7",
+      "when": 1793779436325,
+      "tag": "0033_product_details",
+      "breakpoints": true
+    },
+    {
+      "idx": 34,
+      "version": "7",
+      "when": 1793847160231,
+      "tag": "0034_product_catalog_engagement",
+      "breakpoints": true
+    },
+    {
+      "idx": 35,
+      "version": "7",
+      "when": 1793858400000,
+      "tag": "0035_home_catalog_categories",
+      "breakpoints": true
     }
   ]
 }

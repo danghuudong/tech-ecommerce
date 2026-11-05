@@ -1,0 +1,2624 @@
+{
+  "capturedAt": "2026-11-05T04:42:00.411Z",
+  "sourceUrl": "https://cellphones.com.vn/",
+  "products": [
+    {
+      "sku": "CPS-141651",
+      "name": "iPhone 18 Pro 256GB",
+      "category": "phone",
+      "brand": "apple",
+      "priceVnd": 38690000,
+      "listPriceVnd": 38990000,
+      "description": "Chip xử lý: A20 Pro · CPU: CPU 6 lõi với 2 siêu lõi và 4 lõi hiệu suất · Kích thước màn hình: 6.3 inches",
+      "specifications": [
+        {
+          "title": "Thông số kỹ thuật",
+          "rows": [
+            {
+              "label": "Chip xử lý",
+              "value": "A20 Pro"
+            },
+            {
+              "label": "CPU",
+              "value": "CPU 6 lõi với 2 siêu lõi và 4 lõi hiệu suất"
+            },
+            {
+              "label": "Kích thước màn hình",
+              "value": "6.3 inches"
+            },
+            {
+              "label": "Độ phân giải",
+              "value": "2622 x 1206  pixels"
+            },
+            {
+              "label": "Pin",
+              "value": "Pin lithium-ion tích hợp"
+            },
+            {
+              "label": "Bluetooth",
+              "value": "Bluetooth 6"
+            },
+            {
+              "label": "Kích thước",
+              "value": "150 × 71,9 × 8,75 mm"
+            }
+          ]
+        }
+      ],
+      "image": {
+        "path": "/images/home-v2-catalog/product-141651.jpg",
+        "mediaType": "image/jpeg",
+        "sourceUrl": "https://cdn2.cellphones.com.vn/insecure/rs:fit:358:358/q:90/plain/https://cellphones.com.vn/media/catalog/product/i/p/iphone-18-pro-01.jpg"
+      },
+      "sourceUrl": "https://cellphones.com.vn/iphone-18-pro.html"
+    },
+    {
+      "sku": "CPS-112588",
+      "name": "iPhone 17 Pro Max 256GB | Chính hãng",
+      "category": "phone",
+      "brand": "apple",
+      "priceVnd": 34990000,
+      "listPriceVnd": 37990000,
+      "description": "Chip xử lý: Chip A19 Pro · CPU: CPU 6 lõi với 2 lõi hiệu năng và 4 lõi tiết kiệm điện · Kích thước màn hình: 6.9 inches",
+      "specifications": [
+        {
+          "title": "Thông số kỹ thuật",
+          "rows": [
+            {
+              "label": "Chip xử lý",
+              "value": "Chip A19 Pro"
+            },
+            {
+              "label": "CPU",
+              "value": "CPU 6 lõi với 2 lõi hiệu năng và 4 lõi tiết kiệm điện"
+            },
+            {
+              "label": "Kích thước màn hình",
+              "value": "6.9 inches"
+            },
+            {
+              "label": "Độ phân giải",
+              "value": "2868 x 1320 pixels"
+            },
+            {
+              "label": "Bluetooth",
+              "value": "Bluetooth 6"
+            },
+            {
+              "label": "Kích thước",
+              "value": "163,4 x 78,0 x 8,75 mm"
+            }
+          ]
+        }
+      ],
+      "image": {
+        "path": "/images/home-v2-catalog/product-112588.jpg",
+        "mediaType": "image/jpeg",
+        "sourceUrl": "https://cdn2.cellphones.com.vn/insecure/rs:fit:358:358/q:90/plain/https://cellphones.com.vn/media/catalog/product/i/p/iphone-17-pro-max_3.jpg"
+      },
+      "sourceUrl": "https://cellphones.com.vn/iphone-17-pro-max.html"
+    },
+    {
+      "sku": "CPS-141654",
+      "name": "iPhone 18 Pro Max 256GB",
+      "category": "phone",
+      "brand": "apple",
+      "priceVnd": 41990000,
+      "listPriceVnd": null,
+      "description": "Chip xử lý: Apple A20 Pro · CPU: CPU 6 lõi với 2 siêu lõi và 4 lõi hiệu suất · Kích thước màn hình: 6.9 inches",
+      "specifications": [
+        {
+          "title": "Thông số kỹ thuật",
+          "rows": [
+            {
+              "label": "Chip xử lý",
+              "value": "Apple A20 Pro"
+            },
+            {
+              "label": "CPU",
+              "value": "CPU 6 lõi với 2 siêu lõi và 4 lõi hiệu suất"
+            },
+            {
+              "label": "Kích thước màn hình",
+              "value": "6.9 inches"
+            },
+            {
+              "label": "Độ phân giải",
+              "value": "2868 x 1320 pixels"
+            },
+            {
+              "label": "Pin",
+              "value": "Pin lithium-ion tích hợp"
+            },
+            {
+              "label": "Bluetooth",
+              "value": "Bluetooth 6.0"
+            },
+            {
+              "label": "Kích thước",
+              "value": "163,4 x 78 x 8,75 mm"
+            }
+          ]
+        }
+      ],
+      "image": {
+        "path": "/images/home-v2-catalog/product-141654.jpg",
+        "mediaType": "image/jpeg",
+        "sourceUrl": "https://cdn2.cellphones.com.vn/insecure/rs:fit:358:358/q:90/plain/https://cellphones.com.vn/media/catalog/product/i/p/iphone-18-pro-max-01.jpg"
+      },
+      "sourceUrl": "https://cellphones.com.vn/iphone-18-pro-max.html"
+    },
+    {
+      "sku": "CPS-112586",
+      "name": "iPhone 17 Pro 256GB | Chính hãng",
+      "category": "phone",
+      "brand": "apple",
+      "priceVnd": 31990000,
+      "listPriceVnd": 34990000,
+      "description": "Chip xử lý: Chip A19 Pro · CPU: CPU 6 lõi với 2 lõi hiệu năng và 4 lõi tiết kiệm điện · Kích thước màn hình: 6.3 inches",
+      "specifications": [
+        {
+          "title": "Thông số kỹ thuật",
+          "rows": [
+            {
+              "label": "Chip xử lý",
+              "value": "Chip A19 Pro"
+            },
+            {
+              "label": "CPU",
+              "value": "CPU 6 lõi với 2 lõi hiệu năng và 4 lõi tiết kiệm điện"
+            },
+            {
+              "label": "Kích thước màn hình",
+              "value": "6.3 inches"
+            },
+            {
+              "label": "Độ phân giải",
+              "value": "2622 x 1206  pixels"
+            },
+            {
+              "label": "Bluetooth",
+              "value": "Bluetooth 6"
+            },
+            {
+              "label": "Kích thước",
+              "value": "150 x 71.9 x 8.75 mm"
+            }
+          ]
+        }
+      ],
+      "image": {
+        "path": "/images/home-v2-catalog/product-112586.png",
+        "mediaType": "image/png",
+        "sourceUrl": "https://cdn2.cellphones.com.vn/insecure/rs:fit:358:358/q:90/plain/https://cellphones.com.vn/media/catalog/product/i/p/iphone-17-pro-256-gb.png"
+      },
+      "sourceUrl": "https://cellphones.com.vn/iphone-17-pro.html"
+    },
+    {
+      "sku": "CPS-125121",
+      "name": "Samsung Galaxy S26 Ultra 5G 12GB 256GB",
+      "category": "phone",
+      "brand": "samsung",
+      "priceVnd": 31090000,
+      "listPriceVnd": 40990000,
+      "description": "Chip xử lý: Snapdragon 8 Elite Gen 5 · CPU: 8 nhân · Kích thước màn hình: 6.9 inches",
+      "specifications": [
+        {
+          "title": "Thông số kỹ thuật",
+          "rows": [
+            {
+              "label": "Chip xử lý",
+              "value": "Snapdragon 8 Elite Gen 5"
+            },
+            {
+              "label": "CPU",
+              "value": "8 nhân"
+            },
+            {
+              "label": "Kích thước màn hình",
+              "value": "6.9 inches"
+            },
+            {
+              "label": "Độ phân giải",
+              "value": "3120 x 1440 pixels (Quad HD+)"
+            },
+            {
+              "label": "Pin",
+              "value": "5000 mAh"
+            },
+            {
+              "label": "Bluetooth",
+              "value": "v6.0"
+            },
+            {
+              "label": "Kích thước",
+              "value": "163.6 x 78.1 x 7.9mm"
+            }
+          ]
+        }
+      ],
+      "image": {
+        "path": "/images/home-v2-catalog/product-125121.jpg",
+        "mediaType": "image/jpeg",
+        "sourceUrl": "https://cdn2.cellphones.com.vn/insecure/rs:fit:358:358/q:90/plain/https://cellphones.com.vn/media/catalog/product/s/a/samsung-galaxy-s26-ultra-1.jpg"
+      },
+      "sourceUrl": "https://cellphones.com.vn/dien-thoai-samsung-galaxy-s26-ultra.html"
+    },
+    {
+      "sku": "CPS-112580",
+      "name": "iPhone 17 256GB | Chính hãng",
+      "category": "phone",
+      "brand": "apple",
+      "priceVnd": 28990000,
+      "listPriceVnd": null,
+      "description": "Chip xử lý: Apple A19 · CPU: 6 lõi (2 hiệu năng + 4 tiết kiệm điện) · Kích thước màn hình: 6.3 inches",
+      "specifications": [
+        {
+          "title": "Thông số kỹ thuật",
+          "rows": [
+            {
+              "label": "Chip xử lý",
+              "value": "Apple A19"
+            },
+            {
+              "label": "CPU",
+              "value": "6 lõi (2 hiệu năng + 4 tiết kiệm điện)"
+            },
+            {
+              "label": "Kích thước màn hình",
+              "value": "6.3 inches"
+            },
+            {
+              "label": "Độ phân giải",
+              "value": "2622 x 1206  pixels"
+            },
+            {
+              "label": "Pin",
+              "value": "Xem video: 30 giờ; Xem video trực tuyến: 27 giờ"
+            },
+            {
+              "label": "Bluetooth",
+              "value": "Bluetooth 6"
+            },
+            {
+              "label": "Kích thước",
+              "value": "149.6 × 71.5 × 7.95 mm"
+            }
+          ]
+        }
+      ],
+      "image": {
+        "path": "/images/home-v2-catalog/product-112580.jpg",
+        "mediaType": "image/jpeg",
+        "sourceUrl": "https://cdn2.cellphones.com.vn/insecure/rs:fit:358:358/q:90/plain/https://cellphones.com.vn/media/catalog/product/i/p/iphone_17_256gb-3_2.jpg"
+      },
+      "sourceUrl": "https://cellphones.com.vn/iphone-17-256gb.html"
+    },
+    {
+      "sku": "CPS-124254",
+      "name": "OPPO Find X10 5G 12GB 256GB",
+      "category": "phone",
+      "brand": "oppo",
+      "priceVnd": 34990000,
+      "listPriceVnd": null,
+      "description": "Chip xử lý: Dimensity 9600 · Kích thước màn hình: 6.78 inches",
+      "specifications": [
+        {
+          "title": "Thông số kỹ thuật",
+          "rows": [
+            {
+              "label": "Chip xử lý",
+              "value": "Dimensity 9600"
+            },
+            {
+              "label": "Kích thước màn hình",
+              "value": "6.78 inches"
+            }
+          ]
+        }
+      ],
+      "image": {
+        "path": "/images/home-v2-catalog/product-124254.jpg",
+        "mediaType": "image/jpeg",
+        "sourceUrl": "https://cdn2.cellphones.com.vn/insecure/rs:fit:358:358/q:90/plain/https://cellphones.com.vn/media/catalog/product/o/p/oppo-find-x10-glow-01.jpg"
+      },
+      "sourceUrl": "https://cellphones.com.vn/dien-thoai-oppo-find-x10.html"
+    },
+    {
+      "sku": "CPS-141669",
+      "name": "iPhone 18 Pro Max 512GB",
+      "category": "phone",
+      "brand": "apple",
+      "priceVnd": 48490000,
+      "listPriceVnd": null,
+      "description": "Chip xử lý: Chip A20 Pro · CPU: CPU 6 lõi với 2 siêu lõi và 4 lõi hiệu suất · Kích thước màn hình: 6.9 inches",
+      "specifications": [
+        {
+          "title": "Thông số kỹ thuật",
+          "rows": [
+            {
+              "label": "Chip xử lý",
+              "value": "Chip A20 Pro"
+            },
+            {
+              "label": "CPU",
+              "value": "CPU 6 lõi với 2 siêu lõi và 4 lõi hiệu suất"
+            },
+            {
+              "label": "Kích thước màn hình",
+              "value": "6.9 inches"
+            },
+            {
+              "label": "Độ phân giải",
+              "value": "2868 x 1320 pixels"
+            },
+            {
+              "label": "Pin",
+              "value": "Pin lithium-ion tích hợp"
+            },
+            {
+              "label": "Bluetooth",
+              "value": "Bluetooth 6.0"
+            },
+            {
+              "label": "Kích thước",
+              "value": "163,4 x 78 x 8,75 mm"
+            }
+          ]
+        }
+      ],
+      "image": {
+        "path": "/images/home-v2-catalog/product-141669.jpg",
+        "mediaType": "image/jpeg",
+        "sourceUrl": "https://cdn2.cellphones.com.vn/insecure/rs:fit:358:358/q:90/plain/https://cellphones.com.vn/media/catalog/product/i/p/iphone-18-pro-max-01_1.jpg"
+      },
+      "sourceUrl": "https://cellphones.com.vn/iphone-18-pro-max-512gb.html"
+    },
+    {
+      "sku": "CPS-126028",
+      "name": "Samsung Galaxy A37 5G 8GB 128GB",
+      "category": "phone",
+      "brand": "samsung",
+      "priceVnd": 9990000,
+      "listPriceVnd": 11790000,
+      "description": "Chip xử lý: Exynos 1480 · CPU: 4 nhân 2.75 GHz & 4 nhân 2 GHz · Kích thước màn hình: 6.7 inches",
+      "specifications": [
+        {
+          "title": "Thông số kỹ thuật",
+          "rows": [
+            {
+              "label": "Chip xử lý",
+              "value": "Exynos 1480"
+            },
+            {
+              "label": "CPU",
+              "value": "4 nhân 2.75 GHz & 4 nhân 2 GHz"
+            },
+            {
+              "label": "Kích thước màn hình",
+              "value": "6.7 inches"
+            },
+            {
+              "label": "Độ phân giải",
+              "value": "1080 x 2340 pixels (FullHD+)"
+            },
+            {
+              "label": "Pin",
+              "value": "5000 mAh"
+            },
+            {
+              "label": "Bluetooth",
+              "value": "v5.3"
+            },
+            {
+              "label": "Kích thước",
+              "value": "162.9 x 78.2 x 7.4mm"
+            }
+          ]
+        }
+      ],
+      "image": {
+        "path": "/images/home-v2-catalog/product-126028.jpg",
+        "mediaType": "image/jpeg",
+        "sourceUrl": "https://cdn2.cellphones.com.vn/insecure/rs:fit:358:358/q:90/plain/https://cellphones.com.vn/media/catalog/product/d/i/dien-thoai-samsung-galaxy-a37-2_2.jpg"
+      },
+      "sourceUrl": "https://cellphones.com.vn/dien-thoai-samsung-galaxy-a37.html"
+    },
+    {
+      "sku": "CPS-137019",
+      "name": "Samsung Galaxy Z Fold8 5G 12GB 256GB",
+      "category": "phone",
+      "brand": "samsung",
+      "priceVnd": 40790000,
+      "listPriceVnd": 46990000,
+      "description": "Chip xử lý: Snapdragon® 8 Elite Gen 5 · Kích thước màn hình: Chính: 7.6 inches - Phụ: 5.5 inches · Độ phân giải: Chính: 2448 x 1848 pixels (QXGA+) - Phụ: 1972 x 1248 pixels (FHD+)",
+      "specifications": [
+        {
+          "title": "Thông số kỹ thuật",
+          "rows": [
+            {
+              "label": "Chip xử lý",
+              "value": "Snapdragon® 8 Elite Gen 5"
+            },
+            {
+              "label": "Kích thước màn hình",
+              "value": "Chính: 7.6 inches - Phụ: 5.5 inches"
+            },
+            {
+              "label": "Độ phân giải",
+              "value": "Chính: 2448 x 1848 pixels (QXGA+) - Phụ: 1972 x 1248 pixels (FHD+)"
+            },
+            {
+              "label": "Pin",
+              "value": "4800 mAh"
+            },
+            {
+              "label": "Bluetooth",
+              "value": "6.0"
+            },
+            {
+              "label": "Kích thước",
+              "value": "Khi mở: 161.4 x 123.9 x 4.5 mm; Khi gập: 123.9 x 81.9 x 9.7 mm"
+            }
+          ]
+        }
+      ],
+      "image": {
+        "path": "/images/home-v2-catalog/product-137019.jpg",
+        "mediaType": "image/jpeg",
+        "sourceUrl": "https://cdn2.cellphones.com.vn/insecure/rs:fit:358:358/q:90/plain/https://cellphones.com.vn/media/catalog/product/s/a/samsung-galaxy-z-fold-8-lavender-01.jpg"
+      },
+      "sourceUrl": "https://cellphones.com.vn/dien-thoai-samsung-galaxy-z-fold-8.html"
+    },
+    {
+      "sku": "CPS-140055",
+      "name": "OPPO Find X10 Pro Max 16GB 512GB",
+      "category": "phone",
+      "brand": "oppo",
+      "priceVnd": 49990000,
+      "listPriceVnd": null,
+      "description": "Chip xử lý: Dimensity 9600 · Kích thước màn hình: 6.78 inches",
+      "specifications": [
+        {
+          "title": "Thông số kỹ thuật",
+          "rows": [
+            {
+              "label": "Chip xử lý",
+              "value": "Dimensity 9600"
+            },
+            {
+              "label": "Kích thước màn hình",
+              "value": "6.78 inches"
+            }
+          ]
+        }
+      ],
+      "image": {
+        "path": "/images/home-v2-catalog/product-140055.jpg",
+        "mediaType": "image/jpeg",
+        "sourceUrl": "https://cdn2.cellphones.com.vn/insecure/rs:fit:358:358/q:90/plain/https://cellphones.com.vn/media/catalog/product/o/p/oppo-find-x10-pro-max-white-01_1.jpg"
+      },
+      "sourceUrl": "https://cellphones.com.vn/dien-thoai-oppo-find-x10-pro-max.html"
+    },
+    {
+      "sku": "CPS-132812",
+      "name": "Xiaomi POCO F9 Ultra 5G 12GB 256GB",
+      "category": "phone",
+      "brand": "xiaomi",
+      "priceVnd": 25990000,
+      "listPriceVnd": 29990000,
+      "description": "Chip xử lý: Snapdragon 8 Elite Gen 5 · CPU: 8 nhân · Kích thước màn hình: 6.9 inches",
+      "specifications": [
+        {
+          "title": "Thông số kỹ thuật",
+          "rows": [
+            {
+              "label": "Chip xử lý",
+              "value": "Snapdragon 8 Elite Gen 5"
+            },
+            {
+              "label": "CPU",
+              "value": "8 nhân"
+            },
+            {
+              "label": "Kích thước màn hình",
+              "value": "6.9 inches"
+            },
+            {
+              "label": "Pin",
+              "value": "8050 mAh"
+            },
+            {
+              "label": "Kích thước",
+              "value": "163,49 x 77,94 x 8,74 mm"
+            }
+          ]
+        }
+      ],
+      "image": {
+        "path": "/images/home-v2-catalog/product-132812.jpg",
+        "mediaType": "image/jpeg",
+        "sourceUrl": "https://cdn2.cellphones.com.vn/insecure/rs:fit:358:358/q:90/plain/https://cellphones.com.vn/media/catalog/product/x/i/xiaomi-poco-f9-ultra-red.jpg"
+      },
+      "sourceUrl": "https://cellphones.com.vn/dien-thoai-xiaomi-poco-f9-ultra.html"
+    },
+    {
+      "sku": "CPS-141664",
+      "name": "iPhone 18 Pro 512GB",
+      "category": "phone",
+      "brand": "apple",
+      "priceVnd": 45490000,
+      "listPriceVnd": null,
+      "description": "Chip xử lý: A20 Pro · CPU: CPU 6 lõi với 2 siêu lõi và 4 lõi hiệu suất · Kích thước màn hình: 6.3 inches",
+      "specifications": [
+        {
+          "title": "Thông số kỹ thuật",
+          "rows": [
+            {
+              "label": "Chip xử lý",
+              "value": "A20 Pro"
+            },
+            {
+              "label": "CPU",
+              "value": "CPU 6 lõi với 2 siêu lõi và 4 lõi hiệu suất"
+            },
+            {
+              "label": "Kích thước màn hình",
+              "value": "6.3 inches"
+            },
+            {
+              "label": "Độ phân giải",
+              "value": "2622 x 1206  pixels"
+            },
+            {
+              "label": "Pin",
+              "value": "Pin lithium-ion tích hợp"
+            },
+            {
+              "label": "Bluetooth",
+              "value": "Bluetooth 6"
+            },
+            {
+              "label": "Kích thước",
+              "value": "150 × 71,9 × 8,75 mm"
+            }
+          ]
+        }
+      ],
+      "image": {
+        "path": "/images/home-v2-catalog/product-141664.jpg",
+        "mediaType": "image/jpeg",
+        "sourceUrl": "https://cdn2.cellphones.com.vn/insecure/rs:fit:358:358/q:90/plain/https://cellphones.com.vn/media/catalog/product/i/p/iphone-18-pro-01_1.jpg"
+      },
+      "sourceUrl": "https://cellphones.com.vn/iphone-18-pro-512gb.html"
+    },
+    {
+      "sku": "CPS-141708",
+      "name": "iPhone 18 Pro Max 2TB",
+      "category": "phone",
+      "brand": "apple",
+      "priceVnd": 80990000,
+      "listPriceVnd": null,
+      "description": "Chip xử lý: Chip A20 Pro · CPU: CPU 6 lõi với 2 siêu lõi và 4 lõi hiệu suất · Kích thước màn hình: 6.9 inches",
+      "specifications": [
+        {
+          "title": "Thông số kỹ thuật",
+          "rows": [
+            {
+              "label": "Chip xử lý",
+              "value": "Chip A20 Pro"
+            },
+            {
+              "label": "CPU",
+              "value": "CPU 6 lõi với 2 siêu lõi và 4 lõi hiệu suất"
+            },
+            {
+              "label": "Kích thước màn hình",
+              "value": "6.9 inches"
+            },
+            {
+              "label": "Độ phân giải",
+              "value": "2868 x 1320 pixels"
+            },
+            {
+              "label": "Pin",
+              "value": "Pin lithium-ion tích hợp"
+            },
+            {
+              "label": "Bluetooth",
+              "value": "Bluetooth 6.0"
+            },
+            {
+              "label": "Kích thước",
+              "value": "163,4 x 78 x 8,75 mm"
+            }
+          ]
+        }
+      ],
+      "image": {
+        "path": "/images/home-v2-catalog/product-141708.jpg",
+        "mediaType": "image/jpeg",
+        "sourceUrl": "https://cdn2.cellphones.com.vn/insecure/rs:fit:358:358/q:90/plain/https://cellphones.com.vn/media/catalog/product/i/p/iphone-18-pro-max-01_3.jpg"
+      },
+      "sourceUrl": "https://cellphones.com.vn/iphone-18-pro-max-2tb.html"
+    },
+    {
+      "sku": "CPS-126484",
+      "name": "HONOR 600 5G 8GB 256GB",
+      "category": "phone",
+      "brand": "honor",
+      "priceVnd": 16790000,
+      "listPriceVnd": 17990000,
+      "description": "Chip xử lý: Snapdragon 7 Gen 4 · CPU: 8 nhân · Kích thước màn hình: 6.57 inches",
+      "specifications": [
+        {
+          "title": "Thông số kỹ thuật",
+          "rows": [
+            {
+              "label": "Chip xử lý",
+              "value": "Snapdragon 7 Gen 4"
+            },
+            {
+              "label": "CPU",
+              "value": "8 nhân"
+            },
+            {
+              "label": "Kích thước màn hình",
+              "value": "6.57 inches"
+            },
+            {
+              "label": "Độ phân giải",
+              "value": "2728 x 1264 pixels"
+            },
+            {
+              "label": "Pin",
+              "value": "7000 mAh"
+            },
+            {
+              "label": "Bluetooth",
+              "value": "5.4"
+            },
+            {
+              "label": "Kích thước",
+              "value": "156 x 74.7 x 7.8 mm"
+            }
+          ]
+        }
+      ],
+      "image": {
+        "path": "/images/home-v2-catalog/product-126484.jpg",
+        "mediaType": "image/jpeg",
+        "sourceUrl": "https://cdn2.cellphones.com.vn/insecure/rs:fit:358:358/q:90/plain/https://cellphones.com.vn/media/catalog/product/d/i/dien-thoai-honor-600-cam.jpg"
+      },
+      "sourceUrl": "https://cellphones.com.vn/dien-thoai-honor-600.html"
+    },
+    {
+      "sku": "CPS-137049",
+      "name": "Samsung Galaxy Z Fold8 Ultra 5G 12GB 256GB",
+      "category": "phone",
+      "brand": "samsung",
+      "priceVnd": 45690000,
+      "listPriceVnd": 52990000,
+      "description": "Chip xử lý: Snapdragon® 8 Elite Gen 5 · Kích thước màn hình: Chính: 8.0 inches - Phụ: 6.5 inches · Độ phân giải: Chính: 2184 x 1968 Chính: 1080 × 2520 pixels (FHD+) - Phụ: 1048 × 948 pixels (QXGA+) - Phụ: 2520 x 1080 Chính: 1080 × 2520 pixels (FHD+) - Phụ: 1048 × 948 pixels (FHD+)",
+      "specifications": [
+        {
+          "title": "Thông số kỹ thuật",
+          "rows": [
+            {
+              "label": "Chip xử lý",
+              "value": "Snapdragon® 8 Elite Gen 5"
+            },
+            {
+              "label": "Kích thước màn hình",
+              "value": "Chính: 8.0 inches - Phụ: 6.5 inches"
+            },
+            {
+              "label": "Độ phân giải",
+              "value": "Chính: 2184 x 1968 Chính: 1080 × 2520 pixels (FHD+) - Phụ: 1048 × 948 pixels (QXGA+) - Phụ: 2520 x 1080 Chính: 1080 × 2520 pixels (FHD+) - Phụ: 1048 × 948 pixels (FHD+)"
+            },
+            {
+              "label": "Pin",
+              "value": "5000 mAh"
+            },
+            {
+              "label": "Bluetooth",
+              "value": "6.0"
+            },
+            {
+              "label": "Kích thước",
+              "value": "Mở: 158.4 x 143.2 x 4.1 mm; Gập: 158.4 x 72.8 x 8.9 mm"
+            }
+          ]
+        }
+      ],
+      "image": {
+        "path": "/images/home-v2-catalog/product-137049.jpg",
+        "mediaType": "image/jpeg",
+        "sourceUrl": "https://cdn2.cellphones.com.vn/insecure/rs:fit:358:358/q:90/plain/https://cellphones.com.vn/media/catalog/product/s/a/samsung-galaxy-z-fold-8-violet-01.jpg"
+      },
+      "sourceUrl": "https://cellphones.com.vn/dien-thoai-samsung-galaxy-z-fold-8-ultra.html"
+    },
+    {
+      "sku": "CPS-141684",
+      "name": "iPhone 18 Pro 2TB",
+      "category": "phone",
+      "brand": "apple",
+      "priceVnd": 77490000,
+      "listPriceVnd": 77990000,
+      "description": "Chip xử lý: A20 Pro · CPU: CPU 6 lõi với 2 siêu lõi và 4 lõi hiệu suất · Kích thước màn hình: 6.3 inches",
+      "specifications": [
+        {
+          "title": "Thông số kỹ thuật",
+          "rows": [
+            {
+              "label": "Chip xử lý",
+              "value": "A20 Pro"
+            },
+            {
+              "label": "CPU",
+              "value": "CPU 6 lõi với 2 siêu lõi và 4 lõi hiệu suất"
+            },
+            {
+              "label": "Kích thước màn hình",
+              "value": "6.3 inches"
+            },
+            {
+              "label": "Độ phân giải",
+              "value": "2622 x 1206  pixels"
+            },
+            {
+              "label": "Pin",
+              "value": "Pin lithium-ion tích hợp"
+            },
+            {
+              "label": "Bluetooth",
+              "value": "Bluetooth 6"
+            },
+            {
+              "label": "Kích thước",
+              "value": "150 × 71,9 × 8,75 mm"
+            }
+          ]
+        }
+      ],
+      "image": {
+        "path": "/images/home-v2-catalog/product-141684.jpg",
+        "mediaType": "image/jpeg",
+        "sourceUrl": "https://cdn2.cellphones.com.vn/insecure/rs:fit:358:358/q:90/plain/https://cellphones.com.vn/media/catalog/product/i/p/iphone-18-pro-01_1_1_1.jpg"
+      },
+      "sourceUrl": "https://cellphones.com.vn/iphone-18-pro-2tb.html"
+    },
+    {
+      "sku": "CPS-141699",
+      "name": "iPhone 18 Pro Max 1TB",
+      "category": "phone",
+      "brand": "apple",
+      "priceVnd": 61490000,
+      "listPriceVnd": null,
+      "description": "Chip xử lý: Chip A20 Pro · CPU: CPU 6 lõi với 2 siêu lõi và 4 lõi hiệu suất · Kích thước màn hình: 6.9 inches",
+      "specifications": [
+        {
+          "title": "Thông số kỹ thuật",
+          "rows": [
+            {
+              "label": "Chip xử lý",
+              "value": "Chip A20 Pro"
+            },
+            {
+              "label": "CPU",
+              "value": "CPU 6 lõi với 2 siêu lõi và 4 lõi hiệu suất"
+            },
+            {
+              "label": "Kích thước màn hình",
+              "value": "6.9 inches"
+            },
+            {
+              "label": "Độ phân giải",
+              "value": "2868 x 1320 pixels"
+            },
+            {
+              "label": "Pin",
+              "value": "Pin lithium-ion tích hợp"
+            },
+            {
+              "label": "Bluetooth",
+              "value": "Bluetooth 6.0"
+            },
+            {
+              "label": "Kích thước",
+              "value": "163,4 x 78 x 8,75 mm"
+            }
+          ]
+        }
+      ],
+      "image": {
+        "path": "/images/home-v2-catalog/product-141699.jpg",
+        "mediaType": "image/jpeg",
+        "sourceUrl": "https://cdn2.cellphones.com.vn/insecure/rs:fit:358:358/q:90/plain/https://cellphones.com.vn/media/catalog/product/i/p/iphone-18-pro-max-01_2.jpg"
+      },
+      "sourceUrl": "https://cellphones.com.vn/iphone-18-pro-max-1tb.html"
+    },
+    {
+      "sku": "CPS-140081",
+      "name": "Samsung Galaxy S26 FE 5G 8GB 128GB",
+      "category": "phone",
+      "brand": "samsung",
+      "priceVnd": 15990000,
+      "listPriceVnd": 18990000,
+      "description": "Chip xử lý: Exynos 2500 (3nm) · CPU: 1 nhân 3.3GHz, 2 nhân 2.74GHz, 5 nhân 2.36GHz, 2 nhân 1.8GHz · Kích thước màn hình: 6.7 inches",
+      "specifications": [
+        {
+          "title": "Thông số kỹ thuật",
+          "rows": [
+            {
+              "label": "Chip xử lý",
+              "value": "Exynos 2500 (3nm)"
+            },
+            {
+              "label": "CPU",
+              "value": "1 nhân 3.3GHz, 2 nhân 2.74GHz, 5 nhân 2.36GHz, 2 nhân 1.8GHz"
+            },
+            {
+              "label": "Kích thước màn hình",
+              "value": "6.7 inches"
+            },
+            {
+              "label": "Độ phân giải",
+              "value": "2340 x 1080-pixel"
+            },
+            {
+              "label": "Pin",
+              "value": "4900 mAh"
+            },
+            {
+              "label": "Kích thước",
+              "value": "161.6 x 76.9 x 7.4 mm"
+            }
+          ]
+        }
+      ],
+      "image": {
+        "path": "/images/home-v2-catalog/product-140081.jpg",
+        "mediaType": "image/jpeg",
+        "sourceUrl": "https://cdn2.cellphones.com.vn/insecure/rs:fit:358:358/q:90/plain/https://cellphones.com.vn/media/catalog/product/s/a/samsung-s26-fe-tim-03.jpg"
+      },
+      "sourceUrl": "https://cellphones.com.vn/dien-thoai-samsung-galaxy-s26-fe.html"
+    },
+    {
+      "sku": "CPS-112584",
+      "name": "iPhone Air 256GB | Chính hãng",
+      "category": "phone",
+      "brand": "apple",
+      "priceVnd": 23390000,
+      "listPriceVnd": 31990000,
+      "description": "Chip xử lý: Chip A19 Pro · CPU: 6 lõi (2 hiệu năng + 4 tiết kiệm điện) · Kích thước màn hình: 6.5 inches",
+      "specifications": [
+        {
+          "title": "Thông số kỹ thuật",
+          "rows": [
+            {
+              "label": "Chip xử lý",
+              "value": "Chip A19 Pro"
+            },
+            {
+              "label": "CPU",
+              "value": "6 lõi (2 hiệu năng + 4 tiết kiệm điện)"
+            },
+            {
+              "label": "Kích thước màn hình",
+              "value": "6.5 inches"
+            },
+            {
+              "label": "Độ phân giải",
+              "value": "2736 x 1260 pixels"
+            },
+            {
+              "label": "Pin",
+              "value": "Xem video: 27 giờ; Xem video trực tuyến: 22 giờ"
+            },
+            {
+              "label": "Bluetooth",
+              "value": "Bluetooth 6"
+            },
+            {
+              "label": "Kích thước",
+              "value": "156.2 × 74.7 × 5.6 mm"
+            }
+          ]
+        }
+      ],
+      "image": {
+        "path": "/images/home-v2-catalog/product-112584.jpg",
+        "mediaType": "image/jpeg",
+        "sourceUrl": "https://cdn2.cellphones.com.vn/insecure/rs:fit:358:358/q:90/plain/https://cellphones.com.vn/media/catalog/product/i/p/iphone_air-3_2.jpg"
+      },
+      "sourceUrl": "https://cellphones.com.vn/iphone-air-256gb.html"
+    },
+    {
+      "sku": "CPS-112268",
+      "name": "Samsung Galaxy Tab S11 Wifi 12GB 128GB",
+      "category": "tablet",
+      "brand": null,
+      "priceVnd": 19480000,
+      "listPriceVnd": 22490000,
+      "description": "Chip xử lý: MediaTek Dimensity 9400 · CPU: 8 nhân · Kích thước màn hình: 11 inches",
+      "specifications": [
+        {
+          "title": "Thông số kỹ thuật",
+          "rows": [
+            {
+              "label": "Chip xử lý",
+              "value": "MediaTek Dimensity 9400"
+            },
+            {
+              "label": "CPU",
+              "value": "8 nhân"
+            },
+            {
+              "label": "Kích thước màn hình",
+              "value": "11 inches"
+            },
+            {
+              "label": "Độ phân giải",
+              "value": "2560 x 1600 (WQXGA)"
+            },
+            {
+              "label": "Pin",
+              "value": "8400 mAh"
+            },
+            {
+              "label": "Bluetooth",
+              "value": "v5.4"
+            },
+            {
+              "label": "Kích thước",
+              "value": "165.3 x 253.8 x 5.5 mm"
+            }
+          ]
+        }
+      ],
+      "image": {
+        "path": "/images/home-v2-catalog/product-112268.jpg",
+        "mediaType": "image/jpeg",
+        "sourceUrl": "https://cdn2.cellphones.com.vn/insecure/rs:fit:358:358/q:90/plain/https://cellphones.com.vn/media/catalog/product/m/a/may-tinh-bang-samsung-galaxy-tab-s11_7.jpg"
+      },
+      "sourceUrl": "https://cellphones.com.vn/may-tinh-bang-samsung-galaxy-tab-s11-wifi.html"
+    },
+    {
+      "sku": "CPS-133460",
+      "name": "Lenovo Idea Tab Pro Gen 2 Matte Edition 8GB 256GB ZAHD0452VN - Kèm bút, bàn phím",
+      "category": "tablet",
+      "brand": "lenovo",
+      "priceVnd": 16190000,
+      "listPriceVnd": 16990000,
+      "description": "Chip xử lý: Qualcomm Snapdragon 8s Gen 4 · CPU: 8 nhân, 1x Cortex-X4 @3.2GHz + 3x Cortex-A720 @3.0GHz + 2x Cortex-A720 @2.8GHz + 2x Cortex-A720 @2.0GHz · Kích thước màn hình: 13 inches",
+      "specifications": [
+        {
+          "title": "Thông số kỹ thuật",
+          "rows": [
+            {
+              "label": "Chip xử lý",
+              "value": "Qualcomm Snapdragon 8s Gen 4"
+            },
+            {
+              "label": "CPU",
+              "value": "8 nhân, 1x Cortex-X4 @3.2GHz + 3x Cortex-A720 @3.0GHz + 2x Cortex-A720 @2.8GHz + 2x Cortex-A720 @2.0GHz"
+            },
+            {
+              "label": "Kích thước màn hình",
+              "value": "13 inches"
+            },
+            {
+              "label": "Độ phân giải",
+              "value": "3504 x 2190 pixels"
+            },
+            {
+              "label": "Pin",
+              "value": "10200 mAh"
+            },
+            {
+              "label": "Bluetooth",
+              "value": "v6.0"
+            },
+            {
+              "label": "Kích thước",
+              "value": "296.48 - 191.91 - 6.2 mm"
+            }
+          ]
+        }
+      ],
+      "image": {
+        "path": "/images/home-v2-catalog/product-133460.jpg",
+        "mediaType": "image/jpeg",
+        "sourceUrl": "https://cdn2.cellphones.com.vn/insecure/rs:fit:358:358/q:90/plain/https://cellphones.com.vn/media/catalog/product/m/a/may-tinh-bang-lenovo-legion-tab-pro-gen-2-zahd0452vn-kem-but-ban-phim.jpg"
+      },
+      "sourceUrl": "https://cellphones.com.vn/may-tinh-bang-lenovo-idea-tab-pro-gen-2-zahd0452vn-kem-but-ban-phim.html"
+    },
+    {
+      "sku": "CPS-101619",
+      "name": "iPad A16 Wifi 128GB 2025 | Chính hãng Apple Việt Nam",
+      "category": "tablet",
+      "brand": "apple",
+      "priceVnd": 12090000,
+      "listPriceVnd": 12790000,
+      "description": "Chip xử lý: Chip A16 · CPU: CPU 5 lõi · Kích thước màn hình: 11 inches",
+      "specifications": [
+        {
+          "title": "Thông số kỹ thuật",
+          "rows": [
+            {
+              "label": "Chip xử lý",
+              "value": "Chip A16"
+            },
+            {
+              "label": "CPU",
+              "value": "CPU 5 lõi"
+            },
+            {
+              "label": "Kích thước màn hình",
+              "value": "11 inches"
+            },
+            {
+              "label": "Độ phân giải",
+              "value": "2360 x 1640  pixel"
+            },
+            {
+              "label": "Pin",
+              "value": "Tích hợp pin sạc Li-Po 28,93 watt‑giờ"
+            },
+            {
+              "label": "Bluetooth",
+              "value": "v5.3"
+            },
+            {
+              "label": "Kích thước",
+              "value": "248,6 x 179,5 x 7 mm"
+            }
+          ]
+        }
+      ],
+      "image": {
+        "path": "/images/home-v2-catalog/product-101619.jpg",
+        "mediaType": "image/jpeg",
+        "sourceUrl": "https://cdn2.cellphones.com.vn/insecure/rs:fit:358:358/q:90/plain/https://cellphones.com.vn/media/catalog/product/i/p/ipad-a16-11-inch_10_.jpg"
+      },
+      "sourceUrl": "https://cellphones.com.vn/ipad-a16-11-inch.html"
+    },
+    {
+      "sku": "CPS-104326",
+      "name": "Samsung Galaxy Tab S10 FE Wifi 12GB 256GB",
+      "category": "tablet",
+      "brand": "samsung",
+      "priceVnd": 13990000,
+      "listPriceVnd": 16690000,
+      "description": "Chip xử lý: Exynos 1580 (4 nm) · CPU: 2.9GHz,2.6GHz,1.9GHz · Kích thước màn hình: 10.9 inches",
+      "specifications": [
+        {
+          "title": "Thông số kỹ thuật",
+          "rows": [
+            {
+              "label": "Chip xử lý",
+              "value": "Exynos 1580 (4 nm)"
+            },
+            {
+              "label": "CPU",
+              "value": "2.9GHz,2.6GHz,1.9GHz"
+            },
+            {
+              "label": "Kích thước màn hình",
+              "value": "10.9 inches"
+            },
+            {
+              "label": "Độ phân giải",
+              "value": "2304 x 1440 pixels"
+            },
+            {
+              "label": "Pin",
+              "value": "8,000 mAh"
+            },
+            {
+              "label": "Bluetooth",
+              "value": "v5.3"
+            },
+            {
+              "label": "Kích thước",
+              "value": "165.8 x 254.3 x 6.0 mm"
+            }
+          ]
+        }
+      ],
+      "image": {
+        "path": "/images/home-v2-catalog/product-104326.png",
+        "mediaType": "image/png",
+        "sourceUrl": "https://cdn2.cellphones.com.vn/insecure/rs:fit:358:358/q:90/plain/https://cellphones.com.vn/media/catalog/product/m/a/may-tinh-bang-samsung-galaxy-tab-s10-fe.1_1_1.png"
+      },
+      "sourceUrl": "https://cellphones.com.vn/may-tinh-bang-samsung-galaxy-tab-s10-fe-wifi-12gb-256gb.html"
+    },
+    {
+      "sku": "CPS-126483",
+      "name": "HONOR Pad X8b Wifi 6GB 128GB",
+      "category": "tablet",
+      "brand": "honor",
+      "priceVnd": 7290000,
+      "listPriceVnd": 7490000,
+      "description": "Chip xử lý: Snapdragon 680 4G · CPU: 8 lõi, 4 x Cortex-A73 @ 2.4GHz + 4 x Cortex-A53 @ 1.9GHz · Kích thước màn hình: 11 inches",
+      "specifications": [
+        {
+          "title": "Thông số kỹ thuật",
+          "rows": [
+            {
+              "label": "Chip xử lý",
+              "value": "Snapdragon 680 4G"
+            },
+            {
+              "label": "CPU",
+              "value": "8 lõi, 4 x Cortex-A73 @ 2.4GHz + 4 x Cortex-A53 @ 1.9GHz"
+            },
+            {
+              "label": "Kích thước màn hình",
+              "value": "11 inches"
+            },
+            {
+              "label": "Độ phân giải",
+              "value": "1200 x 1920 pixels"
+            },
+            {
+              "label": "Pin",
+              "value": "10100 mAh"
+            },
+            {
+              "label": "Bluetooth",
+              "value": "v5.0"
+            },
+            {
+              "label": "Kích thước",
+              "value": "256.91 x 168.46 x 7.25 mm"
+            }
+          ]
+        }
+      ],
+      "image": {
+        "path": "/images/home-v2-catalog/product-126483.jpg",
+        "mediaType": "image/jpeg",
+        "sourceUrl": "https://cdn2.cellphones.com.vn/insecure/rs:fit:358:358/q:90/plain/https://cellphones.com.vn/media/catalog/product/m/a/may-tinh-bang-honor-pad-x8b.jpg"
+      },
+      "sourceUrl": "https://cellphones.com.vn/may-tinh-bang-honor-pad-x8b.html"
+    },
+    {
+      "sku": "CPS-127766",
+      "name": "Lenovo Legion Tab Gen 5 12GB 256GB",
+      "category": "tablet",
+      "brand": "lenovo",
+      "priceVnd": 22790000,
+      "listPriceVnd": 23990000,
+      "description": "Chip xử lý: Snapdragon 8 Elite Gen 5 · CPU: 8 nhân, 2 nhân Prime tối đa 4.6GHz + 6 nhân Performance tối đa 3.62GHz · Kích thước màn hình: 8.8 inches",
+      "specifications": [
+        {
+          "title": "Thông số kỹ thuật",
+          "rows": [
+            {
+              "label": "Chip xử lý",
+              "value": "Snapdragon 8 Elite Gen 5"
+            },
+            {
+              "label": "CPU",
+              "value": "8 nhân, 2 nhân Prime tối đa 4.6GHz + 6 nhân Performance tối đa 3.62GHz"
+            },
+            {
+              "label": "Kích thước màn hình",
+              "value": "8.8 inches"
+            },
+            {
+              "label": "Độ phân giải",
+              "value": "3040 x 1904 pixels"
+            },
+            {
+              "label": "Pin",
+              "value": "9000 mAh"
+            },
+            {
+              "label": "Bluetooth",
+              "value": "6.0"
+            },
+            {
+              "label": "Kích thước",
+              "value": "206.46 x 128.5 x 7.59 mm"
+            }
+          ]
+        }
+      ],
+      "image": {
+        "path": "/images/home-v2-catalog/product-127766.jpg",
+        "mediaType": "image/jpeg",
+        "sourceUrl": "https://cdn2.cellphones.com.vn/insecure/rs:fit:358:358/q:90/plain/https://cellphones.com.vn/media/catalog/product/l/e/lenovo-legion-tab-gen-5_1.jpg"
+      },
+      "sourceUrl": "https://cellphones.com.vn/may-tinh-bang-lenovo-legion-tab-gen-5-12gb-256gb-zah20030vn.html"
+    },
+    {
+      "sku": "CPS-127182",
+      "name": "Huawei MatePad 11.5 S 2026 12GB 256GB - Kèm bàn phím",
+      "category": "tablet",
+      "brand": "huawei",
+      "priceVnd": 11990000,
+      "listPriceVnd": 18490000,
+      "description": "Kích thước màn hình: 11.5 inches · Độ phân giải: 2800 x 1840  pixels · Pin: 8800 mAh",
+      "specifications": [
+        {
+          "title": "Thông số kỹ thuật",
+          "rows": [
+            {
+              "label": "Kích thước màn hình",
+              "value": "11.5 inches"
+            },
+            {
+              "label": "Độ phân giải",
+              "value": "2800 x 1840  pixels"
+            },
+            {
+              "label": "Pin",
+              "value": "8800 mAh"
+            },
+            {
+              "label": "Bluetooth",
+              "value": "5.2"
+            },
+            {
+              "label": "Kích thước",
+              "value": "261 x 177.3 x 6.1 mm"
+            }
+          ]
+        }
+      ],
+      "image": {
+        "path": "/images/home-v2-catalog/product-127182.jpg",
+        "mediaType": "image/jpeg",
+        "sourceUrl": "https://cdn2.cellphones.com.vn/insecure/rs:fit:358:358/q:90/plain/https://cellphones.com.vn/media/catalog/product/h/u/huawei-matepad-11-5-s-2026_1.jpg"
+      },
+      "sourceUrl": "https://cellphones.com.vn/may-tinh-bang-huawei-matepad-11-5-s-2026.html"
+    },
+    {
+      "sku": "CPS-45060",
+      "name": "iPad mini 7 2024 Wifi 128GB | Chính hãng Apple Việt Nam",
+      "category": "tablet",
+      "brand": "apple",
+      "priceVnd": 15990000,
+      "listPriceVnd": 16490000,
+      "description": "Chip xử lý: Chip A17 Pro · CPU: CPU 6 lõi với 2 lõi hiệu năng và 4 lõi tiết kiệm điện · Kích thước màn hình: 8.3 inches",
+      "specifications": [
+        {
+          "title": "Thông số kỹ thuật",
+          "rows": [
+            {
+              "label": "Chip xử lý",
+              "value": "Chip A17 Pro"
+            },
+            {
+              "label": "CPU",
+              "value": "CPU 6 lõi với 2 lõi hiệu năng và 4 lõi tiết kiệm điện"
+            },
+            {
+              "label": "Kích thước màn hình",
+              "value": "8.3 inches"
+            },
+            {
+              "label": "Độ phân giải",
+              "value": "2266 x 1488 pixels"
+            },
+            {
+              "label": "Pin",
+              "value": "Tích hợp pin sạc Li-Po 19,3 watt‑giờ"
+            },
+            {
+              "label": "Bluetooth",
+              "value": "Bluetooth 5.3"
+            },
+            {
+              "label": "Kích thước",
+              "value": "195.4 x 134.8 x 6.3 mm"
+            }
+          ]
+        }
+      ],
+      "image": {
+        "path": "/images/home-v2-catalog/product-45060.png",
+        "mediaType": "image/png",
+        "sourceUrl": "https://cdn2.cellphones.com.vn/insecure/rs:fit:358:358/q:90/plain/https://cellphones.com.vn/media/catalog/product/t/e/text_ng_n_13_7.png"
+      },
+      "sourceUrl": "https://cellphones.com.vn/ipad-mini-7.html"
+    },
+    {
+      "sku": "CPS-125874",
+      "name": "MacBook Neo 13 inch A18 Pro 2026 6CPU 5GPU 8GB 256GB | Chính hãng Apple Việt Nam",
+      "category": "laptop",
+      "brand": "apple",
+      "priceVnd": 18790000,
+      "listPriceVnd": 19490000,
+      "description": "CPU: Chip Apple A18 Pro ; CPU 6 lõi với 2 lõi hiệu năng và 4 lõi tiết kiệm điện · Kích thước màn hình: 13 inches · Độ phân giải: 2408 x 1506 pixels",
+      "specifications": [
+        {
+          "title": "Thông số kỹ thuật",
+          "rows": [
+            {
+              "label": "CPU",
+              "value": "Chip Apple A18 Pro ; CPU 6 lõi với 2 lõi hiệu năng và 4 lõi tiết kiệm điện"
+            },
+            {
+              "label": "Kích thước màn hình",
+              "value": "13 inches"
+            },
+            {
+              "label": "Độ phân giải",
+              "value": "2408 x 1506 pixels"
+            },
+            {
+              "label": "Pin",
+              "value": "Thời gian xem video trực tuyến lên đến 16 giờ;  Thời gian duyệt web trên mạng không dây lên đến 11 giờ;  Pin lithium-ion 36.5 watt‑giờ tích hợp"
+            },
+            {
+              "label": "Bluetooth",
+              "value": "Bluetooth 6"
+            },
+            {
+              "label": "Kích thước",
+              "value": "1.27 x 29.75 x 20.64 cm (Cao x Rộng x Dài)"
+            }
+          ]
+        }
+      ],
+      "image": {
+        "path": "/images/home-v2-catalog/product-125874.png",
+        "mediaType": "image/png",
+        "sourceUrl": "https://cdn2.cellphones.com.vn/insecure/rs:fit:358:358/q:90/plain/https://cellphones.com.vn/media/catalog/product/m/a/macbook_13_19.png"
+      },
+      "sourceUrl": "https://cellphones.com.vn/macbook-neo-13-a18-pro-6-cpu-5-gpu-8gb-256gb.html"
+    },
+    {
+      "sku": "CPS-131844",
+      "name": "Laptop MSI Modern 15 F1MG-1225VN",
+      "category": "laptop",
+      "brand": "msi",
+      "priceVnd": 20990000,
+      "listPriceVnd": 21990000,
+      "description": "CPU: Intel Core 5 120U (10 lõi (2 P-cores + 8 E-cores), 12 luồng, 5.0 GHz) · Kích thước màn hình: 15.6 inches · Độ phân giải: 1920 x 1080 pixels (FullHD)",
+      "specifications": [
+        {
+          "title": "Thông số kỹ thuật",
+          "rows": [
+            {
+              "label": "CPU",
+              "value": "Intel Core 5 120U (10 lõi (2 P-cores + 8 E-cores), 12 luồng, 5.0 GHz)"
+            },
+            {
+              "label": "Kích thước màn hình",
+              "value": "15.6 inches"
+            },
+            {
+              "label": "Độ phân giải",
+              "value": "1920 x 1080 pixels (FullHD)"
+            },
+            {
+              "label": "Pin",
+              "value": "3-Cell (46.8 Whrs)"
+            },
+            {
+              "label": "Bluetooth",
+              "value": "Bluetooth v5.3"
+            },
+            {
+              "label": "Kích thước",
+              "value": "358.9 x 235.9 x 19.9 mm (Dài x Rộng x Dày)"
+            }
+          ]
+        }
+      ],
+      "image": {
+        "path": "/images/home-v2-catalog/product-131844.png",
+        "mediaType": "image/png",
+        "sourceUrl": "https://cdn2.cellphones.com.vn/insecure/rs:fit:358:358/q:90/plain/https://cellphones.com.vn/media/catalog/product/g/r/group_945_29.png"
+      },
+      "sourceUrl": "https://cellphones.com.vn/laptop-msi-modern-15-f1mg-1225vn.html"
+    },
+    {
+      "sku": "CPS-116688",
+      "name": "Laptop MSI Cyborg 15 A13UC-2082VN",
+      "category": "laptop",
+      "brand": "msi",
+      "priceVnd": 28990000,
+      "listPriceVnd": 30690000,
+      "description": "CPU: Intel Core i7-13620H Gen 13th (10 lõi / 16 luồng, 24MB Cache) · Kích thước màn hình: 15.6 inches · Độ phân giải: 1920 x 1080 pixels (FullHD)",
+      "specifications": [
+        {
+          "title": "Thông số kỹ thuật",
+          "rows": [
+            {
+              "label": "CPU",
+              "value": "Intel Core i7-13620H Gen 13th (10 lõi / 16 luồng, 24MB Cache)"
+            },
+            {
+              "label": "Kích thước màn hình",
+              "value": "15.6 inches"
+            },
+            {
+              "label": "Độ phân giải",
+              "value": "1920 x 1080 pixels (FullHD)"
+            },
+            {
+              "label": "Pin",
+              "value": "3 Cells 53.5 Whrs"
+            },
+            {
+              "label": "Bluetooth",
+              "value": "Bluetooth v5.3"
+            },
+            {
+              "label": "Kích thước",
+              "value": "359.36 x 250.34 x 21.95 mm (Dài x Rộng x Dày)"
+            }
+          ]
+        }
+      ],
+      "image": {
+        "path": "/images/home-v2-catalog/product-116688.png",
+        "mediaType": "image/png",
+        "sourceUrl": "https://cdn2.cellphones.com.vn/insecure/rs:fit:358:358/q:90/plain/https://cellphones.com.vn/media/catalog/product/t/e/text_d_i_7_126.png"
+      },
+      "sourceUrl": "https://cellphones.com.vn/laptop-msi-cyborg-15-a13uc-2082vn.html"
+    },
+    {
+      "sku": "CPS-137232",
+      "name": "Laptop ASUS Zenbook 14 UX3405CA-ST1713W",
+      "category": "laptop",
+      "brand": "asus",
+      "priceVnd": 32490000,
+      "listPriceVnd": 38990000,
+      "description": "CPU: Intel Core Ultra 5 225H 1.7 GHz (18MB Cache, up to 4.9 GHz, 14 lõi, 14 luồng) · Kích thước màn hình: 14 inches · Độ phân giải: 2880 x 1800 pixels",
+      "specifications": [
+        {
+          "title": "Thông số kỹ thuật",
+          "rows": [
+            {
+              "label": "CPU",
+              "value": "Intel Core Ultra 5 225H 1.7 GHz (18MB Cache, up to 4.9 GHz, 14 lõi, 14 luồng)"
+            },
+            {
+              "label": "Kích thước màn hình",
+              "value": "14 inches"
+            },
+            {
+              "label": "Độ phân giải",
+              "value": "2880 x 1800 pixels"
+            },
+            {
+              "label": "Pin",
+              "value": "75WHrs, 2S2P, 4-cell Li-ion"
+            },
+            {
+              "label": "Bluetooth",
+              "value": "Bluetooth 5.4"
+            },
+            {
+              "label": "Kích thước",
+              "value": "31.24 x 22.01 x 1.49 ~ 1.49 cm (Dài x Rộng x Dày)"
+            }
+          ]
+        }
+      ],
+      "image": {
+        "path": "/images/home-v2-catalog/product-137232.png",
+        "mediaType": "image/png",
+        "sourceUrl": "https://cdn2.cellphones.com.vn/insecure/rs:fit:358:358/q:90/plain/https://cellphones.com.vn/media/catalog/product/t/e/text_d_i_1__4_72.png"
+      },
+      "sourceUrl": "https://cellphones.com.vn/laptop-asus-zenbook-14-ux3405ca-st1713w.html"
+    },
+    {
+      "sku": "CPS-132628",
+      "name": "Laptop Lenovo IdeaPad Slim 3 14IPH11 83UQ003NVN",
+      "category": "laptop",
+      "brand": "lenovo",
+      "priceVnd": 24490000,
+      "listPriceVnd": 27990000,
+      "description": "CPU: Intel Core Ultra 5 322, 6 lõi (2P + 4LPE) / 6 luồng, Max Turbo up to 4.4GHz, 12MB Intel Smart Cache · Kích thước màn hình: 14 inches · Độ phân giải: 1920 x 1200 pixels (WUXGA)",
+      "specifications": [
+        {
+          "title": "Thông số kỹ thuật",
+          "rows": [
+            {
+              "label": "CPU",
+              "value": "Intel Core Ultra 5 322, 6 lõi (2P + 4LPE) / 6 luồng, Max Turbo up to 4.4GHz, 12MB Intel Smart Cache"
+            },
+            {
+              "label": "Kích thước màn hình",
+              "value": "14 inches"
+            },
+            {
+              "label": "Độ phân giải",
+              "value": "1920 x 1200 pixels (WUXGA)"
+            },
+            {
+              "label": "Pin",
+              "value": "60Wh, 65W Round Tip (3-pin)"
+            },
+            {
+              "label": "Bluetooth",
+              "value": "Bluetooth 5.3"
+            },
+            {
+              "label": "Kích thước",
+              "value": "314.4 x 222.1 x 16.9-17.9 mm (Dài x Rộng x Dày)"
+            }
+          ]
+        }
+      ],
+      "image": {
+        "path": "/images/home-v2-catalog/product-132628.png",
+        "mediaType": "image/png",
+        "sourceUrl": "https://cdn2.cellphones.com.vn/insecure/rs:fit:358:358/q:90/plain/https://cellphones.com.vn/media/catalog/product/t/e/text_ng_n_16_63.png"
+      },
+      "sourceUrl": "https://cellphones.com.vn/laptop-lenovo-ideapad-slim-3-14iph11-83uq003nvn.html"
+    },
+    {
+      "sku": "CPS-118693",
+      "name": "Laptop Acer Gaming Nitro ProPanel ANV15-52-50VA",
+      "category": "laptop",
+      "brand": "acer",
+      "priceVnd": 29990000,
+      "listPriceVnd": null,
+      "description": "CPU: Intel Core 5 210H (8 lõi / 12 luồng, Efficient-core Max Turbo Frequency :3.6 GHz, Max Turbo Frequency : 4.8GHz, 12 MB Intel Smart Cache) · Kích thước màn hình: 15.6 inches · Độ phân giải: 1920 x 1080 pixels (FullHD)",
+      "specifications": [
+        {
+          "title": "Thông số kỹ thuật",
+          "rows": [
+            {
+              "label": "CPU",
+              "value": "Intel Core 5 210H (8 lõi / 12 luồng, Efficient-core Max Turbo Frequency :3.6 GHz, Max Turbo Frequency : 4.8GHz, 12 MB Intel Smart Cache)"
+            },
+            {
+              "label": "Kích thước màn hình",
+              "value": "15.6 inches"
+            },
+            {
+              "label": "Độ phân giải",
+              "value": "1920 x 1080 pixels (FullHD)"
+            },
+            {
+              "label": "Pin",
+              "value": "57 Wh 4-cell Li-ion batter, 135W 5.5PHY Adapter"
+            },
+            {
+              "label": "Bluetooth",
+              "value": "Bluetooth 5.2"
+            },
+            {
+              "label": "Kích thước",
+              "value": "362.3 x 239.89 x 15.7/23.5 mm (Dài x Rộng x Dày)"
+            }
+          ]
+        }
+      ],
+      "image": {
+        "path": "/images/home-v2-catalog/product-118693.png",
+        "mediaType": "image/png",
+        "sourceUrl": "https://cdn2.cellphones.com.vn/insecure/rs:fit:358:358/q:90/plain/https://cellphones.com.vn/media/catalog/product/g/r/group_975_17.png"
+      },
+      "sourceUrl": "https://cellphones.com.vn/laptop-acer-gaming-nitro-v-15-propanel-anv15-52-50va.html"
+    },
+    {
+      "sku": "CPS-144024",
+      "name": "Laptop Lenovo IdeaPad Slim 3 14AHP10 83K9004RVN",
+      "category": "laptop",
+      "brand": "lenovo",
+      "priceVnd": 22490000,
+      "listPriceVnd": 27990000,
+      "description": "CPU: AMD Ryzen 7 155 (6 lõi / 12 luồng, 3 / 4.7GHz, 6MB L2 / 16MB L3) · Kích thước màn hình: 14 inches · Độ phân giải: 1920 x 1200 pixels (WUXGA)",
+      "specifications": [
+        {
+          "title": "Thông số kỹ thuật",
+          "rows": [
+            {
+              "label": "CPU",
+              "value": "AMD Ryzen 7 155 (6 lõi / 12 luồng, 3 / 4.7GHz, 6MB L2 / 16MB L3)"
+            },
+            {
+              "label": "Kích thước màn hình",
+              "value": "14 inches"
+            },
+            {
+              "label": "Độ phân giải",
+              "value": "1920 x 1200 pixels (WUXGA)"
+            },
+            {
+              "label": "Pin",
+              "value": "50Wh, 65W Round Tip (3-pin)"
+            },
+            {
+              "label": "Bluetooth",
+              "value": "Bluetooth 5.3"
+            },
+            {
+              "label": "Kích thước",
+              "value": "314.4 x 222.1 x 16.9-17.9 mm (Dài x Rộng x Dày)"
+            }
+          ]
+        }
+      ],
+      "image": {
+        "path": "/images/home-v2-catalog/product-144024.png",
+        "mediaType": "image/png",
+        "sourceUrl": "https://cdn2.cellphones.com.vn/insecure/rs:fit:358:358/q:90/plain/https://cellphones.com.vn/media/catalog/product/g/r/group_1099_4_.png"
+      },
+      "sourceUrl": "https://cellphones.com.vn/laptop-lenovo-ideapad-slim-3-14ahp10-83k9004rvn.html"
+    },
+    {
+      "sku": "CPS-144019",
+      "name": "Laptop Lenovo LOQ 15IRH11E 83Y9003VVN",
+      "category": "laptop",
+      "brand": "lenovo",
+      "priceVnd": 26990000,
+      "listPriceVnd": 36990000,
+      "description": "CPU: Intel Core 5 205H, 8 lõi (4P + 4E) / 12 luồng, P-core 2.2 / 4.8GHz, E-core 1.6 / 3.6GHz, 12MB Intel Smart Cache · Kích thước màn hình: 15.3 inches · Độ phân giải: 1920 x 1200 pixels (WUXGA)",
+      "specifications": [
+        {
+          "title": "Thông số kỹ thuật",
+          "rows": [
+            {
+              "label": "CPU",
+              "value": "Intel Core 5 205H, 8 lõi (4P + 4E) / 12 luồng, P-core 2.2 / 4.8GHz, E-core 1.6 / 3.6GHz, 12MB Intel Smart Cache"
+            },
+            {
+              "label": "Kích thước màn hình",
+              "value": "15.3 inches"
+            },
+            {
+              "label": "Độ phân giải",
+              "value": "1920 x 1200 pixels (WUXGA)"
+            },
+            {
+              "label": "Pin",
+              "value": "60Wh, 135W Slim Tip (3-pin)"
+            },
+            {
+              "label": "Bluetooth",
+              "value": "Bluetooth 5.3"
+            },
+            {
+              "label": "Kích thước",
+              "value": "344.9 x 254.83 x 20.9-23.25 mm (Dài x Rộng x Dày)"
+            }
+          ]
+        }
+      ],
+      "image": {
+        "path": "/images/home-v2-catalog/product-144019.png",
+        "mediaType": "image/png",
+        "sourceUrl": "https://cdn2.cellphones.com.vn/insecure/rs:fit:358:358/q:90/plain/https://cellphones.com.vn/media/catalog/product/t/e/text_d_i_1__4_87.png"
+      },
+      "sourceUrl": "https://cellphones.com.vn/laptop-lenovo-loq-15irh11e-83y9003vvn.html"
+    },
+    {
+      "sku": "CPS-138443",
+      "name": "Màn hình gaming ASUS TUF VG27AQ5F 27 inch",
+      "category": "monitor",
+      "brand": "asus",
+      "priceVnd": 4990000,
+      "listPriceVnd": 5490000,
+      "description": "Màn hình gaming ASUS TUF VG27AQ5F 27 inch",
+      "specifications": [],
+      "image": {
+        "path": "/images/home-v2-catalog/product-138443.png",
+        "mediaType": "image/png",
+        "sourceUrl": "https://cdn2.cellphones.com.vn/insecure/rs:fit:358:358/q:90/plain/https://cellphones.com.vn/media/catalog/product/g/r/group_880_1_8.png"
+      },
+      "sourceUrl": "https://cellphones.com.vn/man-hinh-asus-tuf-vg27aq5f-27-inch.html"
+    },
+    {
+      "sku": "CPS-110969",
+      "name": "Màn hình LG 24U411A-B 24 inch",
+      "category": "monitor",
+      "brand": "lg",
+      "priceVnd": 2390000,
+      "listPriceVnd": 2999000,
+      "description": "Màn hình LG 24U411A-B 24 inch",
+      "specifications": [],
+      "image": {
+        "path": "/images/home-v2-catalog/product-110969.png",
+        "mediaType": "image/png",
+        "sourceUrl": "https://cdn2.cellphones.com.vn/insecure/rs:fit:358:358/q:90/plain/https://cellphones.com.vn/media/catalog/product/g/r/group_926_13.png"
+      },
+      "sourceUrl": "https://cellphones.com.vn/man-hinh-lg-24u411a-b-24-inch.html"
+    },
+    {
+      "sku": "CPS-120440",
+      "name": "Màn hình Xiaomi A27QI 2026 27 inch",
+      "category": "monitor",
+      "brand": "xiaomi",
+      "priceVnd": 3790000,
+      "listPriceVnd": 4490000,
+      "description": "Màn hình Xiaomi A27QI 2026 27 inch",
+      "specifications": [],
+      "image": {
+        "path": "/images/home-v2-catalog/product-120440.png",
+        "mediaType": "image/png",
+        "sourceUrl": "https://cdn2.cellphones.com.vn/insecure/rs:fit:358:358/q:90/plain/https://cellphones.com.vn/media/catalog/product/g/r/group_179_6_60.png"
+      },
+      "sourceUrl": "https://cellphones.com.vn/man-hinh-xiaomi-a27qi-2026-27-inch.html"
+    },
+    {
+      "sku": "CPS-92939",
+      "name": "Màn hình Gaming MSI MAG 275QF 27 inch",
+      "category": "monitor",
+      "brand": "msi",
+      "priceVnd": 4590000,
+      "listPriceVnd": 5290000,
+      "description": "Màn hình Gaming MSI MAG 275QF 27 inch",
+      "specifications": [],
+      "image": {
+        "path": "/images/home-v2-catalog/product-92939.png",
+        "mediaType": "image/png",
+        "sourceUrl": "https://cdn2.cellphones.com.vn/insecure/rs:fit:358:358/q:90/plain/https://cellphones.com.vn/media/catalog/product/g/r/group_179_5_3.png"
+      },
+      "sourceUrl": "https://cellphones.com.vn/man-hinh-gaming-msi-mag-275qf-27-inch.html"
+    },
+    {
+      "sku": "CPS-95149",
+      "name": "Màn hình MSI Pro MP242L 24 inch",
+      "category": "monitor",
+      "brand": "msi",
+      "priceVnd": 1890000,
+      "listPriceVnd": 2140000,
+      "description": "Màn hình MSI Pro MP242L 24 inch",
+      "specifications": [],
+      "image": {
+        "path": "/images/home-v2-catalog/product-95149.png",
+        "mediaType": "image/png",
+        "sourceUrl": "https://cdn2.cellphones.com.vn/insecure/rs:fit:358:358/q:90/plain/https://cellphones.com.vn/media/catalog/product/g/r/group_635_2.png"
+      },
+      "sourceUrl": "https://cellphones.com.vn/man-hinh-msi-pro-mp242l-24-inch.html"
+    },
+    {
+      "sku": "CPS-77950",
+      "name": "Màn hình văn phòng Dell U2424H 24 inch",
+      "category": "monitor",
+      "brand": "dell",
+      "priceVnd": 5190000,
+      "listPriceVnd": 6990000,
+      "description": "Màn hình văn phòng Dell U2424H 24 inch",
+      "specifications": [],
+      "image": {
+        "path": "/images/home-v2-catalog/product-77950.png",
+        "mediaType": "image/png",
+        "sourceUrl": "https://cdn2.cellphones.com.vn/insecure/rs:fit:358:358/q:90/plain/https://cellphones.com.vn/media/catalog/product/m/a/man-hinh-dell-u2424h-24-inch-10.png"
+      },
+      "sourceUrl": "https://cellphones.com.vn/man-hinh-dell-u2424h-24-inch.html"
+    },
+    {
+      "sku": "CPS-133849",
+      "name": "Màn hình Gaming LG UltraGear 25G523-B 25 inch",
+      "category": "monitor",
+      "brand": "lg",
+      "priceVnd": 3190000,
+      "listPriceVnd": 3490000,
+      "description": "Màn hình Gaming LG UltraGear 25G523-B 25 inch",
+      "specifications": [],
+      "image": {
+        "path": "/images/home-v2-catalog/product-133849.png",
+        "mediaType": "image/png",
+        "sourceUrl": "https://cdn2.cellphones.com.vn/insecure/rs:fit:358:358/q:90/plain/https://cellphones.com.vn/media/catalog/product/g/r/group_185_1_4.png"
+      },
+      "sourceUrl": "https://cellphones.com.vn/man-hinh-gaming-lg-ultragear-25g523-b-25-inch.html"
+    },
+    {
+      "sku": "CPS-118937",
+      "name": "Màn hình Gaming LG UltraGear 27G411A-B 27 inch",
+      "category": "monitor",
+      "brand": "lg",
+      "priceVnd": 2790000,
+      "listPriceVnd": 3990000,
+      "description": "Màn hình Gaming LG UltraGear 27G411A-B 27 inch",
+      "specifications": [],
+      "image": {
+        "path": "/images/home-v2-catalog/product-118937.png",
+        "mediaType": "image/png",
+        "sourceUrl": "https://cdn2.cellphones.com.vn/insecure/rs:fit:358:358/q:90/plain/https://cellphones.com.vn/media/catalog/product/g/r/group_895_1_.png"
+      },
+      "sourceUrl": "https://cellphones.com.vn/man-hinh-lg-ultragear-27g411a-b-27-inch.html"
+    },
+    {
+      "sku": "CPS-59508",
+      "name": "PC CPS Đồ Hoạ D01 i5 12400F / 8GB - 256GB / RX 6500",
+      "category": "desktop",
+      "brand": "intel",
+      "priceVnd": 14590000,
+      "listPriceVnd": 22590000,
+      "description": "CPU: Intel Core i5-12400F · Bluetooth: Không · Kích thước: 360 x 200 x 450 mm",
+      "specifications": [
+        {
+          "title": "Thông số kỹ thuật",
+          "rows": [
+            {
+              "label": "CPU",
+              "value": "Intel Core i5-12400F"
+            },
+            {
+              "label": "Bluetooth",
+              "value": "Không"
+            },
+            {
+              "label": "Kích thước",
+              "value": "360 x 200 x 450 mm"
+            }
+          ]
+        }
+      ],
+      "image": {
+        "path": "/images/home-v2-catalog/product-59508.jpg",
+        "mediaType": "image/jpeg",
+        "sourceUrl": "https://cdn2.cellphones.com.vn/insecure/rs:fit:358:358/q:90/plain/https://cellphones.com.vn/media/catalog/product/p/c/pc-cps-d01-26101.jpg"
+      },
+      "sourceUrl": "https://cellphones.com.vn/pc-cps-do-hoa-d1.html"
+    },
+    {
+      "sku": "CPS-59497",
+      "name": "PC CPS Gaming G02 i3 12100F / 8GB - 256GB / RTX 3050",
+      "category": "desktop",
+      "brand": "intel",
+      "priceVnd": 13990000,
+      "listPriceVnd": 21090000,
+      "description": "CPU: Intel Core i3-12100F · Bluetooth: Không · Kích thước: 365 x 200 x 426 mm",
+      "specifications": [
+        {
+          "title": "Thông số kỹ thuật",
+          "rows": [
+            {
+              "label": "CPU",
+              "value": "Intel Core i3-12100F"
+            },
+            {
+              "label": "Bluetooth",
+              "value": "Không"
+            },
+            {
+              "label": "Kích thước",
+              "value": "365 x 200 x 426 mm"
+            }
+          ]
+        }
+      ],
+      "image": {
+        "path": "/images/home-v2-catalog/product-59497.jpg",
+        "mediaType": "image/jpeg",
+        "sourceUrl": "https://cdn2.cellphones.com.vn/insecure/rs:fit:358:358/q:90/plain/https://cellphones.com.vn/media/catalog/product/p/c/pc-cps-gaming-g2-1026.jpg"
+      },
+      "sourceUrl": "https://cellphones.com.vn/pc-cps-gaming-g2.html"
+    },
+    {
+      "sku": "CPS-62620",
+      "name": "PC CPS văn phòng S01 R3 3200G / 8GB - 256GB",
+      "category": "desktop",
+      "brand": "amd",
+      "priceVnd": 6590000,
+      "listPriceVnd": 10790000,
+      "description": "CPU: RYZEN 3 4300G · Kích thước: 297 x 188 x 413 mm",
+      "specifications": [
+        {
+          "title": "Thông số kỹ thuật",
+          "rows": [
+            {
+              "label": "CPU",
+              "value": "RYZEN 3 4300G"
+            },
+            {
+              "label": "Kích thước",
+              "value": "297 x 188 x 413 mm"
+            }
+          ]
+        }
+      ],
+      "image": {
+        "path": "/images/home-v2-catalog/product-62620.png",
+        "mediaType": "image/png",
+        "sourceUrl": "https://cdn2.cellphones.com.vn/insecure/rs:fit:358:358/q:90/plain/https://cellphones.com.vn/media/catalog/product/p/c/pc-cps-van-phong-s1-amd_2.png"
+      },
+      "sourceUrl": "https://cellphones.com.vn/pc-cps-van-phong-s1-amd.html"
+    },
+    {
+      "sku": "CPS-105566",
+      "name": "PC CPS Creator AI A147 i7-14700KF / RTX 5070",
+      "category": "desktop",
+      "brand": "intel",
+      "priceVnd": 61090000,
+      "listPriceVnd": 88890000,
+      "description": "PC CPS Creator AI A147 i7-14700KF / RTX 5070",
+      "specifications": [],
+      "image": {
+        "path": "/images/home-v2-catalog/product-105566.jpg",
+        "mediaType": "image/jpeg",
+        "sourceUrl": "https://cdn2.cellphones.com.vn/insecure/rs:fit:358:358/q:90/plain/https://cellphones.com.vn/media/catalog/product/p/c/pc-cps-creator-ai-a147.jpg"
+      },
+      "sourceUrl": "https://cellphones.com.vn/pc-cps-creator-ai-a147.html"
+    },
+    {
+      "sku": "CPS-132245",
+      "name": "PC CPS Văn Phòng S09",
+      "category": "desktop",
+      "brand": "hang-khac",
+      "priceVnd": 13990000,
+      "listPriceVnd": 25690000,
+      "description": "PC CPS Văn Phòng S09",
+      "specifications": [],
+      "image": {
+        "path": "/images/home-v2-catalog/product-132245.jpg",
+        "mediaType": "image/jpeg",
+        "sourceUrl": "https://cdn2.cellphones.com.vn/insecure/rs:fit:358:358/q:90/plain/https://cellphones.com.vn/media/catalog/product/m/a/may-tinh-pc-cps-van-phong-s09.jpg"
+      },
+      "sourceUrl": "https://cellphones.com.vn/pc-cps-van-phong-s09.html"
+    },
+    {
+      "sku": "CPS-59496",
+      "name": "PC CPS Gaming G01 i3 13100F / 8GB - 256GB / RX 6500 XT",
+      "category": "desktop",
+      "brand": "intel",
+      "priceVnd": 12590000,
+      "listPriceVnd": 19890000,
+      "description": "CPU: Intel Core i3-12100F · Bluetooth: Không · Kích thước: 365 x 200 x 426 mm",
+      "specifications": [
+        {
+          "title": "Thông số kỹ thuật",
+          "rows": [
+            {
+              "label": "CPU",
+              "value": "Intel Core i3-12100F"
+            },
+            {
+              "label": "Bluetooth",
+              "value": "Không"
+            },
+            {
+              "label": "Kích thước",
+              "value": "365 x 200 x 426 mm"
+            }
+          ]
+        }
+      ],
+      "image": {
+        "path": "/images/home-v2-catalog/product-59496.jpg",
+        "mediaType": "image/jpeg",
+        "sourceUrl": "https://cdn2.cellphones.com.vn/insecure/rs:fit:358:358/q:90/plain/https://cellphones.com.vn/media/catalog/product/p/c/pc-cps-gaming-g1-1026.jpg"
+      },
+      "sourceUrl": "https://cellphones.com.vn/pc-cps-gaming-g1.html"
+    },
+    {
+      "sku": "CPS-144475",
+      "name": "PC CPS X ASUS ROG Edition 20 Full Set",
+      "category": "desktop",
+      "brand": "gigabyte",
+      "priceVnd": 509990000,
+      "listPriceVnd": 618190000,
+      "description": "PC CPS X ASUS ROG Edition 20 Full Set",
+      "specifications": [],
+      "image": {
+        "path": "/images/home-v2-catalog/product-144475.jpg",
+        "mediaType": "image/jpeg",
+        "sourceUrl": "https://cdn2.cellphones.com.vn/insecure/rs:fit:358:358/q:90/plain/https://cellphones.com.vn/media/catalog/product/p/c/pc-cps-asus-rog-edition-20-full-set-26103.jpg"
+      },
+      "sourceUrl": "https://cellphones.com.vn/pc-cps-asus-rog-edition-20-full-set.html"
+    },
+    {
+      "sku": "CPS-105570",
+      "name": "PC CPS Creator Ultra AI A149 i9-14900KF / RTX 5070 Ti",
+      "category": "desktop",
+      "brand": "intel",
+      "priceVnd": 96490000,
+      "listPriceVnd": 132990000,
+      "description": "PC CPS Creator Ultra AI A149 i9-14900KF / RTX 5070 Ti",
+      "specifications": [],
+      "image": {
+        "path": "/images/home-v2-catalog/product-105570.png",
+        "mediaType": "image/png",
+        "sourceUrl": "https://cdn2.cellphones.com.vn/insecure/rs:fit:358:358/q:90/plain/https://cellphones.com.vn/media/catalog/product/p/c/pc-cps-creator-ultra-ai-a149.png"
+      },
+      "sourceUrl": "https://cellphones.com.vn/pc-cps-creator-ultra-ai-a149.html"
+    },
+    {
+      "sku": "CPS-85469",
+      "name": "RAM PNY XLR8 DDR4 3200MHz Heatsink RGB 16GB",
+      "category": "accessories",
+      "brand": null,
+      "priceVnd": 1490000,
+      "listPriceVnd": null,
+      "description": "RAM PNY XLR8 DDR4 3200MHz Heatsink RGB 16GB · Phụ kiện máy tính",
+      "specifications": [],
+      "image": {
+        "path": "/images/home-v2-catalog/product-85469.png",
+        "mediaType": "image/png",
+        "sourceUrl": "https://cdn2.cellphones.com.vn/insecure/rs:fit:358:358/q:90/plain/https://cellphones.com.vn/media/catalog/product/g/r/group_235_2_1.png"
+      },
+      "sourceUrl": "https://cellphones.com.vn/ram-pny-xlr8-ddr4-3200mhz-heatsink-rgb-16gb.html"
+    },
+    {
+      "sku": "CPS-91275",
+      "name": "Ổ cứng SSD Kingston NV3 PCIe 4.0 NVMe 1TB",
+      "category": "accessories",
+      "brand": null,
+      "priceVnd": 4490000,
+      "listPriceVnd": 6090000,
+      "description": "Kích thước: 22 x 80 x 2.3 mm · Phụ kiện máy tính",
+      "specifications": [
+        {
+          "title": "Thông số kỹ thuật",
+          "rows": [
+            {
+              "label": "Kích thước",
+              "value": "22 x 80 x 2.3 mm"
+            }
+          ]
+        }
+      ],
+      "image": {
+        "path": "/images/home-v2-catalog/product-91275.png",
+        "mediaType": "image/png",
+        "sourceUrl": "https://cdn2.cellphones.com.vn/insecure/rs:fit:358:358/q:90/plain/https://cellphones.com.vn/media/catalog/product/g/r/group_301_1__1.png"
+      },
+      "sourceUrl": "https://cellphones.com.vn/o-cung-ssd-kingston-nv3-pcie-4-0-nvme-1tb.html"
+    },
+    {
+      "sku": "CPS-68061",
+      "name": "Ổ cứng di động SSD Kingston XS2000 USB 3.2 Gen 2x2 chống nước IP55 500GB",
+      "category": "accessories",
+      "brand": null,
+      "priceVnd": 2390000,
+      "listPriceVnd": 2990000,
+      "description": "Kích thước: 69.54 x 32.58 x 13.5 mm · Phụ kiện máy tính",
+      "specifications": [
+        {
+          "title": "Thông số kỹ thuật",
+          "rows": [
+            {
+              "label": "Kích thước",
+              "value": "69.54 x 32.58 x 13.5 mm"
+            }
+          ]
+        }
+      ],
+      "image": {
+        "path": "/images/home-v2-catalog/product-68061.png",
+        "mediaType": "image/png",
+        "sourceUrl": "https://cdn2.cellphones.com.vn/insecure/rs:fit:358:358/q:90/plain/https://cellphones.com.vn/media/catalog/product/o/-/o-cung-di-dong-ssd-kingston-xs2000-usb-3-2-gen-2x2-chong-nuoc-ip55-500gb_5_.png"
+      },
+      "sourceUrl": "https://cellphones.com.vn/o-cung-di-dong-ssd-kingston-xs2000-usb-3-2-gen-2x2-chong-nuoc-ip55-500gb.html"
+    },
+    {
+      "sku": "CPS-94007",
+      "name": "Ổ cứng di động SSD Transcend ESD310C 1050MB/s 128GB",
+      "category": "accessories",
+      "brand": null,
+      "priceVnd": 1590000,
+      "listPriceVnd": 1990000,
+      "description": "Ổ cứng di động SSD Transcend ESD310C 1050MB/s 128GB · Phụ kiện máy tính",
+      "specifications": [],
+      "image": {
+        "path": "/images/home-v2-catalog/product-94007.png",
+        "mediaType": "image/png",
+        "sourceUrl": "https://cdn2.cellphones.com.vn/insecure/rs:fit:358:358/q:90/plain/https://cellphones.com.vn/media/catalog/product/g/r/group_248_2__1.png"
+      },
+      "sourceUrl": "https://cellphones.com.vn/o-cung-di-dong-ssd-transcend-esd310c-1050mbs-128gb.html"
+    },
+    {
+      "sku": "CPS-68063",
+      "name": "Ổ cứng di động SSD Kingston XS2000 USB 3.2 Gen 2x2 chống nước IP55 1TB",
+      "category": "accessories",
+      "brand": null,
+      "priceVnd": 3490000,
+      "listPriceVnd": 6490000,
+      "description": "Kích thước: 69.54 x 32.58 x 13.5 mm · Phụ kiện máy tính",
+      "specifications": [
+        {
+          "title": "Thông số kỹ thuật",
+          "rows": [
+            {
+              "label": "Kích thước",
+              "value": "69.54 x 32.58 x 13.5 mm"
+            }
+          ]
+        }
+      ],
+      "image": {
+        "path": "/images/home-v2-catalog/product-68063.jpg",
+        "mediaType": "image/jpeg",
+        "sourceUrl": "https://cdn2.cellphones.com.vn/insecure/rs:fit:358:358/q:90/plain/https://cellphones.com.vn/media/catalog/product/o/-/o-cung-di-dong-ssd-kingston-xs2000-usb-3-2-gen-2x2-chong-nuoc-ip55-1tb-fix.jpg"
+      },
+      "sourceUrl": "https://cellphones.com.vn/o-cung-di-dong-ssd-kingston-xs2000-usb-3-2-gen-2x2-chong-nuoc-ip55-1tb.html"
+    },
+    {
+      "sku": "CPS-68065",
+      "name": "Ổ cứng di động SSD Kingston XS2000 USB 3.2 Gen 2x2 chống nước IP55 2TB",
+      "category": "accessories",
+      "brand": null,
+      "priceVnd": 5490000,
+      "listPriceVnd": 10690000,
+      "description": "Kích thước: 69.54 x 32.58 x 13.5 mm · Phụ kiện máy tính",
+      "specifications": [
+        {
+          "title": "Thông số kỹ thuật",
+          "rows": [
+            {
+              "label": "Kích thước",
+              "value": "69.54 x 32.58 x 13.5 mm"
+            }
+          ]
+        }
+      ],
+      "image": {
+        "path": "/images/home-v2-catalog/product-68065.png",
+        "mediaType": "image/png",
+        "sourceUrl": "https://cdn2.cellphones.com.vn/insecure/rs:fit:358:358/q:90/plain/https://cellphones.com.vn/media/catalog/product/o/-/o-cung-di-dong-ssd-kingston-xs2000-usb-3-2-gen-2x2-chong-nuoc-ip55-2tb_2_.png"
+      },
+      "sourceUrl": "https://cellphones.com.vn/o-cung-di-dong-ssd-kingston-xs2000-usb-3-2-gen-2x2-chong-nuoc-ip55-2tb.html"
+    },
+    {
+      "sku": "CPS-61587",
+      "name": "Ổ cứng di động Sandisk E61 Extreme V2 SSD 1TB USB 3.2",
+      "category": "accessories",
+      "brand": null,
+      "priceVnd": 5990000,
+      "listPriceVnd": 8990000,
+      "description": "Ổ cứng di động Sandisk E61 Extreme V2 SSD 1TB USB 3.2 · Phụ kiện máy tính",
+      "specifications": [],
+      "image": {
+        "path": "/images/home-v2-catalog/product-61587.png",
+        "mediaType": "image/png",
+        "sourceUrl": "https://cdn2.cellphones.com.vn/insecure/rs:fit:358:358/q:90/plain/https://cellphones.com.vn/media/catalog/product/o/-/o-cung-di-dong-sandisk-e61-extreme-v2-ssd-1tb-usb-3-2-inch_3.png"
+      },
+      "sourceUrl": "https://cellphones.com.vn/o-cung-di-dong-sandisk-e61-extreme-v2-ssd-1tb-usb-3-2-inch.html"
+    },
+    {
+      "sku": "CPS-87536",
+      "name": "Ổ cứng di động SSD Kingston XS1000 USB 3.2 Gen 2 1TB Đỏ",
+      "category": "accessories",
+      "brand": null,
+      "priceVnd": 4590000,
+      "listPriceVnd": 7990000,
+      "description": "Kích thước: 69.54 x 32.58 x 13.5 mm · Phụ kiện máy tính",
+      "specifications": [
+        {
+          "title": "Thông số kỹ thuật",
+          "rows": [
+            {
+              "label": "Kích thước",
+              "value": "69.54 x 32.58 x 13.5 mm"
+            }
+          ]
+        }
+      ],
+      "image": {
+        "path": "/images/home-v2-catalog/product-87536.png",
+        "mediaType": "image/png",
+        "sourceUrl": "https://cdn2.cellphones.com.vn/insecure/rs:fit:358:358/q:90/plain/https://cellphones.com.vn/media/catalog/product/g/r/group_248_3_.png"
+      },
+      "sourceUrl": "https://cellphones.com.vn/o-cung-di-dong-ssd-kingston-xs1000-usb-3-2-gen-2-1tb.html"
+    },
+    {
+      "sku": "CPS-141523",
+      "name": "Đồng hồ thông minh Huawei Watch GT7 46mm",
+      "category": "watch",
+      "brand": null,
+      "priceVnd": 4790000,
+      "listPriceVnd": 6490000,
+      "description": "Đồng hồ thông minh Huawei Watch GT7 46mm",
+      "specifications": [],
+      "image": {
+        "path": "/images/home-v2-catalog/product-141523.png",
+        "mediaType": "image/png",
+        "sourceUrl": "https://cdn2.cellphones.com.vn/insecure/rs:fit:358:358/q:90/plain/https://cellphones.com.vn/media/catalog/product/a/p/apple_lte_3_71.png"
+      },
+      "sourceUrl": "https://cellphones.com.vn/dong-ho-thong-minh-huawei-watch-gt7.html"
+    },
+    {
+      "sku": "CPS-121779",
+      "name": "Đồng hồ thông minh Amazfit Active Max",
+      "category": "watch",
+      "brand": null,
+      "priceVnd": 4690000,
+      "listPriceVnd": 5190000,
+      "description": "Đồng hồ thông minh Amazfit Active Max",
+      "specifications": [],
+      "image": {
+        "path": "/images/home-v2-catalog/product-121779.png",
+        "mediaType": "image/png",
+        "sourceUrl": "https://cdn2.cellphones.com.vn/insecure/rs:fit:358:358/q:90/plain/https://cellphones.com.vn/media/catalog/product/a/m/amazfit_2_17.png"
+      },
+      "sourceUrl": "https://cellphones.com.vn/dong-ho-thong-minh-amazfit-active-max.html"
+    },
+    {
+      "sku": "CPS-141525",
+      "name": "Đồng hồ thông minh Huawei Watch GT7 41mm",
+      "category": "watch",
+      "brand": null,
+      "priceVnd": 4790000,
+      "listPriceVnd": 6490000,
+      "description": "Đồng hồ thông minh Huawei Watch GT7 41mm",
+      "specifications": [],
+      "image": {
+        "path": "/images/home-v2-catalog/product-141525.png",
+        "mediaType": "image/png",
+        "sourceUrl": "https://cdn2.cellphones.com.vn/insecure/rs:fit:358:358/q:90/plain/https://cellphones.com.vn/media/catalog/product/a/p/apple_lte_1__1_26.png"
+      },
+      "sourceUrl": "https://cellphones.com.vn/dong-ho-thong-minh-huawei-watch-gt7-41mm.html"
+    },
+    {
+      "sku": "CPS-102772",
+      "name": "Vòng đeo tay thông minh Huawei Band 10",
+      "category": "watch",
+      "brand": null,
+      "priceVnd": 740000,
+      "listPriceVnd": 990000,
+      "description": "Vòng đeo tay thông minh Huawei Band 10",
+      "specifications": [],
+      "image": {
+        "path": "/images/home-v2-catalog/product-102772.png",
+        "mediaType": "image/png",
+        "sourceUrl": "https://cdn2.cellphones.com.vn/insecure/rs:fit:358:358/q:90/plain/https://cellphones.com.vn/media/catalog/product/h/u/huawei_3_2.png"
+      },
+      "sourceUrl": "https://cellphones.com.vn/vong-deo-tay-thong-minh-huawei-band-10.html"
+    },
+    {
+      "sku": "CPS-144447",
+      "name": "Tai nghe Sennheiser MOMENTUM True Wireless 5",
+      "category": "audio",
+      "brand": null,
+      "priceVnd": 7900000,
+      "listPriceVnd": 8290000,
+      "description": "Tai nghe Sennheiser MOMENTUM True Wireless 5",
+      "specifications": [],
+      "image": {
+        "path": "/images/home-v2-catalog/product-144447.jpg",
+        "mediaType": "image/jpeg",
+        "sourceUrl": "https://cdn2.cellphones.com.vn/insecure/rs:fit:358:358/q:90/plain/https://cellphones.com.vn/media/catalog/product/t/a/tai-nghe-sennheiser-momentum-true-wireless-5-1126.jpg"
+      },
+      "sourceUrl": "https://cellphones.com.vn/tai-nghe-sennheiser-momentum-true-wireless-5.html"
+    },
+    {
+      "sku": "CPS-42499",
+      "name": "Tai nghe Bluetooth Apple AirPods 4 | Chính hãng Apple Việt Nam",
+      "category": "audio",
+      "brand": null,
+      "priceVnd": 3290000,
+      "listPriceVnd": 3790000,
+      "description": "Chip xử lý: Chip tai nghe H2 · Kích thước: Tai nghe: 30.2 x 18.3 x 18.1 mm; Hộp sạc: 46.2 x 50.1 x 21.2 mm",
+      "specifications": [
+        {
+          "title": "Thông số kỹ thuật",
+          "rows": [
+            {
+              "label": "Chip xử lý",
+              "value": "Chip tai nghe H2"
+            },
+            {
+              "label": "Kích thước",
+              "value": "Tai nghe: 30.2 x 18.3 x 18.1 mm; Hộp sạc: 46.2 x 50.1 x 21.2 mm"
+            }
+          ]
+        }
+      ],
+      "image": {
+        "path": "/images/home-v2-catalog/product-42499.png",
+        "mediaType": "image/png",
+        "sourceUrl": "https://cdn2.cellphones.com.vn/insecure/rs:fit:358:358/q:90/plain/https://cellphones.com.vn/media/catalog/product/a/p/apple-airpods-4-thumb.png"
+      },
+      "sourceUrl": "https://cellphones.com.vn/apple-airpods-4.html"
+    },
+    {
+      "sku": "CPS-141660",
+      "name": "Tai nghe Bluetooth Apple AirPods 5 2026 Sạc Có Dây (MKFW4)",
+      "category": "audio",
+      "brand": null,
+      "priceVnd": 3790000,
+      "listPriceVnd": null,
+      "description": "Chip xử lý: Chip tai nghe H2",
+      "specifications": [
+        {
+          "title": "Thông số kỹ thuật",
+          "rows": [
+            {
+              "label": "Chip xử lý",
+              "value": "Chip tai nghe H2"
+            }
+          ]
+        }
+      ],
+      "image": {
+        "path": "/images/home-v2-catalog/product-141660.jpg",
+        "mediaType": "image/jpeg",
+        "sourceUrl": "https://cdn2.cellphones.com.vn/insecure/rs:fit:358:358/q:90/plain/https://cellphones.com.vn/media/catalog/product/a/p/apple-airpods-5-sac-co-day.jpg"
+      },
+      "sourceUrl": "https://cellphones.com.vn/apple-airpods-5.html"
+    },
+    {
+      "sku": "CPS-8692",
+      "name": "Tai nghe Apple EarPods Lightning MWTY3ZA/A | Chính hãng Apple Việt Nam",
+      "category": "audio",
+      "brand": null,
+      "priceVnd": 510000,
+      "listPriceVnd": 790000,
+      "description": "Tai nghe Apple EarPods Lightning MWTY3ZA/A | Chính hãng Apple Việt Nam",
+      "specifications": [],
+      "image": {
+        "path": "/images/home-v2-catalog/product-8692.png",
+        "mediaType": "image/png",
+        "sourceUrl": "https://cdn2.cellphones.com.vn/insecure/rs:fit:358:358/q:90/plain/https://cellphones.com.vn/media/catalog/product/f/r/frame_3_3.png"
+      },
+      "sourceUrl": "https://cellphones.com.vn/apple-earpods-lightning.html"
+    },
+    {
+      "sku": "CPS-137606",
+      "name": "Camera hành động DJI OSMO 360 thế hệ 2 Standard (Hàng chính hãng)",
+      "category": "accessories",
+      "brand": null,
+      "priceVnd": 13860000,
+      "listPriceVnd": null,
+      "description": "Camera hành động DJI OSMO 360 thế hệ 2 Standard (Hàng chính hãng) · Phụ kiện điện thoại",
+      "specifications": [],
+      "image": {
+        "path": "/images/home-v2-catalog/product-137606.png",
+        "mediaType": "image/png",
+        "sourceUrl": "https://cdn2.cellphones.com.vn/insecure/rs:fit:358:358/q:90/plain/https://cellphones.com.vn/media/catalog/product/d/j/dji-osmo-360-ii-standard7.png"
+      },
+      "sourceUrl": "https://cellphones.com.vn/dji-osmo-360-ii-standard.html"
+    },
+    {
+      "sku": "CPS-112582",
+      "name": "Tai nghe Bluetooth Apple AirPods Pro 3 2025 Type-C | Chính hãng (MFHP4ZP/A)",
+      "category": "accessories",
+      "brand": null,
+      "priceVnd": 6490000,
+      "listPriceVnd": 6790000,
+      "description": "Tai nghe Bluetooth Apple AirPods Pro 3 2025 Type-C | Chính hãng (MFHP4ZP/A) · Phụ kiện điện thoại",
+      "specifications": [],
+      "image": {
+        "path": "/images/home-v2-catalog/product-112582.png",
+        "mediaType": "image/png",
+        "sourceUrl": "https://cdn2.cellphones.com.vn/insecure/rs:fit:358:358/q:90/plain/https://cellphones.com.vn/media/catalog/product/g/r/group_111_1_1.png"
+      },
+      "sourceUrl": "https://cellphones.com.vn/apple-airpods-pro-3.html"
+    },
+    {
+      "sku": "CPS-90680",
+      "name": "Ốp lưng iPhone 16 Pro Max Spigen Crystal Hybrid With Magsafe White",
+      "category": "accessories",
+      "brand": null,
+      "priceVnd": 805000,
+      "listPriceVnd": 1150000,
+      "description": "Ốp lưng iPhone 16 Pro Max Spigen Crystal Hybrid With Magsafe White · Phụ kiện điện thoại",
+      "specifications": [],
+      "image": {
+        "path": "/images/home-v2-catalog/product-90680.png",
+        "mediaType": "image/png",
+        "sourceUrl": "https://cdn2.cellphones.com.vn/insecure/rs:fit:358:358/q:90/plain/https://cellphones.com.vn/media/catalog/product/g/a/garmin_45__1.png"
+      },
+      "sourceUrl": "https://cellphones.com.vn/op-lung-iphone-16-pro-max-spigen-crystal-hybrid-with-magsafe.html"
+    },
+    {
+      "sku": "CPS-71386",
+      "name": "DJI Pocket 3 Creator Combo",
+      "category": "accessories",
+      "brand": null,
+      "priceVnd": 11281000,
+      "listPriceVnd": 17995000,
+      "description": "DJI Pocket 3 Creator Combo · Phụ kiện điện thoại",
+      "specifications": [],
+      "image": {
+        "path": "/images/home-v2-catalog/product-71386.jpg",
+        "mediaType": "image/jpeg",
+        "sourceUrl": "https://cdn2.cellphones.com.vn/insecure/rs:fit:358:358/q:90/plain/https://cellphones.com.vn/media/catalog/product/m/a/may-quay-chong-rung-dji-osmo-pocket-3-standard_1.jpg"
+      },
+      "sourceUrl": "https://cellphones.com.vn/may-quay-chong-rung-dji-osmo-pocket-3-advanced-4k.html"
+    },
+    {
+      "sku": "CPS-141701",
+      "name": "Tai nghe Bluetooth Apple AirPods 5 2026 Sạc Không Dây (MKFT4)",
+      "category": "accessories",
+      "brand": null,
+      "priceVnd": 4290000,
+      "listPriceVnd": null,
+      "description": "Tai nghe Bluetooth Apple AirPods 5 2026 Sạc Không Dây (MKFT4) · Phụ kiện điện thoại",
+      "specifications": [],
+      "image": {
+        "path": "/images/home-v2-catalog/product-141701.png",
+        "mediaType": "image/png",
+        "sourceUrl": "https://cdn2.cellphones.com.vn/insecure/rs:fit:358:358/q:90/plain/https://cellphones.com.vn/media/catalog/product/a/p/apple-airpods-5-sac-khong-day.png"
+      },
+      "sourceUrl": "https://cellphones.com.vn/apple-airpods-5-sac-khong-day.html"
+    },
+    {
+      "sku": "CPS-81236",
+      "name": "Cáp Mophie USB-C to USB-C 100W 3m",
+      "category": "accessories",
+      "brand": null,
+      "priceVnd": 490000,
+      "listPriceVnd": 690000,
+      "description": "Cáp Mophie USB-C to USB-C 100W 3m · Phụ kiện điện thoại",
+      "specifications": [],
+      "image": {
+        "path": "/images/home-v2-catalog/product-81236.png",
+        "mediaType": "image/png",
+        "sourceUrl": "https://cdn2.cellphones.com.vn/insecure/rs:fit:358:358/q:90/plain/https://cellphones.com.vn/media/catalog/product/c/a/cap-type-c-to-type-c-mophie-100w-3m_1_.png"
+      },
+      "sourceUrl": "https://cellphones.com.vn/cap-type-c-to-type-c-mophie-100w-3m.html"
+    },
+    {
+      "sku": "CPS-71931",
+      "name": "Hub chuyển đổi Ugreen USB-C 5 IN 1 CM478 15495",
+      "category": "accessories",
+      "brand": null,
+      "priceVnd": 350000,
+      "listPriceVnd": 416000,
+      "description": "Hub chuyển đổi Ugreen USB-C 5 IN 1 CM478 15495 · Phụ kiện điện thoại",
+      "specifications": [],
+      "image": {
+        "path": "/images/home-v2-catalog/product-71931.png",
+        "mediaType": "image/png",
+        "sourceUrl": "https://cdn2.cellphones.com.vn/insecure/rs:fit:358:358/q:90/plain/https://cellphones.com.vn/media/catalog/product/h/u/hub-chuyen-doi-ugreen-usb-c-to-usb-a-2-0-usb-a-3-0-hdmi-pd-ho-tro-4k-15495.png"
+      },
+      "sourceUrl": "https://cellphones.com.vn/hub-chuyen-doi-ugreen-usb-c-to-usb-a-2-0-usb-a-3-0-hdmi-pd-ho-tro-4k-15495.html"
+    },
+    {
+      "sku": "CPS-118840",
+      "name": "Sạc Anker Nano thông minh 1C 45W màn hình led A121D",
+      "category": "accessories",
+      "brand": null,
+      "priceVnd": 450000,
+      "listPriceVnd": 850000,
+      "description": "Sạc Anker Nano thông minh 1C 45W màn hình led A121D · Phụ kiện điện thoại",
+      "specifications": [],
+      "image": {
+        "path": "/images/home-v2-catalog/product-118840.png",
+        "mediaType": "image/png",
+        "sourceUrl": "https://cdn2.cellphones.com.vn/insecure/rs:fit:358:358/q:90/plain/https://cellphones.com.vn/media/catalog/product/c/u/cu-sac-anker-nano-45w-a121d_1.png"
+      },
+      "sourceUrl": "https://cellphones.com.vn/cu-sac-anker-nano-45w-a121d.html"
+    },
+    {
+      "sku": "CPS-141919",
+      "name": "Sạc nhanh Apple 40W (tối đa 60W) cổng Type-C MGTU4ZA/A chính hãng",
+      "category": "accessories",
+      "brand": null,
+      "priceVnd": 1250000,
+      "listPriceVnd": null,
+      "description": "Sạc nhanh Apple 40W (tối đa 60W) cổng Type-C MGTU4ZA/A chính hãng · Phụ kiện điện thoại",
+      "specifications": [],
+      "image": {
+        "path": "/images/home-v2-catalog/product-141919.png",
+        "mediaType": "image/png",
+        "sourceUrl": "https://cdn2.cellphones.com.vn/insecure/rs:fit:358:358/q:90/plain/https://cellphones.com.vn/media/catalog/product/s/a/sac-apple-40w-cong-type-c-mgtu4za-a-chinh-hang_6_.png"
+      },
+      "sourceUrl": "https://cellphones.com.vn/sac-apple-40w-cong-type-c-mgtu4za-a-chinh-hang.html"
+    },
+    {
+      "sku": "CPS-104466",
+      "name": "Pin sạc dự phòng Anker A1695 25.000mAh 165W tích hợp cáp rút gọn",
+      "category": "accessories",
+      "brand": null,
+      "priceVnd": 1750000,
+      "listPriceVnd": 2850000,
+      "description": "Pin sạc dự phòng Anker A1695 25.000mAh 165W tích hợp cáp rút gọn · Phụ kiện điện thoại",
+      "specifications": [],
+      "image": {
+        "path": "/images/home-v2-catalog/product-104466.png",
+        "mediaType": "image/png",
+        "sourceUrl": "https://cdn2.cellphones.com.vn/insecure/rs:fit:358:358/q:90/plain/https://cellphones.com.vn/media/catalog/product/p/i/pin-sac-du-phong-anker-a1695-25000mah-165w-kem-cap-rut-gon.png"
+      },
+      "sourceUrl": "https://cellphones.com.vn/pin-sac-du-phong-anker-a1695-25000mah-165w-kem-cap-rut-gon.html"
+    },
+    {
+      "sku": "CPS-79622",
+      "name": "Pin sạc dự phòng Ugreen không dây Magnetic PB561 10000mAh 20W",
+      "category": "accessories",
+      "brand": null,
+      "priceVnd": 690000,
+      "listPriceVnd": 900000,
+      "description": "Pin sạc dự phòng Ugreen không dây Magnetic PB561 10000mAh 20W · Phụ kiện điện thoại",
+      "specifications": [],
+      "image": {
+        "path": "/images/home-v2-catalog/product-79622.png",
+        "mediaType": "image/png",
+        "sourceUrl": "https://cdn2.cellphones.com.vn/insecure/rs:fit:358:358/q:90/plain/https://cellphones.com.vn/media/catalog/product/p/i/pin-sac-du-phong-khong-day-ugreen-magnetic-pb561-10-000mah-20w.png"
+      },
+      "sourceUrl": "https://cellphones.com.vn/pin-sac-du-phong-khong-day-ugreen-magnetic-pb561-10-000mah-20w.html"
+    },
+    {
+      "sku": "CPS-114063",
+      "name": "Pin sạc dự phòng Anker Nano Maggo Ultra Slim A1665 Qi2 5000mAh",
+      "category": "accessories",
+      "brand": null,
+      "priceVnd": 1290000,
+      "listPriceVnd": 1480000,
+      "description": "Pin sạc dự phòng Anker Nano Maggo Ultra Slim A1665 Qi2 5000mAh · Phụ kiện điện thoại",
+      "specifications": [],
+      "image": {
+        "path": "/images/home-v2-catalog/product-114063.png",
+        "mediaType": "image/png",
+        "sourceUrl": "https://cdn2.cellphones.com.vn/insecure/rs:fit:358:358/q:90/plain/https://cellphones.com.vn/media/catalog/product/p/i/pin-sac-du-phong-anker-nano-maggo-ultra-slim-qi2-5000mah-a1665.png"
+      },
+      "sourceUrl": "https://cellphones.com.vn/pin-sac-du-phong-anker-nano-maggo-ultra-slim-qi2-5000mah-a1665.html"
+    },
+    {
+      "sku": "CPS-95914",
+      "name": "Pin sạc dự phòng Xiaomi 10000mAh 22.5W tích hợp cáp Type-C",
+      "category": "accessories",
+      "brand": null,
+      "priceVnd": 390000,
+      "listPriceVnd": 590000,
+      "description": "Pin sạc dự phòng Xiaomi 10000mAh 22.5W tích hợp cáp Type-C · Phụ kiện điện thoại",
+      "specifications": [],
+      "image": {
+        "path": "/images/home-v2-catalog/product-95914.png",
+        "mediaType": "image/png",
+        "sourceUrl": "https://cdn2.cellphones.com.vn/insecure/rs:fit:358:358/q:90/plain/https://cellphones.com.vn/media/catalog/product/s/a/sac-pin-du-phong-xiaomi-10000mah-22-5w.png"
+      },
+      "sourceUrl": "https://cellphones.com.vn/sac-pin-du-phong-xiaomi-10000mah-22-5w.html"
+    },
+    {
+      "sku": "CPS-128039",
+      "name": "Bàn phím cơ gaming E-Dra EK398X Beta đen xám",
+      "category": "accessories",
+      "brand": null,
+      "priceVnd": 690000,
+      "listPriceVnd": 890000,
+      "description": "Bàn phím cơ gaming E-Dra EK398X Beta đen xám · Phụ kiện máy tính",
+      "specifications": [],
+      "image": {
+        "path": "/images/home-v2-catalog/product-128039.png",
+        "mediaType": "image/png",
+        "sourceUrl": "https://cdn2.cellphones.com.vn/insecure/rs:fit:358:358/q:90/plain/https://cellphones.com.vn/media/catalog/product/b/a/ban-phim-co-gaming-e-dra-ek398x-beta-den-xam_1_.png"
+      },
+      "sourceUrl": "https://cellphones.com.vn/ban-phim-co-gaming-e-dra-ek398x-beta-den-xam.html"
+    },
+    {
+      "sku": "CPS-12478",
+      "name": "Bàn phím Apple Magic Keyboard 2 Kèm Phím Số Trắng",
+      "category": "accessories",
+      "brand": null,
+      "priceVnd": 2690000,
+      "listPriceVnd": 4990000,
+      "description": "Bàn phím Apple Magic Keyboard 2 Kèm Phím Số Trắng · Phụ kiện máy tính",
+      "specifications": [],
+      "image": {
+        "path": "/images/home-v2-catalog/product-12478.jpg",
+        "mediaType": "image/jpeg",
+        "sourceUrl": "https://cdn2.cellphones.com.vn/insecure/rs:fit:358:358/q:90/plain/https://cellphones.com.vn/media/catalog/product/m/a/magic-keyboard-2-phim-so-1_1.jpg"
+      },
+      "sourceUrl": "https://cellphones.com.vn/ban-phim-keyboard-macbook-gen-2-phim-so-trang.html"
+    },
+    {
+      "sku": "CPS-117047",
+      "name": "Bàn phím cơ không dây Logitech Alto Keys K98M Xám Đen",
+      "category": "accessories",
+      "brand": null,
+      "priceVnd": 2290000,
+      "listPriceVnd": 2799000,
+      "description": "Bàn phím cơ không dây Logitech Alto Keys K98M Xám Đen · Phụ kiện máy tính",
+      "specifications": [],
+      "image": {
+        "path": "/images/home-v2-catalog/product-117047.png",
+        "mediaType": "image/png",
+        "sourceUrl": "https://cdn2.cellphones.com.vn/insecure/rs:fit:358:358/q:90/plain/https://cellphones.com.vn/media/catalog/product/g/a/gaming_8_2_3.png"
+      },
+      "sourceUrl": "https://cellphones.com.vn/ban-phim-co-khong-day-logitech-alto-keys-k98m-xam-den.html"
+    },
+    {
+      "sku": "CPS-55801",
+      "name": "Chuột Gaming không dây Logitech G304 Lightspeed",
+      "category": "accessories",
+      "brand": null,
+      "priceVnd": 725000,
+      "listPriceVnd": 949000,
+      "description": "Chuột Gaming không dây Logitech G304 Lightspeed · Phụ kiện máy tính",
+      "specifications": [],
+      "image": {
+        "path": "/images/home-v2-catalog/product-55801.png",
+        "mediaType": "image/png",
+        "sourceUrl": "https://cdn2.cellphones.com.vn/insecure/rs:fit:358:358/q:90/plain/https://cellphones.com.vn/media/catalog/product/c/h/chuot-gaming-khong-day-logitech-g304-lightspeed_1_1.png"
+      },
+      "sourceUrl": "https://cellphones.com.vn/chuot-gaming-khong-day-logitech-g304-lightspeed.html"
+    }
+  ]
+}

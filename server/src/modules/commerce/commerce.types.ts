@@ -18,6 +18,13 @@ export type JsonValue =
   | { [key: string]: JsonValue }
 export type CommandResult = Record<string, JsonValue>
 
+export type ProductSpecificationGroup = {
+  title: string
+  rows: { label: string; value: string }[]
+}
+
+export type ProductVariantOption = { name: string; value: string }
+
 export type Recipient = {
   name: string
   phone: string
