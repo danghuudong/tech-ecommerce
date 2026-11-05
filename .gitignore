@@ -15,3 +15,7 @@ logs/
 # IDE and operating system files
 .idea/
 .DS_Store
+
+# Local tooling and temporary source preparation
+/.claude/settings.local.json
+/scripts/sync-cellphones-catalog.mjs
