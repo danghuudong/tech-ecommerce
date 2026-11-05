@@ -124,8 +124,10 @@ cập đầu. Không tự động retry lệnh ghi; cơ chế idempotency hiện
 
 Redeploy FE sau khi nhập các biến. Request `/api/*` sẽ chuyển sang Render và
 giữ nguyên tiền tố `/api`. Vercel đính kèm secret để BE từ chối request gọi trực
-tiếp vào API Render. BE chỉ tin IP do Vercel chuyển tiếp sau khi xác thực secret;
-rate limit áp dụng theo khách truy cập. Health check trên Render không yêu cầu
+tiếp vào API Render. BE chỉ tin IP đầu tiên trong `X-Forwarded-For` sau khi xác thực
+secret; Vercel ghi đè IP gốc, các proxy Render nối thêm IP phía sau. Không phụ thuộc
+`X-Real-IP` vì header đó có thể bị bỏ trên đường qua Render. Rate limit áp dụng
+theo khách truy cập. Health check trên Render không yêu cầu
 secret. Khi đổi URL BE hoặc secret, cập nhật hai nền tảng và redeploy phối hợp.
 
 ## 5. Tài khoản quản trị và dữ liệu

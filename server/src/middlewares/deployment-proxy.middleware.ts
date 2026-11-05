@@ -34,9 +34,10 @@ export function deploymentProxy(
     return
   }
 
-  // Vercel overwrites x-real-ip. Trust it only after authenticating the proxy;
-  // the Render/Vercel hop count otherwise groups unrelated visitors together.
-  const clientIp = req.get('x-real-ip')
+  // Vercel overwrites X-Forwarded-For with the visitor IP before rewriting.
+  // Render's proxies append their hops and may omit X-Real-IP. Only use the
+  // first forwarded address after authenticating Vercel with the shared secret.
+  const clientIp = req.get('x-forwarded-for')?.split(',')[0]?.trim()
   if (!clientIp || isIP(clientIp) === 0) {
     res.status(400).json({
       error: {
