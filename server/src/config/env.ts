@@ -58,6 +58,10 @@ const envSchema = z
     NODE_ENV: nodeEnvSchema,
     PORT: z.coerce.number().int().min(1).max(65_535).default(5000),
     TRUST_PROXY: trustProxySchema,
+    API_PROXY_SECRET: z.preprocess(
+      (value) => (value === '' ? undefined : value),
+      z.string().min(32).max(256).optional(),
+    ),
     API_RATE_LIMIT_WINDOW_MS: rateLimitWindowSchema.default(60_000),
     API_READ_RATE_LIMIT: rateLimitCountSchema.default(300),
     API_WRITE_RATE_LIMIT: rateLimitCountSchema.default(60),
@@ -160,6 +164,14 @@ const envSchema = z
       })
     }
 
+    if (value.API_PROXY_SECRET && value.TRUST_PROXY !== 1) {
+      context.addIssue({
+        code: 'custom',
+        message: 'The authenticated deployment proxy requires TRUST_PROXY=1',
+        path: ['TRUST_PROXY'],
+      })
+    }
+
     for (const key of ['BETTER_AUTH_URL', 'CLIENT_ORIGIN'] as const) {
       if (new URL(value[key]).protocol !== 'https:') {
         context.addIssue({
@@ -179,6 +191,7 @@ export const env: Env = envSchema.parse({
   NODE_ENV: nodeEnv,
   PORT: process.env.PORT,
   TRUST_PROXY: process.env.TRUST_PROXY,
+  API_PROXY_SECRET: process.env.API_PROXY_SECRET,
   API_RATE_LIMIT_WINDOW_MS: process.env.API_RATE_LIMIT_WINDOW_MS,
   API_READ_RATE_LIMIT: process.env.API_READ_RATE_LIMIT,
   API_WRITE_RATE_LIMIT: process.env.API_WRITE_RATE_LIMIT,

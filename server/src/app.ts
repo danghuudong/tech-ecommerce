@@ -9,6 +9,7 @@ import { pool } from './config/db.js'
 import { env } from './config/env.js'
 import { logger } from './config/logger.js'
 import { isRedisReady } from './config/redis.js'
+import { deploymentProxy } from './middlewares/deployment-proxy.middleware.js'
 import { AppError, errorHandler } from './middlewares/error.middleware.js'
 import { createRateLimiter } from './middlewares/rate-limit.middleware.js'
 import { adminAuth, auth } from './modules/auth/auth.js'
@@ -20,6 +21,8 @@ export function createApp() {
   if (env.TRUST_PROXY !== 0) {
     app.set('trust proxy', env.TRUST_PROXY)
   }
+
+  app.use('/api', deploymentProxy)
 
   app.use(
     pinoHttp({

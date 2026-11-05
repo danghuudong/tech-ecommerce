@@ -1,0 +1,48 @@
+services:
+  - type: web
+    name: tech-ecommerce-api
+    runtime: node
+    plan: free
+    region: singapore
+    buildCommand: corepack pnpm install --frozen-lockfile --prod=false --filter server... && corepack pnpm --filter server build
+    startCommand: corepack pnpm --filter server start:render
+    healthCheckPath: /health/ready
+    autoDeployTrigger: 'off'
+    buildFilter:
+      paths:
+        - server/**
+        - package.json
+        - pnpm-lock.yaml
+        - pnpm-workspace.yaml
+        - render.yaml
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: NODE_VERSION
+        value: '24'
+      - key: TRUST_PROXY
+        value: '1'
+      - key: DATABASE_URL
+        sync: false
+      - key: REDIS_URL
+        fromService:
+          type: keyvalue
+          name: tech-ecommerce-redis
+          property: connectionString
+      - key: BETTER_AUTH_SECRET
+        generateValue: true
+      - key: API_PROXY_SECRET
+        sync: false
+      - key: CLIENT_ORIGIN
+        sync: false
+      - key: BETTER_AUTH_URL
+        sync: false
+      - key: ORDER_DEMO_BANK_TRANSFER_ENABLED
+        value: 'false'
+
+  - type: keyvalue
+    name: tech-ecommerce-redis
+    plan: free
+    region: singapore
+    ipAllowList: []
+    maxmemoryPolicy: noeviction

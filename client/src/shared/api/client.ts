@@ -89,6 +89,8 @@ function retryTime(response: Response) {
 export const api: KyInstance = ky.create({
   prefix,
   credentials: 'include',
+  // Render Free can take about a minute to wake after an idle period.
+  timeout: 90_000,
   retry: 0,
   hooks: {
     beforeRequest: [
