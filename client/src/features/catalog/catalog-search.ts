@@ -10,7 +10,26 @@ export const catalogCategoryLabels = {
   accessories: 'Phụ kiện',
   gaming: 'Gaming gear',
   office: 'Thiết bị văn phòng',
+  tablet: 'Máy tính bảng',
+  watch: 'Đồng hồ',
+  television: 'Tivi',
+  appliance: 'Điện máy, gia dụng',
 } as const
+
+export const productCategoryIds = [
+  'laptop',
+  'phone',
+  'desktop',
+  'monitor',
+  'audio',
+  'accessories',
+  'gaming',
+  'office',
+  'tablet',
+  'watch',
+  'television',
+  'appliance',
+] as const
 
 export const catalogBrandLabels = {
   apple: 'Apple',
@@ -18,7 +37,43 @@ export const catalogBrandLabels = {
   dell: 'Dell',
   lenovo: 'Lenovo',
   hp: 'HP',
+  lg: 'LG',
+  logitech: 'Logitech',
+  samsung: 'Samsung',
+  xiaomi: 'Xiaomi',
+  oppo: 'OPPO',
+  acer: 'Acer',
+  msi: 'MSI',
+  huawei: 'HUAWEI',
+  honor: 'HONOR',
+  sony: 'Sony',
+  jbl: 'JBL',
+  anker: 'Anker',
+  ugreen: 'UGREEN',
+  tcl: 'TCL',
+  aqua: 'AQUA',
+  toshiba: 'Toshiba',
+  panasonic: 'Panasonic',
+  sharp: 'Sharp',
+  dreame: 'Dreame',
+  roborock: 'Roborock',
+  pny: 'PNY',
+  kingston: 'Kingston',
+  sandisk: 'SanDisk',
+  transcend: 'Transcend',
+  baseus: 'Baseus',
+  cuktech: 'CUKTECH',
+  belkin: 'Belkin',
+  dji: 'DJI',
+  spigen: 'Spigen',
 } as const
+
+export function brandLabel(code: string) {
+  return (
+    Object.entries(catalogBrandLabels).find(([brand]) => brand === code)?.[1] ??
+    code
+  )
+}
 
 const price = z
   .union([z.number(), z.string().regex(/^\d+$/)])
@@ -30,17 +85,7 @@ const price = z
 const catalogSearchSchema = z.object({
   q: z.string().trim().max(120).optional().catch(undefined),
   category: z
-    .enum([
-      'laptop',
-      'phone',
-      'desktop',
-      'monitor',
-      'audio',
-      'computing',
-      'accessories',
-      'gaming',
-      'office',
-    ])
+    .enum([...productCategoryIds, 'computing'])
     .optional()
     .catch(undefined),
   brand: z
@@ -54,6 +99,10 @@ const catalogSearchSchema = z.object({
     .catch(undefined),
   minPrice: price,
   maxPrice: price,
+  discounted: z
+    .union([z.literal(true), z.literal('true')])
+    .optional()
+    .catch(undefined),
 })
 
 export type CatalogSearch = z.infer<typeof catalogSearchSchema>
@@ -71,6 +120,7 @@ export function parseCatalogSearch(
     ...(search.q ? { q: search.q } : {}),
     ...(search.category ? { category: search.category } : {}),
     ...(search.brand ? { brand: search.brand } : {}),
+    ...(search.discounted ? { discounted: true } : {}),
     ...(validRange && search.minPrice !== undefined
       ? { minPrice: search.minPrice }
       : {}),
@@ -83,13 +133,10 @@ export function parseCatalogSearch(
 export function describeCatalogSearch(search: CatalogSearch) {
   const money = (value: number) =>
     `${new Intl.NumberFormat('vi-VN').format(value)}đ`
-  const brandLabel =
-    Object.entries(catalogBrandLabels).find(
-      ([code]) => code === search.brand,
-    )?.[1] ?? search.brand
   return [
     search.category && catalogCategoryLabels[search.category],
-    brandLabel,
+    search.brand && brandLabel(search.brand),
+    search.discounted && 'Đang giảm giá',
     search.minPrice !== undefined && `Từ ${money(search.minPrice)}`,
     search.maxPrice !== undefined && `Đến ${money(search.maxPrice)}`,
     search.q && `“${search.q}”`,

@@ -70,15 +70,11 @@
 }
 
 .admin-login__brand {
+  --brand-wordmark-accent: #ff4d5e;
   font-size: 31px;
-  font-weight: 800;
-  letter-spacing: -1.6px;
+  font-weight: 700;
+  letter-spacing: -0.035em;
   line-height: 1.2;
-}
-
-.admin-login__brand strong {
-  color: #ff4d5e;
-  font-weight: 800;
 }
 
 .admin-login__brand-tag {

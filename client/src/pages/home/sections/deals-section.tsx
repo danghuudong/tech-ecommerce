@@ -25,7 +25,7 @@ export function DealsSection({
           />
           <div>
             <h2 id="deals-title">Sản phẩm tại cửa hàng</h2>
-            <p>Giá và tồn kho được cập nhật từ TechViet</p>
+            <p>Giá và tồn kho được cập nhật từ TinovaShop</p>
           </div>
         </div>
         <a className="section-heading__all" href="/products">

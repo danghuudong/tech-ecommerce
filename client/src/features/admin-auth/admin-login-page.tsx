@@ -18,6 +18,7 @@ import {
   Truck,
 } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
+import { StoreLogo } from '@/shared/components/store-layout/store-logo'
 import { errorMessage } from '../commerce/api'
 import { adminDestination, useAdminAuth } from './admin-auth'
 import './admin-login-page.css'
@@ -69,20 +70,20 @@ export function AdminLoginPage() {
 
   return (
     <div className="admin-login">
-      <title>Đăng nhập quản trị | TechViet</title>
+      <title>Đăng nhập quản trị | TinovaShop</title>
       <meta
         name="description"
-        content="Đăng nhập khu vực quản trị TechViet dành cho nhân viên, kế toán và quản trị viên được cấp quyền."
+        content="Đăng nhập khu vực quản trị TinovaShop dành cho nhân viên, kế toán và quản trị viên được cấp quyền."
       />
       <meta name="robots" content="noindex, nofollow" />
-      <aside className="admin-login__story" aria-label="TechViet Admin">
+      <aside className="admin-login__story" aria-label="TinovaShop Admin">
         <div className="admin-login__brand-row">
           <Link
             to="/"
             className="admin-login__brand"
-            aria-label="TechViet — Trang chủ"
+            aria-label="TinovaShop — Trang chủ"
           >
-            Tech<strong>Viet</strong>
+            <StoreLogo />
           </Link>
           <span className="admin-login__brand-tag">ADMIN</span>
         </div>
@@ -98,7 +99,7 @@ export function AdminLoginPage() {
             Một điểm chạm.
           </h2>
           <p>
-            Kết nối công việc mỗi ngày, cùng đội ngũ TechViet mang trải nghiệm
+            Kết nối công việc mỗi ngày, cùng đội ngũ TinovaShop mang trải nghiệm
             tốt hơn đến khách hàng.
           </p>
           <ul className="admin-login__capabilities">
@@ -118,7 +119,7 @@ export function AdminLoginPage() {
 
         <div className="admin-login__story-footer">
           <ShieldCheck size={17} aria-hidden="true" />
-          Dành riêng cho đội ngũ TechViet
+          Dành riêng cho đội ngũ TinovaShop
         </div>
         <div className="admin-login__decoration" aria-hidden="true">
           <span />
@@ -140,7 +141,7 @@ export function AdminLoginPage() {
             <span className="admin-login__emblem">
               <LayoutDashboard size={25} strokeWidth={1.7} aria-hidden="true" />
             </span>
-            <p className="admin-login__kicker">TECHVIET ADMIN</p>
+            <p className="admin-login__kicker">TinovaShop ADMIN</p>
             <h1>Đăng nhập quản trị</h1>
             <p>Chào mừng trở lại. Bắt đầu phiên làm việc của bạn.</p>
           </div>
@@ -352,7 +353,7 @@ export function AdminLoginPage() {
         </main>
 
         <footer className="admin-login__footer">
-          © {new Date().getFullYear()} TechViet. Hệ thống quản trị nội bộ.
+          © {new Date().getFullYear()} TinovaShop. Hệ thống quản trị nội bộ.
         </footer>
       </div>
     </div>

@@ -1,131 +1,139 @@
 import {
+  CreditCard,
   Gamepad2,
   Headphones,
   Keyboard,
   Laptop,
   type LucideIcon,
   Monitor,
+  PackageCheck,
+  PcCase,
+  Printer,
+  Refrigerator,
+  ShieldCheck,
   Smartphone,
+  Tablet,
+  Truck,
+  Tv,
+  Watch,
 } from 'lucide-react'
-import type { CatalogSearch } from '@/features/catalog/catalog-search'
+import { catalogCategoryLabels } from '@/features/catalog/catalog-search'
+import type { ProductCategoryId } from '@/features/catalog/types/product'
 
-type MenuLink = {
+export const storePromises: { text: string; icon: LucideIcon }[] = [
+  { text: 'Hàng chính hãng 100%', icon: ShieldCheck },
+  { text: 'Giao hàng toàn quốc', icon: Truck },
+  { text: 'Đổi trả trong 7 ngày đầu tiên', icon: PackageCheck },
+  { text: 'Thanh toán COD hoặc chuyển khoản', icon: CreditCard },
+]
+
+export type PriceBand = {
   label: string
-  search: CatalogSearch
+  minPrice?: number
+  maxPrice?: number
 }
 
-type IconLink = MenuLink & {
-  id: string
+export type MenuCategory = {
+  id: ProductCategoryId
+  label: string
   icon: LucideIcon
+  prices: PriceBand[]
 }
 
-export const categoryLinks: IconLink[] = [
-  {
-    id: 'laptop',
-    label: 'Laptop',
-    icon: Laptop,
-    search: { category: 'laptop' },
-  },
+const MILLION = 1_000_000
+
+function money(value: number) {
+  return value >= MILLION ? `${value / MILLION} triệu` : `${value / 1000}K`
+}
+
+function priceBands(first: number, ...rest: number[]) {
+  const bands: PriceBand[] = [
+    { label: `Dưới ${money(first)}`, maxPrice: first - 1 },
+  ]
+  let from = first
+  for (const limit of rest) {
+    bands.push({
+      label: `${money(from)} - ${money(limit)}`,
+      minPrice: from,
+      maxPrice: limit - 1,
+    })
+    from = limit
+  }
+  bands.push({ label: `Từ ${money(from)}`, minPrice: from })
+  return bands
+}
+
+export const menuCategories: MenuCategory[] = [
   {
     id: 'phone',
     label: 'Điện thoại',
     icon: Smartphone,
-    search: { category: 'phone' },
+    prices: priceBands(5 * MILLION, 15 * MILLION, 25 * MILLION),
   },
   {
-    id: 'computing',
-    label: 'PC & Màn hình',
+    id: 'tablet',
+    label: catalogCategoryLabels.tablet,
+    icon: Tablet,
+    prices: priceBands(5 * MILLION, 10 * MILLION, 20 * MILLION),
+  },
+  {
+    id: 'laptop',
+    label: 'Laptop',
+    icon: Laptop,
+    prices: priceBands(15 * MILLION, 25 * MILLION, 35 * MILLION),
+  },
+  {
+    id: 'desktop',
+    label: 'Máy tính bàn',
+    icon: PcCase,
+    prices: priceBands(20 * MILLION, 40 * MILLION),
+  },
+  {
+    id: 'monitor',
+    label: 'Màn hình',
     icon: Monitor,
-    search: { category: 'computing' },
+    prices: priceBands(5 * MILLION, 10 * MILLION),
+  },
+  {
+    id: 'watch',
+    label: catalogCategoryLabels.watch,
+    icon: Watch,
+    prices: priceBands(2 * MILLION, 5 * MILLION, 10 * MILLION),
   },
   {
     id: 'audio',
-    label: 'Tai nghe',
+    label: 'Âm thanh',
     icon: Headphones,
-    search: { category: 'audio' },
+    prices: priceBands(MILLION, 3 * MILLION),
   },
   {
     id: 'accessories',
     label: 'Phụ kiện',
     icon: Keyboard,
-    search: { category: 'accessories' },
+    prices: priceBands(500_000, MILLION, 3 * MILLION),
   },
   {
     id: 'gaming',
     label: 'Gaming gear',
     icon: Gamepad2,
-    search: { category: 'gaming' },
+    prices: priceBands(500_000, MILLION, 3 * MILLION),
   },
   {
     id: 'office',
     label: 'Thiết bị văn phòng',
-    icon: Keyboard,
-    search: { category: 'office' },
-  },
-]
-
-export const menuGroups: { id: string; title: string; links: MenuLink[] }[] = [
-  {
-    id: 'needs',
-    title: 'Theo nhu cầu',
-    links: [
-      {
-        label: 'Học tập & văn phòng',
-        search: { category: 'laptop', q: 'văn phòng' },
-      },
-      {
-        label: 'Đồ họa & sáng tạo',
-        search: { category: 'laptop', q: 'đồ họa' },
-      },
-      {
-        label: 'Laptop gaming',
-        search: { category: 'laptop', q: 'gaming' },
-      },
-      {
-        label: 'Mỏng nhẹ cao cấp',
-        search: { category: 'laptop', q: 'mỏng nhẹ' },
-      },
-    ],
+    icon: Printer,
+    prices: priceBands(2 * MILLION, 5 * MILLION),
   },
   {
-    id: 'brands',
-    title: 'Thương hiệu',
-    links: [
-      { label: 'Apple', search: { brand: 'apple' } },
-      { label: 'ASUS', search: { brand: 'asus' } },
-      { label: 'Dell', search: { brand: 'dell' } },
-      { label: 'Lenovo', search: { brand: 'lenovo' } },
-      { label: 'HP', search: { brand: 'hp' } },
-    ],
+    id: 'television',
+    label: catalogCategoryLabels.television,
+    icon: Tv,
+    prices: priceBands(5 * MILLION, 10 * MILLION, 20 * MILLION),
   },
   {
-    id: 'prices',
-    title: 'Mức giá laptop',
-    links: [
-      {
-        label: 'Dưới 15 triệu',
-        search: { category: 'laptop', maxPrice: 14_999_999 },
-      },
-      {
-        label: '15 đến dưới 25 triệu',
-        search: {
-          category: 'laptop',
-          minPrice: 15_000_000,
-          maxPrice: 24_999_999,
-        },
-      },
-      {
-        label: '25 – 35 triệu',
-        search: {
-          category: 'laptop',
-          minPrice: 25_000_000,
-          maxPrice: 35_000_000,
-        },
-      },
-      {
-        label: 'Trên 35 triệu',
-        search: { category: 'laptop', minPrice: 35_000_001 },
-      },
-    ],
+    id: 'appliance',
+    label: catalogCategoryLabels.appliance,
+    icon: Refrigerator,
+    prices: priceBands(5 * MILLION, 10 * MILLION, 20 * MILLION),
   },
 ]

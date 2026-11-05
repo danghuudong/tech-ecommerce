@@ -60,6 +60,8 @@ const prefix = apiBaseUrlSchema.parse(
   import.meta.env.VITE_API_BASE_URL ?? '/api',
 )
 
+export const apiUrl = (path: string) => `${prefix.replace(/\/$/, '')}/${path}`
+
 type RateLimitScope = 'api-read' | 'api-write' | 'auth-write'
 const rateLimitResets = new Map<RateLimitScope, number>()
 

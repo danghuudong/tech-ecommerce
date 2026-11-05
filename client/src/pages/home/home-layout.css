@@ -1,34 +1,3 @@
-.store-page {
-  --store-red: #f51f2e;
-  --store-red-dark: #dd1423;
-  --store-ink: #13264c;
-  --store-muted: #7b8aa7;
-  --store-line: #e8edf4;
-  min-height: 100vh;
-  overflow-x: clip;
-  background: #f4f7fb;
-  color: var(--store-ink);
-  font-family: var(--font-sans), sans-serif;
-  font-size: 14px;
-}
-
-.store-page * {
-  box-sizing: border-box;
-}
-
-:where(.store-page a) {
-  color: inherit;
-  text-decoration: none;
-}
-
-:where(.store-page button, .store-page input) {
-  font: inherit;
-}
-
-:where(.store-page button) {
-  color: inherit;
-}
-
 .store-page .red-action {
   display: inline-flex;
   min-height: 36px;
@@ -106,11 +75,6 @@
   clip: rect(0, 0, 0, 0);
   white-space: nowrap;
   clip-path: inset(50%);
-}
-
-.store-page :focus-visible {
-  outline: 3px solid rgb(68 110 185 / 45%);
-  outline-offset: 2px;
 }
 
 @media (max-width: 980px) {

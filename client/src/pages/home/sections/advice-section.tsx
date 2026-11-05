@@ -11,7 +11,7 @@ export function AdviceSection() {
       <div className="section-heading section-heading--advice">
         <div>
           <h2 id="advice-title">Tư vấn chọn mua</h2>
-          <p>Gợi ý nhanh từ đội ngũ TECH VIỆT</p>
+          <p>Gợi ý nhanh từ đội ngũ TinovaShop</p>
         </div>
         <a className="section-heading__all" href="#advice">
           Xem tất cả <ChevronRight aria-hidden="true" size={15} />

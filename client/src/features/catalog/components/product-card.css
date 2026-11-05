@@ -22,6 +22,15 @@
   padding: 10px 10px 0;
 }
 
+.product-card__media,
+.product-card__media .product-art {
+  display: block;
+}
+
+.product-card__details h3 a:hover {
+  color: var(--store-red);
+}
+
 .product-art.product-card__art {
   border-radius: 8px;
 }

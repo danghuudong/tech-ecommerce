@@ -575,6 +575,21 @@ const messages: Record<string, string> = {
   CHECKOUT_CHANGED:
     'Chính sách thanh toán đã thay đổi. Vui lòng cập nhật báo giá.',
   INSUFFICIENT_STOCK: 'Số lượng yêu cầu vượt quá tồn kho hiện có.',
+  PRODUCT_CHANGED: 'Sản phẩm vừa được cập nhật. Hãy tải lại rồi thử lại.',
+  PRODUCT_LIST_PRICE_INVALID: 'Giá gốc phải cao hơn giá bán.',
+  PRODUCT_VARIANT_OPTIONS_REQUIRED:
+    'Sản phẩm trong nhóm phiên bản cần có ít nhất một tùy chọn.',
+  PRODUCT_VARIANT_DUPLICATE:
+    'Đã có phiên bản khác trong nhóm với cùng các tùy chọn.',
+  PRODUCT_IMAGE_INVALID: 'Ảnh không hợp lệ. Chọn ảnh JPEG, PNG hoặc WebP.',
+  PRODUCT_IMAGE_LIMIT_REACHED: 'Mỗi sản phẩm có tối đa 8 ảnh.',
+  PRODUCT_IMAGE_DUPLICATE: 'Ảnh này đã có trong sản phẩm.',
+  PRODUCT_IMAGES_CHANGED: 'Danh sách ảnh vừa thay đổi. Hãy thử lại.',
+  PRODUCT_REVIEW_NOT_ELIGIBLE:
+    'Chỉ khách đã nhận sản phẩm mới có thể đánh giá.',
+  PRODUCT_QUESTION_LIMIT_REACHED:
+    'Bạn có nhiều câu hỏi đang chờ trả lời. Vui lòng đợi TinovaShop phản hồi.',
+  PRODUCT_QUESTION_UNANSWERED: 'Hãy trả lời câu hỏi trước khi hiển thị lại.',
   PRODUCT_UNAVAILABLE: 'Sản phẩm hiện không còn được bán.',
   ORDER_NOT_FOUND: 'Không tìm thấy đơn hàng hoặc bạn không có quyền truy cập.',
   ORDER_ASSIGNED_ELSEWHERE:

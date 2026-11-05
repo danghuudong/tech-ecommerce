@@ -1,0 +1,59 @@
+.hv2-benefit-strip {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+  margin-top: 16px;
+  padding: 14px 20px;
+  border: 1px solid var(--store-line);
+  border-radius: 16px;
+  background: #fff;
+}
+
+.hv2-benefit-strip__item {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 12px;
+}
+
+.hv2-benefit-strip__icon {
+  display: grid;
+  width: 44px;
+  height: 44px;
+  flex: none;
+  place-items: center;
+  border-radius: 12px;
+  background: #fff0f0;
+  color: var(--store-red);
+}
+
+.store-page .hv2-benefit-strip__item > span:last-child {
+  display: grid;
+  min-width: 0;
+  gap: 2px;
+}
+
+.hv2-benefit-strip__item strong {
+  color: var(--store-ink);
+  font-size: 14px;
+  font-weight: 720;
+}
+
+.hv2-benefit-strip__item small {
+  color: var(--store-body);
+  font-size: 13px;
+}
+
+@media (max-width: 980px) {
+  .hv2-benefit-strip {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    padding: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .hv2-benefit-strip {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 12px;
+  }
+}

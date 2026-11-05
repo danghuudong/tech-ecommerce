@@ -7,6 +7,10 @@ export type ProductCategoryId =
   | 'accessories'
   | 'gaming'
   | 'office'
+  | 'tablet'
+  | 'watch'
+  | 'television'
+  | 'appliance'
 
 export type ProductArtId =
   | 'laptop'
@@ -29,5 +33,6 @@ export type Product = {
   ratingCount?: number
   availableQuantity?: number
   art: ProductArtId
+  imageUrl?: string | undefined
   featured?: boolean
 }

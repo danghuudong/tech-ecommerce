@@ -23,6 +23,21 @@ const routeTree = rootRoute.addChildren([
   }),
   createRoute({
     getParentRoute: () => rootRoute,
+    path: '/products/$productId',
+    component: lazyRouteComponent(
+      () => import('../features/catalog/product-detail-page'),
+      'ProductDetailPage',
+    ),
+  }),
+  createRoute({
+    getParentRoute: () => rootRoute,
+    path: '/home-v2',
+    beforeLoad: ({ location, search }) => {
+      throw redirect({ to: '/', search, hash: location.hash, replace: true })
+    },
+  }),
+  createRoute({
+    getParentRoute: () => rootRoute,
     path: '/login',
     component: lazyRouteComponent(customerPages, 'AuthPage'),
   }),
@@ -103,6 +118,30 @@ const routeTree = rootRoute.addChildren([
     component: lazyRouteComponent(
       () => import('../features/commerce/team-page'),
       'TeamPage',
+    ),
+  }),
+  createRoute({
+    getParentRoute: () => rootRoute,
+    path: '/staff/catalog',
+    component: lazyRouteComponent(
+      () => import('../features/commerce/catalog-admin-page'),
+      'CatalogAdminPage',
+    ),
+  }),
+  createRoute({
+    getParentRoute: () => rootRoute,
+    path: '/staff/feedback',
+    component: lazyRouteComponent(
+      () => import('../features/commerce/feedback-page'),
+      'FeedbackPage',
+    ),
+  }),
+  createRoute({
+    getParentRoute: () => rootRoute,
+    path: '/staff/stores',
+    component: lazyRouteComponent(
+      () => import('../features/commerce/stores-page'),
+      'StoresPage',
     ),
   }),
   createRoute({

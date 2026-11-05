@@ -1,0 +1,107 @@
+.hv2-newsletter-strip {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px 32px;
+  margin: var(--home-section-gap) 0;
+  padding: clamp(20px, 2.6vw, 32px) clamp(20px, 3.4vw, 48px);
+  border-radius: 20px;
+  background: var(--store-ink);
+}
+
+.hv2-newsletter-strip__message {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 16px;
+}
+
+.hv2-newsletter-strip__icon {
+  display: grid;
+  width: 52px;
+  height: 52px;
+  flex: none;
+  place-items: center;
+  border-radius: 14px;
+  background: var(--store-red);
+  color: #fff;
+}
+
+.hv2-newsletter-strip__message > span:last-child {
+  display: grid;
+  gap: 4px;
+}
+
+.hv2-newsletter-strip__message strong {
+  color: #fff;
+  font-size: 18px;
+  font-weight: 720;
+}
+
+.hv2-newsletter-strip__message small {
+  color: #c3cde0;
+  font-size: 14px;
+}
+
+.hv2-newsletter-form {
+  display: flex;
+  width: min(480px, 100%);
+  gap: 8px;
+}
+
+.hv2-newsletter-form input {
+  width: 100%;
+  min-width: 0;
+  height: 46px;
+  padding: 0 14px;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  outline: 0;
+  background: #fff;
+  color: var(--store-ink);
+  font-size: 14px;
+}
+
+.hv2-newsletter-form input:focus {
+  box-shadow: 0 0 0 3px rgb(255 255 255 / 30%);
+}
+
+.hv2-newsletter-form input::placeholder {
+  color: #7b8aa7;
+}
+
+.hv2-newsletter-form button {
+  height: 46px;
+  flex: none;
+  padding: 0 22px;
+  border: 0;
+  border-radius: 10px;
+  background: var(--store-red);
+  color: #fff;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 720;
+  transition: background-color 160ms ease;
+}
+
+.hv2-newsletter-form button:hover {
+  background: var(--store-red-dark);
+}
+
+.hv2-newsletter-strip__notice {
+  flex-basis: 100%;
+  color: #ffd4d7;
+  font-size: 13px;
+  text-align: right;
+}
+
+@media (max-width: 480px) {
+  .hv2-newsletter-form {
+    flex-direction: column;
+  }
+
+  .hv2-newsletter-strip__notice {
+    text-align: left;
+  }
+}

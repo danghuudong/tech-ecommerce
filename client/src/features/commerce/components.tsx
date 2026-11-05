@@ -470,9 +470,11 @@ export function AccessGate({
 export function ProductThumb({
   name,
   sku = '',
+  imageUrl,
 }: {
   name: string
   sku?: string
+  imageUrl?: string | undefined
 }) {
   const text = `${name} ${sku}`.toLowerCase()
   const kind = /laptop|vivobook|macbook|thinkpad/.test(text)
@@ -490,7 +492,9 @@ export function ProductThumb({
               : null
   return (
     <span className="c-thumb" aria-hidden="true">
-      {kind ? (
+      {imageUrl ? (
+        <img alt="" className="product-photo" loading="lazy" src={imageUrl} />
+      ) : kind ? (
         <span className={`product-art product-art--${kind}`} />
       ) : (
         <Package size={32} />

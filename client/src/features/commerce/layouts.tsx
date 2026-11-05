@@ -1,21 +1,24 @@
 import { Link, useLocation } from '@tanstack/react-router'
 import {
   CreditCard,
-  Headphones,
   Landmark,
   Menu,
+  MessagesSquare,
   Package,
   PanelLeftClose,
   PanelLeftOpen,
   RotateCcw,
   Search,
   ShoppingCart,
+  Store,
   Truck,
   Users,
 } from 'lucide-react'
 import { DropdownMenu } from 'radix-ui'
 import { type ReactNode, useEffect, useState } from 'react'
+import { StoreFooter } from '@/shared/components/store-layout/store-footer'
 import { StoreHeader } from '@/shared/components/store-layout/store-header'
+import { StoreLogo } from '@/shared/components/store-layout/store-logo'
 import { useActor, useSession } from './api'
 import { Action, ErrorNotice } from './components'
 import {
@@ -35,11 +38,11 @@ export function Brand({ to = '/' }: { to?: '/' | '/staff/orders' }) {
       className="c-brand"
       aria-label={
         to === '/staff/orders'
-          ? 'TechViet - Quản lý đơn hàng'
-          : 'TechViet - Trang chủ'
+          ? 'TinovaShop - Quản lý đơn hàng'
+          : 'TinovaShop - Trang chủ'
       }
     >
-      Tech<strong>Viet</strong>
+      <StoreLogo />
     </Link>
   )
 }
@@ -49,32 +52,7 @@ export function CustomerLayout({ children }: { children: ReactNode }) {
     <div className="commerce-app c-customer">
       <StoreHeader />
       <main className="c-container c-customer-main">{children}</main>
-      <footer className="c-footer">
-        <div className="c-container">
-          <div>
-            <Brand />
-            <p>Công nghệ thật. Cuộc sống tốt hơn.</p>
-          </div>
-          <div>
-            <h3>Hỗ trợ khách hàng</h3>
-            <Link to="/orders">Theo dõi đơn hàng</Link>
-            <Link to="/cart">Giỏ hàng của bạn</Link>
-          </div>
-          <div>
-            <h3>Mua sắm tại TechViet</h3>
-            <Link to="/products">Sản phẩm chính hãng</Link>
-            <span>
-              <Headphones size={15} />
-              Hỗ trợ mua hàng
-            </span>
-          </div>
-          <div>
-            <h3>An tâm mua sắm</h3>
-            <span>Giao hàng tiêu chuẩn</span>
-            <span>COD hoặc chuyển khoản</span>
-          </div>
-        </div>
-      </footer>
+      <StoreFooter />
     </div>
   )
 }
@@ -90,6 +68,13 @@ const staffLinks = [
     label: 'Tài khoản nhận tiền',
     icon: Landmark,
   },
+  { to: '/staff/catalog', label: 'Sản phẩm', icon: Package },
+  {
+    to: '/staff/feedback',
+    label: 'Đánh giá & hỏi đáp',
+    icon: MessagesSquare,
+  },
+  { to: '/staff/stores', label: 'Cửa hàng', icon: Store },
 ] as const
 
 export function StaffLayout({ children }: { children: ReactNode }) {
@@ -137,6 +122,12 @@ function StaffWorkspace({ children }: { children: ReactNode }) {
       if (to === '/staff/team') return actor.data?.role === 'admin'
       if (to === '/staff/receiving-accounts')
         return actor.data?.role === 'admin'
+      if (
+        to === '/staff/catalog' ||
+        to === '/staff/feedback' ||
+        to === '/staff/stores'
+      )
+        return canManageOrders(actor.data?.role)
       return true
     })
     .map((link) => ({

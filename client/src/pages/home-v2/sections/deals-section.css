@@ -1,0 +1,15 @@
+.hv2-deal-section {
+  margin-top: var(--home-section-gap);
+  padding: clamp(16px, 2vw, 24px);
+  border: 1px solid #ffe2de;
+  border-radius: 20px;
+  background: linear-gradient(116deg, #fff0ed 0%, #fff8f6 45%, #fff0ef 100%);
+}
+
+.hv2-deal-section__status {
+  margin: 0;
+  padding-block: 20px;
+  color: var(--store-body);
+  font-size: 14px;
+  line-height: 1.6;
+}

@@ -11,16 +11,6 @@ import type {
   ProductCategoryId,
 } from '@/features/catalog/types/product'
 
-export type SuggestionFilterId = 'featured' | ProductCategoryId
-
-export const suggestionFilters: { id: SuggestionFilterId; label: string }[] = [
-  { id: 'featured', label: 'Tất cả' },
-  { id: 'laptop', label: 'Laptop' },
-  { id: 'phone', label: 'Điện thoại' },
-  { id: 'monitor', label: 'Màn hình' },
-  { id: 'accessories', label: 'Phụ kiện' },
-]
-
 export const categoryTiles: {
   id: ProductCategoryId
   label: string

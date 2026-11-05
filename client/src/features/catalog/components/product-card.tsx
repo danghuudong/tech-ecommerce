@@ -1,3 +1,4 @@
+import { Link } from '@tanstack/react-router'
 import { Star } from 'lucide-react'
 import type { Product } from '../types/product'
 
@@ -20,11 +21,24 @@ export function ProductCard({
         {product.discount && (
           <span className="product-card__discount">{product.discount}</span>
         )}
-        <div
-          aria-label={`${product.name}, ảnh sản phẩm`}
-          className={`product-art product-art--${product.art}`}
-          role="img"
-        />
+        <Link
+          to="/products/$productId"
+          params={{ productId: product.id }}
+          aria-hidden="true"
+          className="product-card__media"
+          tabIndex={-1}
+        >
+          {product.imageUrl ? (
+            <img
+              alt=""
+              className="product-photo"
+              loading="lazy"
+              src={product.imageUrl}
+            />
+          ) : (
+            <span className={`product-art product-art--${product.art}`} />
+          )}
+        </Link>
         <button
           aria-label={`Thêm ${product.name} vào giỏ hàng`}
           className="product-card__quick-add"
@@ -36,7 +50,11 @@ export function ProductCard({
         </button>
       </div>
       <div className="product-card__details">
-        <h3>{product.name}</h3>
+        <h3>
+          <Link to="/products/$productId" params={{ productId: product.id }}>
+            {product.name}
+          </Link>
+        </h3>
         <p className="product-card__specs">{product.specs}</p>
         {product.rating && (
           <div className="product-card__rating">

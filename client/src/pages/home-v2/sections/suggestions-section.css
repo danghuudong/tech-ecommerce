@@ -1,0 +1,61 @@
+.hv2-suggestion-section {
+  margin-top: var(--home-section-gap);
+}
+
+.hv2-suggestion-section .hv2-section-heading {
+  margin-bottom: 14px;
+}
+
+.hv2-suggestion-filters {
+  display: flex;
+  min-width: 0;
+  overflow-x: auto;
+  gap: 8px;
+  margin: 0 0 16px;
+  padding: 0 0 2px;
+  border: 0;
+  scrollbar-width: none;
+}
+
+.hv2-suggestion-filters::-webkit-scrollbar {
+  display: none;
+}
+
+.hv2-suggestion-filters button {
+  min-height: 38px;
+  flex: none;
+  padding: 0 16px;
+  border: 1px solid var(--store-line);
+  border-radius: 20px;
+  background: #fff;
+  color: var(--store-body);
+  cursor: pointer;
+  font-size: 14px;
+  transition:
+    background-color 160ms ease,
+    border-color 160ms ease,
+    color 160ms ease;
+}
+
+.hv2-suggestion-filters button:hover {
+  border-color: #ffc6cb;
+  color: var(--store-red);
+}
+
+.hv2-suggestion-filters button.is-selected {
+  border-color: var(--store-red);
+  background: var(--store-red);
+  color: #fff;
+  font-weight: 700;
+}
+
+.hv2-suggestion-empty {
+  display: grid;
+  min-height: 200px;
+  place-items: center;
+  margin: 0;
+  border: 1px dashed #d8dfeb;
+  border-radius: 14px;
+  background: #fff;
+  color: var(--store-body);
+}

@@ -1,30 +1,29 @@
 import { useQuery } from '@tanstack/react-query'
 import { useNavigate } from '@tanstack/react-router'
 import { useState } from 'react'
+import { CategoryShowcaseSection } from '@/features/catalog/components/category-showcase'
+import { toHomeProduct } from '@/features/catalog/to-home-product'
 import type {
   Product,
-  ProductArtId,
   ProductCategoryId,
 } from '@/features/catalog/types/product'
 import { read, useAddToCart, useSession } from '@/features/commerce/api'
 import {
   ErrorNotice,
-  formatMoney,
   Loading,
   Notice,
   QueryError,
 } from '@/features/commerce/components'
 import type { CatalogProduct, Page } from '@/features/commerce/types'
+import { CategoryMenu } from '@/shared/components/store-layout/category-menu'
 import { StoreFooter } from '@/shared/components/store-layout/store-footer'
 import { StoreHeader } from '@/shared/components/store-layout/store-header'
-import type { SuggestionFilterId } from './home/home.data'
 import { AdviceSection } from './home/sections/advice-section'
 import { BenefitsSection } from './home/sections/benefits-section'
 import { CategoriesSection } from './home/sections/categories-section'
 import { DealsSection } from './home/sections/deals-section'
 import { HeroSection } from './home/sections/hero-section'
 import { NewsletterSection } from './home/sections/newsletter-section'
-import { SuggestionsSection } from './home/sections/suggestions-section'
 import { WorkspaceSection } from './home/sections/workspace-section'
 import './home-page.css'
 
@@ -41,8 +40,6 @@ export function HomePage() {
   })
   const [added, setAdded] = useState('')
   const add = useAddToCart()
-  const [selectedFilter, setSelectedFilter] =
-    useState<SuggestionFilterId>('featured')
 
   function handleAddToCart(product: Product) {
     if (!session.data) {
@@ -55,25 +52,20 @@ export function HomePage() {
   }
 
   function handleCategorySelect(category: ProductCategoryId) {
-    setSelectedFilter(category)
-    document
-      .getElementById('suggestions')
-      ?.scrollIntoView({ behavior: 'smooth' })
+    void navigate({ to: '/products', search: { category } })
   }
 
   const products = (catalog.data?.items ?? []).map(toHomeProduct)
-  const visibleProducts = products.filter((product) => {
-    const matchesFilter =
-      selectedFilter === 'featured' ? true : product.category === selectedFilter
-    return matchesFilter
-  })
 
   return (
     <div className="store-page" id="top">
       <StoreHeader />
       <main>
         <div className="store-container">
-          <HeroSection />
+          <div className="home-stage">
+            <CategoryMenu variant="sidebar" />
+            <HeroSection />
+          </div>
           <BenefitsSection />
           <CategoriesSection onCategorySelect={handleCategorySelect} />
           <div className="commerce-app">
@@ -99,12 +91,9 @@ export function HomePage() {
             products={products.slice(0, 4)}
             busy={add.isPending}
           />
-          <SuggestionsSection
-            visibleProducts={visibleProducts}
-            selectedFilter={selectedFilter}
-            onFilterChange={setSelectedFilter}
-            onAddToCart={handleAddToCart}
+          <CategoryShowcaseSection
             busy={add.isPending}
+            onAddToCart={handleAddToCart}
           />
           <WorkspaceSection />
           <AdviceSection />
@@ -114,32 +103,4 @@ export function HomePage() {
       <StoreFooter />
     </div>
   )
-}
-
-function toHomeProduct(product: CatalogProduct): Product {
-  const text = `${product.name} ${product.sku}`.toLowerCase()
-  const category = product.category
-  const art: ProductArtId =
-    category === 'laptop'
-      ? 'laptop'
-      : category === 'phone'
-        ? 'phone'
-        : category === 'monitor'
-          ? 'monitor'
-          : category === 'audio'
-            ? 'headphones'
-            : category === 'desktop'
-              ? 'tower'
-              : /chuột|mouse|g304/.test(text)
-                ? 'mouse'
-                : 'keyboard'
-  return {
-    id: product.id,
-    name: product.name,
-    category,
-    art,
-    specs: product.description || product.sku,
-    price: formatMoney(product.priceVnd),
-    availableQuantity: product.availableQuantity,
-  }
 }

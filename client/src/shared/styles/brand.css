@@ -1,0 +1,14 @@
+.store-wordmark {
+  display: block;
+  width: 6.15em;
+  height: auto;
+  flex: none;
+  stroke: currentColor;
+  stroke-width: var(--brand-wordmark-stroke, 0);
+  stroke-linejoin: round;
+}
+
+.store-wordmark__accent {
+  fill: var(--brand-wordmark-accent, #f51f2e);
+  stroke: var(--brand-wordmark-accent, #f51f2e);
+}

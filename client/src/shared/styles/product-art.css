@@ -1,7 +1,7 @@
 .product-art {
   display: block;
   background-color: #f4f6fc;
-  background-image: url("/images/catalog-grid.png");
+  background-image: url("/images/catalog-grid.webp");
   background-repeat: no-repeat;
   background-size: 300% 200%;
 }
@@ -31,7 +31,15 @@
 }
 
 .product-art--mouse {
-  background-image: url("/images/gaming-mouse.png");
+  background-image: url("/images/gaming-mouse.webp");
   background-position: center;
   background-size: cover;
+}
+
+.product-photo {
+  display: block;
+  width: 100%;
+  aspect-ratio: 1;
+  background: #fff;
+  object-fit: contain;
 }

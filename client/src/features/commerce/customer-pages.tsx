@@ -23,6 +23,10 @@ import {
   describeCatalogSearch,
   parseCatalogSearch,
 } from '@/features/catalog/catalog-search'
+import {
+  discountPercent,
+  productImageUrl,
+} from '@/features/catalog/product-view'
 import { ApiError, api } from '@/shared/api/client'
 import {
   commerceKey,
@@ -118,7 +122,9 @@ export function AuthPage() {
     <CustomerLayout>
       <Panel className="c-auth-card">
         <h1>
-          {mode === 'sign-in' ? 'Chào mừng trở lại' : 'Tạo tài khoản TechViet'}
+          {mode === 'sign-in'
+            ? 'Chào mừng trở lại'
+            : 'Tạo tài khoản TinovaShop'}
         </h1>
         <p>Đăng nhập để mua sắm và quản lý đơn hàng.</p>
         {session.data ? (
@@ -317,8 +323,31 @@ export function CatalogPage() {
             <div className="c-catalog-grid">
               {products.data.items.map((product) => (
                 <Panel key={product.id} className="c-catalog-card">
-                  <ProductThumb name={product.name} sku={product.sku} />
-                  <h2>{product.name}</h2>
+                  <Link
+                    to="/products/$productId"
+                    params={{ productId: product.id }}
+                    aria-hidden="true"
+                    className="c-catalog-card__media"
+                    tabIndex={-1}
+                  >
+                    <ProductThumb
+                      imageUrl={
+                        product.primaryImageId
+                          ? productImageUrl(product.primaryImageId)
+                          : undefined
+                      }
+                      name={product.name}
+                      sku={product.sku}
+                    />
+                  </Link>
+                  <h2>
+                    <Link
+                      to="/products/$productId"
+                      params={{ productId: product.id }}
+                    >
+                      {product.name}
+                    </Link>
+                  </h2>
                   <p>{product.description?.slice(0, 130) || product.sku}</p>
                   <Badge tone={product.availableQuantity > 0 ? 'green' : 'red'}>
                     {product.availableQuantity > 0
@@ -326,6 +355,9 @@ export function CatalogPage() {
                       : 'Tạm hết hàng'}
                   </Badge>
                   <strong>{formatMoney(product.priceVnd)}</strong>
+                  {discountPercent(product) && (
+                    <del>{formatMoney(product.listPriceVnd)}</del>
+                  )}
                   {session.data ? (
                     <Action
                       disabled={product.availableQuantity < 1 || add.isPending}

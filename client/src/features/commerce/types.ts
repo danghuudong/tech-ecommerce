@@ -45,7 +45,170 @@ export interface CatalogProduct {
   category: ProductCategoryId | null
   brand: string | null
   priceVnd: number
+  listPriceVnd: number | null
+  variantGroup: string | null
   availableQuantity: number
+  primaryImageId: string | null
+  rating: { average: number; count: number } | null
+}
+
+export interface ProductVariantOption {
+  name: string
+  value: string
+}
+
+export interface ProductVariant {
+  id: string
+  name: string
+  options: ProductVariantOption[]
+  priceVnd: number
+  availableQuantity: number
+  primaryImageId: string | null
+}
+
+export type StoreAvailabilityStatus = 'in_stock' | 'low_stock' | 'out_of_stock'
+
+export interface ProductStoreAvailability {
+  storeId: string
+  name: string
+  address: string
+  province: string
+  phone: string | null
+  openingHours: string | null
+  status: StoreAvailabilityStatus
+  updatedAt: string
+}
+
+export interface ProductSpecificationGroup {
+  title: string
+  rows: { label: string; value: string }[]
+}
+
+export interface CatalogProductDetail extends CatalogProduct {
+  overview: string | null
+  highlights: string[]
+  specifications: ProductSpecificationGroup[]
+  packageContents: string[]
+  warrantyMonths: number | null
+  variantOptions: ProductVariantOption[]
+  variants: ProductVariant[]
+  images: { id: string; altText: string }[]
+  storeAvailability: ProductStoreAvailability[]
+  related: CatalogProduct[]
+}
+
+export interface ProductReview {
+  id: string
+  rating: number
+  comment: string
+  createdAt: string
+  updatedAt: string
+  productName: string
+  author: string
+}
+
+export interface ProductReviewPage extends Page<ProductReview> {
+  total: number
+  summary: {
+    average: number | null
+    count: number
+    distribution: { rating: number; total: number }[]
+  }
+}
+
+export interface ProductQuestion {
+  id: string
+  question: string
+  answer: string
+  answeredAt: string
+  createdAt: string
+  author: string
+}
+
+export interface ProductQuestionPage extends Page<ProductQuestion> {
+  total: number
+}
+
+export interface MyProductReview {
+  eligible: boolean
+  review: {
+    rating: number
+    comment: string
+    status: 'published' | 'hidden'
+  } | null
+}
+
+export interface StaffProduct {
+  id: string
+  sku: string
+  name: string
+  description: string | null
+  overview: string | null
+  category: ProductCategoryId | null
+  brand: string | null
+  priceVnd: number
+  listPriceVnd: number | null
+  highlights: string[]
+  specifications: ProductSpecificationGroup[]
+  packageContents: string[]
+  warrantyMonths: number | null
+  variantGroup: string | null
+  variantOptions: ProductVariantOption[]
+  variantRank: number
+  stockOnHand: number
+  stockReserved: number
+  active: boolean
+  version: number
+}
+
+export interface StaffProductImage {
+  id: string
+  productId: string
+  altText: string
+  position: number
+}
+
+export interface StaffStoreAvailability {
+  storeId: string
+  name: string
+  province: string
+  status: StoreAvailabilityStatus | null
+  updatedAt: string | null
+}
+
+export interface Store {
+  id: string
+  name: string
+  address: string
+  province: string
+  phone: string | null
+  openingHours: string | null
+  active: boolean
+}
+
+export interface StaffProductReview {
+  id: string
+  rating: number
+  comment: string
+  status: 'published' | 'hidden'
+  createdAt: string
+  productId: string
+  productName: string
+  authorName: string
+  authorEmail: string
+}
+
+export interface StaffProductQuestion {
+  id: string
+  question: string
+  answer: string | null
+  status: 'pending' | 'answered' | 'hidden'
+  createdAt: string
+  answeredAt: string | null
+  productId: string
+  productName: string
+  authorName: string
+  authorEmail: string
 }
 
 export interface PriceLine {
