@@ -7,7 +7,7 @@ services:
     buildCommand: corepack pnpm install --frozen-lockfile --no-prod --filter server... && corepack pnpm --filter server build
     startCommand: corepack pnpm --filter server start:render
     healthCheckPath: /health/ready
-    autoDeployTrigger: 'off'
+    autoDeployTrigger: commit
     buildFilter:
       paths:
         - server/**
