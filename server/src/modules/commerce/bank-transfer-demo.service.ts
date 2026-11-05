@@ -25,8 +25,8 @@ import { finalizeReceipt } from './payment-finalization.js'
 import { paymentSummaryForOrder } from './payment-ledger.js'
 import { lockMerchantReceiptIdentity } from './receiving-account.service.js'
 
-// This development-only entry deliberately records synthetic cash for the demo.
-// It never calls a bank, impersonates an accountant or changes production access.
+// This demo entry deliberately records synthetic cash when explicitly enabled.
+// It never calls a bank or impersonates an accountant. Keep it off for real sales.
 export function completeDemoBankTransfer(command: Command, orderId: string) {
   if (!demoBankTransferEnabled())
     fail(404, 'NOT_FOUND', 'Payment operation was not found')
@@ -151,7 +151,7 @@ export function completeDemoBankTransfer(command: Command, orderId: string) {
         allocationSnapshot(receipt, []),
         allocationSnapshot(receipt, allocations),
         reference,
-        'Development demo payment; no real bank transaction or accountant verification',
+        'Demo payment; no real bank transaction or accountant verification',
       )
       await finalizeReceipt(tx, actor, order)
       await appendOrderEvent(tx, actor, orderId, BANK_TRANSFER_DEMO_COMPLETED, {

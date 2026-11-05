@@ -139,7 +139,14 @@ danh sách ID, không phải email, và không tự tạo tài khoản. Redeploy
 
 Muốn hiện chuyển khoản ngân hàng, cấu hình đủ `ORDER_BANK_NAME`,
 `ORDER_BANK_ACCOUNT_NUMBER` và `ORDER_BANK_ACCOUNT_HOLDER` bằng thông tin thật.
-Giữ `ORDER_DEMO_BANK_TRANSFER_ENABLED=false`.
+Khi bán thật, giữ `ORDER_DEMO_BANK_TRANSFER_ENABLED=false`.
+
+Chỉ khi site dùng để demo, có thể bật chuyển khoản giả lập bằng cách đặt đồng thời
+`ORDER_DEMO_BANK_TRANSFER_ENABLED=true` và
+`ORDER_DEMO_BANK_TRANSFER_ALLOW_PRODUCTION=true` trên Render rồi redeploy BE. Không
+đổi `NODE_ENV`. Mọi khách đăng nhập khi đó đều tự đánh dấu được đơn của mình đã
+trả tiền mà không có giao dịch ngân hàng, nên phải tắt cả hai biến trước khi bán
+thật. Mã QR vẫn hiện số tài khoản đã cấu hình, người quét có thể chuyển tiền thật.
 
 ## 6. Cập nhật và kiểm tra
 

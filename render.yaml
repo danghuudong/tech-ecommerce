@@ -37,8 +37,16 @@ services:
         sync: false
       - key: BETTER_AUTH_URL
         sync: false
+      - key: ORDER_BANK_NAME
+        sync: false
+      - key: ORDER_BANK_ACCOUNT_NUMBER
+        sync: false
+      - key: ORDER_BANK_ACCOUNT_HOLDER
+        sync: false
       - key: ORDER_DEMO_BANK_TRANSFER_ENABLED
-        value: 'false'
+        sync: false
+      - key: ORDER_DEMO_BANK_TRANSFER_ALLOW_PRODUCTION
+        sync: false
 
   - type: keyvalue
     name: tech-ecommerce-redis

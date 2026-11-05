@@ -5,7 +5,12 @@ import type { OrderFinancials } from './payment-ledger.js'
 export const BANK_TRANSFER_DEMO_COMPLETED = 'bank_transfer_demo_completed'
 
 export function demoBankTransferEnabled() {
-  return env.NODE_ENV === 'development' && env.ORDER_DEMO_BANK_TRANSFER_ENABLED
+  if (!env.ORDER_DEMO_BANK_TRANSFER_ENABLED) return false
+  return (
+    env.NODE_ENV === 'development' ||
+    (env.NODE_ENV === 'production' &&
+      env.ORDER_DEMO_BANK_TRANSFER_ALLOW_PRODUCTION)
+  )
 }
 
 export function canCompleteDemoBankTransfer(

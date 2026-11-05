@@ -138,18 +138,26 @@ const envSchema = z
       .enum(['true', 'false'])
       .default('false')
       .transform((value) => value === 'true'),
+    ORDER_DEMO_BANK_TRANSFER_ALLOW_PRODUCTION: z
+      .enum(['true', 'false'])
+      .default('false')
+      .transform((value) => value === 'true'),
   })
   .superRefine((value, context) => {
-    if (
-      value.ORDER_DEMO_BANK_TRANSFER_ENABLED &&
-      (value.NODE_ENV !== 'development' ||
-        !['localhost', '127.0.0.1', '[::1]'].includes(
-          new URL(value.DATABASE_URL).hostname,
-        ))
-    )
+    // Production needs a second switch: any customer can then self-confirm
+    // payment, so the demo must never be enabled by a single setting.
+    const demoEnvironmentAllowed =
+      value.NODE_ENV === 'production'
+        ? value.ORDER_DEMO_BANK_TRANSFER_ALLOW_PRODUCTION
+        : value.NODE_ENV === 'development' &&
+          ['localhost', '127.0.0.1', '[::1]'].includes(
+            new URL(value.DATABASE_URL).hostname,
+          )
+    if (value.ORDER_DEMO_BANK_TRANSFER_ENABLED && !demoEnvironmentAllowed)
       context.addIssue({
         code: 'custom',
-        message: 'Demo bank transfers require development and a local database',
+        message:
+          'Demo bank transfers require a local development database or ORDER_DEMO_BANK_TRANSFER_ALLOW_PRODUCTION=true',
         path: ['ORDER_DEMO_BANK_TRANSFER_ENABLED'],
       })
     if (value.NODE_ENV !== 'production') {
@@ -232,4 +240,6 @@ export const env: Env = envSchema.parse({
   ORDER_BANK_ACCOUNT_HOLDER: process.env.ORDER_BANK_ACCOUNT_HOLDER,
   ORDER_DEMO_BANK_TRANSFER_ENABLED:
     process.env.ORDER_DEMO_BANK_TRANSFER_ENABLED,
+  ORDER_DEMO_BANK_TRANSFER_ALLOW_PRODUCTION:
+    process.env.ORDER_DEMO_BANK_TRANSFER_ALLOW_PRODUCTION,
 })
