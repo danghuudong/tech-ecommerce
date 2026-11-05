@@ -1,7 +1,10 @@
-import { Link } from '@tanstack/react-router'
+import { Link, useLocation } from '@tanstack/react-router'
 import { ChevronLeft, ChevronRight, Pause, Play } from 'lucide-react'
 import { useEffect, useId, useRef, useState } from 'react'
-import { CategoryMenu } from '@/shared/components/store-layout/category-menu'
+import {
+  CATEGORY_MENU_ID,
+  CategoryMenu,
+} from '@/shared/components/store-layout/category-menu'
 import {
   heroBanners,
   heroImagePath,
@@ -24,6 +27,9 @@ export function HeroSection() {
   const tabsRef = useRef<HTMLFieldSetElement>(null)
   const touchStart = useRef<{ x: number; y: number } | null>(null)
   const viewportId = useId()
+  const isCategorySpotlit = useLocation({
+    select: (location) => location.hash === CATEGORY_MENU_ID,
+  })
   const isPaused = !rotationEnabled || isHovered || isFocused
 
   function showBanner(index: number, direction: SlideDirection) {
@@ -50,7 +56,11 @@ export function HeroSection() {
   }, [activeIndex])
 
   return (
-    <section aria-labelledby="hero-title" className="hv2-home-hero">
+    <section
+      aria-labelledby="hero-title"
+      className="hv2-home-hero"
+      data-category-spotlight={isCategorySpotlit || undefined}
+    >
       <h1 className="sr-only" id="hero-title">
         Sản phẩm công nghệ và khuyến mãi nổi bật
       </h1>

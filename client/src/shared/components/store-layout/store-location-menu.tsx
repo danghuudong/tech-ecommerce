@@ -1,22 +1,14 @@
 import { Check, ChevronDown, MapPin, Search, X } from 'lucide-react'
 import { Popover } from 'radix-ui'
 import { type RefObject, useEffect, useRef, useState } from 'react'
-import { type StoreProvince, storeProvinces } from './store-location.data'
+import {
+  parseStoreProvince,
+  readStoreProvince,
+  STORE_PROVINCE_STORAGE_KEY,
+  type StoreProvince,
+  storeProvinces,
+} from './store-location.data'
 import './store-location-menu.css'
-
-const STORAGE_KEY = 'tinovashop:province:v1'
-
-function parseProvince(value: string | null): StoreProvince | null {
-  return storeProvinces.find((province) => province === value) ?? null
-}
-
-function readProvince(): StoreProvince | null {
-  try {
-    return parseProvince(window.localStorage.getItem(STORAGE_KEY))
-  } catch {
-    return null
-  }
-}
 
 function normalize(value: string) {
   return value
@@ -34,18 +26,18 @@ export function StoreLocationMenu({
   open: boolean
   onOpenChange: (open: boolean) => void
 }) {
-  const [province, setProvince] = useState(readProvince)
+  const [province, setProvince] = useState(readStoreProvince)
   const searchRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
     function syncProvince(event: StorageEvent) {
-      if (event.key !== STORAGE_KEY && event.key !== null) return
+      if (event.key !== STORE_PROVINCE_STORAGE_KEY && event.key !== null) return
       try {
         if (event.storageArea !== window.localStorage) return
       } catch {
         return
       }
-      setProvince(parseProvince(event.newValue))
+      setProvince(parseStoreProvince(event.newValue))
     }
     window.addEventListener('storage', syncProvince)
     return () => window.removeEventListener('storage', syncProvince)
@@ -54,7 +46,7 @@ export function StoreLocationMenu({
   function selectProvince(value: StoreProvince) {
     setProvince(value)
     try {
-      window.localStorage.setItem(STORAGE_KEY, value)
+      window.localStorage.setItem(STORE_PROVINCE_STORAGE_KEY, value)
     } catch {
       // Keep the current selection usable when browser storage is unavailable.
     }

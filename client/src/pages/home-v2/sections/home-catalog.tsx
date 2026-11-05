@@ -1,16 +1,21 @@
 import { useQuery } from '@tanstack/react-query'
 import { Link } from '@tanstack/react-router'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
-import { useId, useState } from 'react'
+import { useId, useRef, useState } from 'react'
+import {
+  groupAccessories,
+  useAccessories,
+} from '@/features/catalog/accessory-groups'
 import { useCatalogFacets } from '@/features/catalog/catalog-facets'
 import { brandLabel } from '@/features/catalog/catalog-search'
+import { StoreProductCard } from '@/features/catalog/components/store-product-card'
 import { toHomeProduct } from '@/features/catalog/to-home-product'
 import { read } from '@/features/commerce/api'
 import { Empty, QueryError } from '@/features/commerce/components'
 import type { CatalogProduct, Page } from '@/features/commerce/types'
+import { useScrollReveal } from '../use-scroll-reveal'
 import { homeCatalogSections } from './home-catalog.data'
 import type { HomeCatalogSection, HomeCatalogTab } from './home-catalog.types'
-import { type CatalogActions, HomeCatalogCard } from './home-catalog-card'
 
 const priceBands = [
   { label: 'Tất cả mức giá' },
@@ -21,12 +26,14 @@ const priceBands = [
   { label: 'Trên 30 triệu', minPrice: 30_000_000 },
 ] as const
 
-export function HomeCatalog(actions: CatalogActions) {
+export function HomeCatalog() {
+  const rootRef = useRef<HTMLDivElement>(null)
+  useScrollReveal(rootRef)
   return (
-    <div className="hv2-catalog" id="suggestions">
+    <div className="hv2-catalog" id="suggestions" ref={rootRef}>
       {homeCatalogSections.map((section, index) => (
         <div key={section.id}>
-          <CatalogBlock section={section} {...actions} />
+          <CatalogBlock section={section} />
           {index === 0 && <AccessoryRibbon />}
         </div>
       ))}
@@ -34,10 +41,7 @@ export function HomeCatalog(actions: CatalogActions) {
   )
 }
 
-function CatalogBlock({
-  section,
-  ...actions
-}: CatalogActions & { section: HomeCatalogSection }) {
+function CatalogBlock({ section }: { section: HomeCatalogSection }) {
   const [selected, setSelected] = useState(0)
   const tab = section.tabs[selected] ?? section.tabs[0]
   const headingId = useId()
@@ -94,17 +98,14 @@ function CatalogBlock({
           ))}
         </fieldset>
         <div id={panelId}>
-          <CatalogProducts key={tab.id} tab={tab} {...actions} />
+          <CatalogProducts key={tab.id} tab={tab} />
         </div>
       </div>
     </section>
   )
 }
 
-function CatalogProducts({
-  tab,
-  ...actions
-}: CatalogActions & { tab: HomeCatalogTab }) {
+function CatalogProducts({ tab }: { tab: HomeCatalogTab }) {
   const [brand, setBrand] = useState('')
   const [bandIndex, setBandIndex] = useState(0)
   const [page, setPage] = useState(0)
@@ -206,7 +207,7 @@ function CatalogProducts({
         aria-busy={catalog.isPending}
       >
         {catalog.isPending && (
-          <div className="hv2-catalog-grid" role="status">
+          <div className="store-product-grid" role="status">
             <span className="sr-only">Đang tải {tab.title.toLowerCase()}…</span>
             {Array.from({ length: pageSize }, (_, index) => (
               <div
@@ -240,9 +241,9 @@ function CatalogProducts({
           </div>
         )}
         {visibleItems.length > 0 && (
-          <div className="hv2-catalog-grid">
+          <div className="store-product-grid">
             {visibleItems.map((item) => (
-              <HomeCatalogCard key={item.id} item={item} {...actions} />
+              <StoreProductCard key={item.id} item={item} />
             ))}
           </div>
         )}
@@ -286,95 +287,63 @@ function rankProduct(product: CatalogProduct, tab: HomeCatalogTab) {
 
 function AccessoryRibbon() {
   const id = useId()
-  const catalog = useQuery({
-    queryKey: ['catalog', 'home-v2', 'accessories'],
-    queryFn: ({ signal }) =>
-      read<Page<CatalogProduct>>('products', {
-        signal,
-        searchParams: { category: 'accessories', limit: 18 },
-      }),
-    staleTime: 60_000,
-  })
-  const products = (catalog.data?.items ?? []).map((item) => ({
-    ...toHomeProduct(item),
-    shortName: compactAccessoryName(item),
-  }))
+  const accessories = useAccessories()
+  const groups = groupAccessories(accessories.data ?? [])
   return (
     <section className="hv2-accessories" aria-labelledby={id}>
       <div className="hv2-accessories__heading">
         <h2 id={id}>Sắm thêm phụ kiện chất lượng</h2>
-        <Link
-          to="/products"
-          search={{ category: 'accessories' }}
-          className="hv2-catalog-all"
-        >
+        <Link to="/accessories" search={{}} className="hv2-catalog-all">
           Xem tất cả <ChevronRight size={17} aria-hidden="true" />
         </Link>
       </div>
-      <div className="hv2-accessories__grid" aria-busy={catalog.isPending}>
-        {products.map((product) => (
-          <Link
-            key={product.id}
-            to="/products/$productId"
-            params={{ productId: product.id }}
-            className="hv2-accessory-tile"
-            aria-label={product.name}
-            title={product.name}
-          >
-            {product.imageUrl ? (
-              <img
-                src={product.imageUrl}
-                alt=""
-                loading="lazy"
-                width={72}
-                height={72}
-              />
-            ) : (
-              <span className={`product-art product-art--${product.art}`} />
-            )}
-            <span className="hv2-accessory-tile__name">
-              {product.shortName}
-            </span>
-          </Link>
-        ))}
-        {catalog.isPending && (
+      <div className="hv2-accessories__grid" aria-busy={accessories.isPending}>
+        {groups.map((group) => {
+          const cover = toHomeProduct(
+            group.products.find((product) => product.primaryImageId) ??
+              (group.products[0] as CatalogProduct),
+          )
+          return (
+            <Link
+              key={group.id}
+              to="/accessories"
+              search={{ type: group.id }}
+              className="hv2-accessory-tile"
+            >
+              {cover.imageUrl ? (
+                <img
+                  src={cover.imageUrl}
+                  alt=""
+                  loading="lazy"
+                  width={72}
+                  height={72}
+                />
+              ) : (
+                <span className={`product-art product-art--${cover.art}`} />
+              )}
+              <span className="hv2-accessory-tile__name">{group.label}</span>
+            </Link>
+          )
+        })}
+        {accessories.isPending && (
           <p className="hv2-accessories__status" role="status">
             Đang tải phụ kiện…
           </p>
         )}
       </div>
-      {catalog.isError && (
+      {accessories.isError && (
         <div className="commerce-app">
-          <QueryError error={catalog.error} retry={() => catalog.refetch()} />
+          <QueryError
+            error={accessories.error}
+            retry={() => accessories.refetch()}
+          />
         </div>
       )}
-      {catalog.isSuccess && products.length === 0 && (
+      {accessories.isSuccess && groups.length === 0 && (
         <div className="commerce-app">
           <Empty title="Chưa có phụ kiện" />
         </div>
       )}
     </section>
-  )
-}
-
-function compactAccessoryName(product: CatalogProduct) {
-  const brand = product.brand ? brandLabel(product.brand) : ''
-  const capacity =
-    product.name.match(/\b\d+(?:[.,]\d+)?\s*(?:GB|TB)\b/i)?.[0] ?? ''
-  const labels: [RegExp, string][] = [
-    [/ổ cứng|\bssd\b/i, `SSD ${brand} ${capacity}`],
-    [/^ram\b/i, `RAM ${brand} ${capacity}`],
-    [/bàn phím/i, `Bàn phím ${brand}`],
-    [/chuột/i, `Chuột ${brand}`],
-    [/dự phòng/i, `Pin dự phòng ${brand}`],
-    [/cáp/i, `Cáp sạc ${brand}`],
-    [/củ sạc|bộ sạc|sạc nhanh/i, `Sạc nhanh ${brand}`],
-    [/ốp lưng/i, `Ốp lưng ${brand}`],
-    [/tai nghe|airpods/i, `Tai nghe ${brand}`],
-    [/camera|dji pocket/i, `Camera ${brand}`],
-  ]
-  return (
-    labels.find(([pattern]) => pattern.test(product.name))?.[1].trim() ??
-    product.name.split(/\s+/).slice(0, 4).join(' ')
   )
 }

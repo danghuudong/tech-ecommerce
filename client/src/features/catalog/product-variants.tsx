@@ -1,4 +1,5 @@
 import { Link } from '@tanstack/react-router'
+import { Check } from 'lucide-react'
 import { formatMoney } from '@/features/commerce/components'
 import type {
   CatalogProductDetail,
@@ -10,6 +11,106 @@ const optionValue = (variant: ProductVariant, name: string) =>
   variant.options.find((option) => option.name === name)?.value
 
 const isColourOption = (name: string) => /màu/i.test(name)
+const isCapacityOption = (name: string) =>
+  /^(?:dung lượng(?: (?:bộ nhớ|lưu trữ|ổ cứng))?|bộ nhớ trong|ổ cứng|lưu trữ|ssd|rom)$/i.test(
+    name.trim(),
+  )
+
+function VariantChoiceContent({
+  product,
+  variant,
+  name,
+  value,
+  selected,
+}: {
+  product: CatalogProductDetail
+  variant: Pick<
+    ProductVariant,
+    'primaryImageId' | 'priceVnd' | 'availableQuantity'
+  >
+  name: string
+  value: string
+  selected: boolean
+}) {
+  return (
+    <>
+      {isColourOption(name) &&
+        (variant.primaryImageId ? (
+          <img
+            alt=""
+            className="product-photo pd-variant__thumb"
+            loading="lazy"
+            src={productImageUrl(variant.primaryImageId)}
+          />
+        ) : (
+          <span
+            aria-hidden="true"
+            className={`pd-variant__thumb product-art product-art--${productArt(product)}`}
+          />
+        ))}
+      <span className="pd-variant__text">
+        <strong>{value}</strong>
+        <small>{formatMoney(variant.priceVnd)}</small>
+        {variant.availableQuantity < 1 && <small>Hết hàng</small>}
+      </span>
+      {selected && (
+        <span className="pd-variant__check" aria-hidden="true">
+          <Check size={12} />
+        </span>
+      )}
+    </>
+  )
+}
+
+function SingleProductOptions({ product }: { product: CatalogProductDetail }) {
+  const rows = product.specifications.flatMap((group) => group.rows)
+  const capacity =
+    product.variantOptions.find((option) => isCapacityOption(option.name))
+      ?.value ??
+    rows.find(
+      ({ label, value }) =>
+        isCapacityOption(label) && /\d\s*(?:TB|GB|MB)\b/i.test(value),
+    )?.value
+  const colour =
+    product.variantOptions.find((option) => isColourOption(option.name))
+      ?.value ??
+    rows.find(({ label }) => /^(?:màu|màu sắc)$/i.test(label.trim()))?.value
+  const options = [
+    ...(capacity ? [{ name: 'Dung lượng', value: capacity }] : []),
+    ...(colour ? [{ name: 'Màu sắc', value: colour }] : []),
+    ...product.variantOptions.filter(
+      ({ name }) => !isCapacityOption(name) && !isColourOption(name),
+    ),
+  ]
+  if (options.length === 0) return null
+
+  return (
+    <div className="pd-variants">
+      {options.map(({ name, value }) => (
+        <div className="pd-variants__group" key={name}>
+          <span className="pd-variants__label">
+            {name}: {value}
+          </span>
+          <ul>
+            <li>
+              <div
+                className={`pd-variant is-selected${product.availableQuantity < 1 ? ' is-unavailable' : ''}`}
+              >
+                <VariantChoiceContent
+                  product={product}
+                  variant={product}
+                  name={name}
+                  value={value}
+                  selected
+                />
+              </div>
+            </li>
+          </ul>
+        </div>
+      ))}
+    </div>
+  )
+}
 
 // Keep the other choices when possible: switching colour stays on the same storage.
 function closestVariant(
@@ -27,7 +128,7 @@ function closestVariant(
           option.name === name ||
           optionValue(variant, option.name) === option.value,
       ),
-    ) ?? matches[0]
+    ) ?? (isColourOption(name) ? undefined : matches[0])
   )
 }
 
@@ -36,7 +137,8 @@ export function ProductVariants({
 }: {
   product: CatalogProductDetail
 }) {
-  if (product.variants.length < 2) return null
+  if (product.variants.length < 2)
+    return <SingleProductOptions product={product} />
   const names = [
     ...new Set(
       product.variants.flatMap((variant) =>
@@ -75,28 +177,13 @@ export function ProductVariants({
                     params={{ productId: variant.id }}
                     to="/products/$productId"
                   >
-                    {isColourOption(name) &&
-                      (variant.primaryImageId ? (
-                        <img
-                          alt=""
-                          className="product-photo pd-variant__thumb"
-                          loading="lazy"
-                          src={productImageUrl(variant.primaryImageId)}
-                        />
-                      ) : (
-                        <span
-                          aria-hidden="true"
-                          className={`pd-variant__thumb product-art product-art--${productArt(product)}`}
-                        />
-                      ))}
-                    <span className="pd-variant__text">
-                      <strong>{value}</strong>
-                      <small>
-                        {variant.availableQuantity < 1
-                          ? 'Hết hàng'
-                          : formatMoney(variant.priceVnd)}
-                      </small>
-                    </span>
+                    <VariantChoiceContent
+                      product={product}
+                      variant={variant}
+                      name={name}
+                      value={value}
+                      selected={value === current}
+                    />
                   </Link>
                 </li>
               ))}

@@ -1,51 +1,48 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { Link, useNavigate, useSearch } from '@tanstack/react-router'
 import {
-  Link,
-  useLocation,
-  useNavigate,
-  useSearch,
-} from '@tanstack/react-router'
-import {
+  ArrowLeft,
   ArrowRight,
-  Check,
+  Banknote,
   CircleCheck,
   CreditCard,
-  Landmark,
+  QrCode,
   ShoppingCart,
-  Trash2,
   Truck,
   UserRound,
 } from 'lucide-react'
-import { useEffect, useRef, useState } from 'react'
+import { type ReactNode, useEffect, useRef, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import {
   describeCatalogSearch,
   parseCatalogSearch,
 } from '@/features/catalog/catalog-search'
+import { StoreProductCard } from '@/features/catalog/components/store-product-card'
+import { ApiError } from '@/shared/api/client'
 import {
-  discountPercent,
-  productImageUrl,
-} from '@/features/catalog/product-view'
-import { ApiError, api } from '@/shared/api/client'
+  readStoreProvince,
+  storeProvinces,
+} from '@/shared/components/store-layout/store-location.data'
 import {
+  cartItemCount,
   commerceKey,
   orderQueryPaths,
   read,
-  useAddToCart,
   useCart,
   useCommand,
   useCommerceQuery,
   useSession,
   write,
 } from './api'
+import { CartLineItem, CheckoutLines } from './cart-line-item'
+import { CheckoutAddressFields } from './checkout-address-fields'
+import { DeliveryOption, PaymentOption } from './checkout-options'
 import {
   AccessGate,
   Action,
   BackToShop,
   Badge,
-  CheckoutSteps,
-  CompactLines,
   Empty,
   ErrorNotice,
   Field,
@@ -58,12 +55,10 @@ import {
   Panel,
   PaymentStatusBadge,
   PriceSummary,
-  ProductThumb,
-  Quantity,
   QueryError,
 } from './components'
 import { CustomerLayout } from './layouts'
-import { resetSessionQueries } from './session-scope'
+import './checkout.css'
 import type {
   CatalogProduct,
   CheckoutPolicy,
@@ -102,162 +97,14 @@ const emptyRecipient: Recipient = {
   addressLine: '',
 }
 
-export function AuthPage() {
-  const search = useSearch({ strict: false })
-  const redirect =
-    'redirect' in search &&
-    typeof search.redirect === 'string' &&
-    search.redirect.startsWith('/') &&
-    !search.redirect.startsWith('//') &&
-    !search.redirect.includes('\\')
-      ? search.redirect
-      : '/cart'
-  const [mode, setMode] = useState<'sign-in' | 'sign-up'>('sign-in')
-  const [busy, setBusy] = useState(false)
-  const [error, setError] = useState<unknown>(null)
-  const client = useQueryClient()
-  const lock = useRef(false)
-  const session = useSession()
-  return (
-    <CustomerLayout>
-      <Panel className="c-auth-card">
-        <h1>
-          {mode === 'sign-in'
-            ? 'Chào mừng trở lại'
-            : 'Tạo tài khoản TinovaShop'}
-        </h1>
-        <p>Đăng nhập để mua sắm và quản lý đơn hàng.</p>
-        {session.data ? (
-          <>
-            <Notice tone="green">
-              Bạn đang đăng nhập với {session.data.user.email}.
-            </Notice>
-            <div className="c-actions">
-              <a className="c-button c-button--primary" href={redirect}>
-                Tiếp tục
-                <ArrowRight size={16} />
-              </a>
-            </div>
-          </>
-        ) : (
-          <>
-            <div className="c-tabs">
-              <button
-                type="button"
-                className={mode === 'sign-in' ? 'is-active' : ''}
-                onClick={() => {
-                  setMode('sign-in')
-                  setError(null)
-                }}
-                disabled={busy}
-              >
-                Đăng nhập
-              </button>
-              <button
-                type="button"
-                className={mode === 'sign-up' ? 'is-active' : ''}
-                onClick={() => {
-                  setMode('sign-up')
-                  setError(null)
-                }}
-                disabled={busy}
-              >
-                Đăng ký
-              </button>
-            </div>
-            <form
-              className="c-form-section"
-              onSubmit={async (event) => {
-                event.preventDefault()
-                if (lock.current) return
-                lock.current = true
-                setBusy(true)
-                setError(null)
-                const values = new FormData(event.currentTarget)
-                try {
-                  await api.post(`auth/${mode}/email`, {
-                    json: {
-                      email: String(values.get('email')).trim(),
-                      password: String(values.get('password')),
-                      ...(mode === 'sign-up'
-                        ? { name: String(values.get('name')).trim() }
-                        : {}),
-                    },
-                    retry: 0,
-                  })
-                  await resetSessionQueries(client, 'customer')
-                  window.location.assign(redirect)
-                } catch (caught) {
-                  setError(caught)
-                  setBusy(false)
-                  lock.current = false
-                }
-              }}
-            >
-              <fieldset
-                disabled={busy}
-                className="c-form-section"
-                style={{ border: 0, padding: 0, margin: 0 }}
-              >
-                {mode === 'sign-up' && (
-                  <Field label="Họ và tên">
-                    <input
-                      name="name"
-                      autoComplete="name"
-                      required
-                      minLength={2}
-                      maxLength={120}
-                    />
-                  </Field>
-                )}
-                <Field label="Email">
-                  <input
-                    name="email"
-                    type="email"
-                    autoComplete="email"
-                    required
-                    maxLength={254}
-                  />
-                </Field>
-                <Field
-                  label="Mật khẩu"
-                  hint={mode === 'sign-up' ? 'Từ 8 đến 128 ký tự.' : undefined}
-                >
-                  <input
-                    name="password"
-                    type="password"
-                    autoComplete={
-                      mode === 'sign-in' ? 'current-password' : 'new-password'
-                    }
-                    required
-                    minLength={8}
-                    maxLength={128}
-                  />
-                </Field>
-              </fieldset>
-              <ErrorNotice error={error} />
-              <Action type="submit" pending={busy} className="c-button--block">
-                {mode === 'sign-in' ? 'Đăng nhập' : 'Tạo tài khoản'}
-              </Action>
-            </form>
-          </>
-        )}
-      </Panel>
-    </CustomerLayout>
-  )
-}
-
 export function CatalogPage() {
   const search = parseCatalogSearch(useSearch({ from: '/products' }))
   const query = JSON.stringify(search)
   const filterLabel = describeCatalogSearch(search)
-  const loginRedirect = useLocation({ select: (location) => location.href })
   const [pagination, setPagination] = useState({ query, offset: 0 })
   const offset = pagination.query === query ? pagination.offset : 0
   const setOffset = (value: number) => setPagination({ query, offset: value })
-  const session = useSession()
   const cart = useCart()
-  const [added, setAdded] = useState<string | null>(null)
   const products = useQuery({
     queryKey: ['catalog', offset, search],
     queryFn: ({ signal }) =>
@@ -266,7 +113,7 @@ export function CatalogPage() {
         searchParams: { limit: 20, offset, ...search },
       }),
   })
-  const add = useAddToCart()
+
   return (
     <CustomerLayout>
       <PageHeading
@@ -278,7 +125,7 @@ export function CatalogPage() {
       >
         <Link to="/cart" className="c-button c-button--secondary">
           <ShoppingCart size={17} />
-          Giỏ hàng ({cart.data?.items.length ?? 0})
+          Giỏ hàng ({cartItemCount(cart.data)})
         </Link>
       </PageHeading>
       {filterLabel && (
@@ -289,16 +136,6 @@ export function CatalogPage() {
         >
           Xóa bộ lọc
         </Link>
-      )}
-      <ErrorNotice error={add.error} />
-      {added && (
-        <Notice tone="green">
-          Đã thêm {added} vào giỏ hàng.{' '}
-          <Link to="/cart" className="c-text-link">
-            Xem giỏ hàng
-            <ArrowRight size={14} />
-          </Link>
-        </Notice>
       )}
       {products.isPending ? (
         <Loading />
@@ -320,68 +157,9 @@ export function CatalogPage() {
               </Link>
             </Empty>
           ) : (
-            <div className="c-catalog-grid">
+            <div className="store-product-grid store-product-grid--wide">
               {products.data.items.map((product) => (
-                <Panel key={product.id} className="c-catalog-card">
-                  <Link
-                    to="/products/$productId"
-                    params={{ productId: product.id }}
-                    aria-hidden="true"
-                    className="c-catalog-card__media"
-                    tabIndex={-1}
-                  >
-                    <ProductThumb
-                      imageUrl={
-                        product.primaryImageId
-                          ? productImageUrl(product.primaryImageId)
-                          : undefined
-                      }
-                      name={product.name}
-                      sku={product.sku}
-                    />
-                  </Link>
-                  <h2>
-                    <Link
-                      to="/products/$productId"
-                      params={{ productId: product.id }}
-                    >
-                      {product.name}
-                    </Link>
-                  </h2>
-                  <p>{product.description?.slice(0, 130) || product.sku}</p>
-                  <Badge tone={product.availableQuantity > 0 ? 'green' : 'red'}>
-                    {product.availableQuantity > 0
-                      ? 'Còn hàng'
-                      : 'Tạm hết hàng'}
-                  </Badge>
-                  <strong>{formatMoney(product.priceVnd)}</strong>
-                  {discountPercent(product) && (
-                    <del>{formatMoney(product.listPriceVnd)}</del>
-                  )}
-                  {session.data ? (
-                    <Action
-                      disabled={product.availableQuantity < 1 || add.isPending}
-                      pending={
-                        add.isPending && add.variables?.id === product.id
-                      }
-                      onClick={async () => {
-                        if (await add.run(product)) setAdded(product.name)
-                      }}
-                    >
-                      Thêm vào giỏ
-                    </Action>
-                  ) : (
-                    <Link
-                      to="/login"
-                      search={{
-                        redirect: loginRedirect,
-                      }}
-                      className="c-button c-button--secondary"
-                    >
-                      Đăng nhập để mua
-                    </Link>
-                  )}
-                </Panel>
+                <StoreProductCard item={product} key={product.id} />
               ))}
             </div>
           )}
@@ -395,6 +173,26 @@ export function CatalogPage() {
         </>
       )}
     </CustomerLayout>
+  )
+}
+
+function FreeShippingProgress({
+  subtotal,
+  threshold,
+}: {
+  subtotal: number
+  threshold: number
+}) {
+  return (
+    <div className="free-shipping">
+      <p>
+        Mua thêm <strong>{formatMoney(threshold - subtotal)}</strong> để được
+        miễn phí giao hàng
+      </p>
+      <span aria-hidden="true" className="free-shipping__bar">
+        <span style={{ width: `${(subtotal / threshold) * 100}%` }} />
+      </span>
+    </div>
   )
 }
 
@@ -434,9 +232,9 @@ function CartContent() {
     <>
       <PageHeading
         title="Giỏ hàng của bạn"
-        subtitle={`${data.items.length} sản phẩm`}
+        subtitle={`${cartItemCount(data)} sản phẩm`}
       >
-        <CheckoutSteps active={0} />
+        <BackToShop />
       </PageHeading>
       <ErrorNotice error={update.error} />
       {data.items.length === 0 ? (
@@ -452,157 +250,77 @@ function CartContent() {
           </Empty>
         </Panel>
       ) : (
-        <div className="c-columns">
-          <Panel>
-            <div className="c-table-wrap">
-              <table className="c-table c-table--cart">
-                <thead>
-                  <tr>
-                    <th>Sản phẩm</th>
-                    <th className="c-number">Đơn giá</th>
-                    <th>Số lượng</th>
-                    <th className="c-number">Thành tiền</th>
-                    <th>
-                      <span className="sr-only">Thao tác</span>
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {data.items.map((line) => (
-                    <tr key={line.productId}>
-                      <td>
-                        <div className="c-product-cell">
-                          <ProductThumb name={line.name} sku={line.sku} />
-                          <div>
-                            <strong>{line.name}</strong>
-                            <small>{line.sku}</small>
-                            <Badge tone={line.eligible ? 'green' : 'red'}>
-                              {line.eligible ? (
-                                <>
-                                  <Check size={12} />
-                                  Còn hàng
-                                </>
-                              ) : line.availableQuantity >= line.quantity ? (
-                                'Sản phẩm không khả dụng'
-                              ) : line.availableQuantity > 0 ? (
-                                `Chỉ còn ${line.availableQuantity} sản phẩm`
-                              ) : (
-                                'Sản phẩm tạm hết hàng'
-                              )}
-                            </Badge>
-                          </div>
-                        </div>
-                      </td>
-                      <td className="c-number">
-                        {formatMoney(line.unitPriceVnd)}
-                      </td>
-                      <td>
-                        <Quantity
-                          label={`số lượng ${line.name}`}
-                          value={line.quantity}
-                          max={Math.min(
-                            99,
-                            line.availableQuantity,
-                            line.eligible ? 99 : line.quantity,
-                          )}
-                          disabled={update.isPending || !line.eligible}
-                          onChange={(quantity) => {
-                            void update.run({
-                              productId: line.productId,
-                              quantity,
-                            })
-                          }}
-                        />
-                        {line.availableQuantity > 0 &&
-                          line.quantity > line.availableQuantity && (
-                            <Action
-                              variant="secondary"
-                              disabled={update.isPending}
-                              aria-label={`Điều chỉnh số lượng ${line.name} còn ${line.availableQuantity}`}
-                              onClick={() => {
-                                void update.run({
-                                  productId: line.productId,
-                                  quantity: line.availableQuantity,
-                                })
-                              }}
-                            >
-                              Điều chỉnh còn {line.availableQuantity}
-                            </Action>
-                          )}
-                      </td>
-                      <td className="c-number">
-                        <b>{formatMoney(line.lineTotalVnd)}</b>
-                      </td>
-                      <td>
-                        <Action
-                          variant="ghost"
-                          disabled={update.isPending}
-                          aria-label={`Xóa ${line.name} khỏi giỏ`}
-                          onClick={() => {
-                            void update.run({
-                              productId: line.productId,
-                              quantity: 0,
-                            })
-                          }}
-                        >
-                          <Trash2 size={18} />
-                        </Action>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+        <div className="checkout-layout">
+          <Panel className="cart-panel">
+            <ul className="cart-lines">
+              {data.items.map((line) => (
+                <CartLineItem
+                  disabled={update.isPending}
+                  key={line.productId}
+                  line={line}
+                  onQuantityChange={(quantity) => {
+                    void update.run({ productId: line.productId, quantity })
+                  }}
+                />
+              ))}
+            </ul>
             <p className="c-cart-note">
-              <CircleCheck size={16} />
+              <CircleCheck aria-hidden="true" size={16} />
               Giá và tồn kho sẽ được kiểm tra lại khi đặt hàng.
             </p>
-            <div className="c-actions">
-              <BackToShop />
-            </div>
           </Panel>
-          <Panel title="Thông tin đơn hàng">
-            <PriceSummary
-              subtotal={data.subtotalVnd}
-              shipping={shipping}
-              total={data.subtotalVnd + (shipping ?? 0)}
-            >
-              {data.checkoutEligible ? (
-                <Link
-                  to="/checkout"
-                  className={`c-button c-button--primary c-button--block c-button--large${update.isPending ? ' c-link-disabled' : ''}`}
-                  aria-disabled={update.isPending}
-                  onClick={(event) => {
-                    if (update.isPending) event.preventDefault()
-                  }}
-                >
-                  Tiếp tục đặt hàng
-                  <ArrowRight size={18} />
-                </Link>
-              ) : (
-                <>
-                  <Action disabled className="c-button--block c-button--large">
+          <aside className="checkout-aside">
+            <Panel title="Thông tin đơn hàng">
+              {delivery && shipping ? (
+                <FreeShippingProgress
+                  subtotal={data.subtotalVnd}
+                  threshold={delivery.freeShippingThresholdVnd}
+                />
+              ) : null}
+              <PriceSummary
+                subtotal={data.subtotalVnd}
+                shipping={shipping}
+                total={data.subtotalVnd + (shipping ?? 0)}
+              >
+                {data.checkoutEligible ? (
+                  <Link
+                    to="/checkout"
+                    className={`c-button c-button--primary c-button--block c-button--large${update.isPending ? ' c-link-disabled' : ''}`}
+                    aria-disabled={update.isPending}
+                    onClick={(event) => {
+                      if (update.isPending) event.preventDefault()
+                    }}
+                  >
                     Tiếp tục đặt hàng
-                  </Action>
-                  <div className="c-actions">
-                    <Notice tone="amber">
-                      {data.items.every((line) => line.eligible)
-                        ? 'Giá trị giỏ hàng vượt mức được hỗ trợ. Vui lòng giảm số lượng hoặc tách đơn hàng.'
-                        : 'Điều chỉnh số lượng hoặc xóa sản phẩm không còn hàng để tiếp tục.'}
-                    </Notice>
-                  </div>
-                </>
-              )}
-              {delivery && shipping === 0 && (
-                <Notice tone="green">
-                  <strong>Đơn hàng đủ điều kiện miễn phí giao hàng</strong>Miễn
-                  phí giao hàng cho đơn từ{' '}
-                  {formatMoney(delivery.freeShippingThresholdVnd)}.
-                </Notice>
-              )}
-            </PriceSummary>
-            {policy.isError && <ErrorNotice error={policy.error} />}
-          </Panel>
+                  </Link>
+                ) : (
+                  <>
+                    <Action
+                      disabled
+                      className="c-button--block c-button--large"
+                    >
+                      Tiếp tục đặt hàng
+                    </Action>
+                    <div className="c-actions">
+                      <Notice tone="amber">
+                        {data.items.every((line) => line.eligible)
+                          ? 'Giá trị giỏ hàng vượt mức được hỗ trợ. Vui lòng giảm số lượng hoặc tách đơn hàng.'
+                          : 'Điều chỉnh số lượng hoặc xóa sản phẩm không còn hàng để tiếp tục.'}
+                      </Notice>
+                    </div>
+                  </>
+                )}
+                {delivery && shipping === 0 && (
+                  <Notice tone="green">
+                    <strong>Đơn hàng đủ điều kiện miễn phí giao hàng</strong>
+                    Miễn phí giao hàng cho đơn từ{' '}
+                    {formatMoney(delivery.freeShippingThresholdVnd)}.
+                  </Notice>
+                )}
+              </PriceSummary>
+              {policy.isError && <ErrorNotice error={policy.error} />}
+            </Panel>
+          </aside>
         </div>
       )}
     </>
@@ -654,9 +372,17 @@ function CheckoutContent() {
     paymentMethod: PaymentMethod
   } | null>(null)
   const form = useForm<Recipient>({
-    defaultValues: { ...emptyRecipient, name: session.data?.user.name ?? '' },
+    defaultValues: {
+      ...emptyRecipient,
+      name: session.data?.user.name ?? '',
+      province: readStoreProvince() ?? '',
+    },
   })
   const { reset } = form
+  const isFormDirty = form.formState.isDirty
+  const lastOrder = useCommerceQuery<OrderPage>('orders', { limit: 1 })
+  const savedRecipient = lastOrder.data?.items[0]?.recipient
+  const prefillSettled = useRef(false)
   const values = form.watch()
   const parsed = recipientSchema.safeParse(values)
   const restoreKey = `techviet:quote:${session.data?.user.id}`
@@ -839,6 +565,20 @@ function CheckoutContent() {
     }
   }, [restoreKey, pendingKey, reset])
   useEffect(() => {
+    if (prefillSettled.current || restoring || lastOrder.isPending) return
+    prefillSettled.current = true
+    // A restored quote or the customer's own typing always wins.
+    if (!savedRecipient || quote || isFormDirty) return
+    reset(savedRecipient)
+  }, [
+    restoring,
+    lastOrder.isPending,
+    savedRecipient,
+    quote,
+    isFormDirty,
+    reset,
+  ])
+  useEffect(() => {
     const timer = setInterval(() => setNow(Date.now()), 1000)
     return () => clearInterval(timer)
   }, [])
@@ -1000,84 +740,72 @@ function CheckoutContent() {
   })
   return (
     <>
-      <PageHeading title="Thông tin đặt hàng" />
+      <PageHeading
+        title="Thông tin đặt hàng"
+        subtitle="Kiểm tra thông tin nhận hàng và chọn cách thanh toán."
+      >
+        <Link to="/cart" className="c-text-link">
+          <ArrowLeft aria-hidden="true" size={16} />
+          Quay lại giỏ hàng
+        </Link>
+      </PageHeading>
       <form onSubmit={submit}>
-        <div className="c-columns">
+        <div className="checkout-layout">
           <div className="c-stack">
-            <CheckoutSteps active={1} />
-            <Panel title="Thông tin người nhận" icon={<UserRound size={21} />}>
-              <fieldset
-                disabled={busy}
-                style={{ border: 0, padding: 0, margin: 0 }}
-              >
-                <RecipientFields form={form} />
-                <div className="c-divider" />
-                <small>
-                  Nhập tỉnh / thành phố và phường / xã hiện hành. Quận / huyện
+            <Panel title="Thông tin người nhận" icon={<UserRound size={20} />}>
+              <fieldset className="checkout-fieldset" disabled={busy}>
+                <RecipientFields
+                  addressFields={
+                    <CheckoutAddressFields disabled={busy} form={form} />
+                  }
+                  form={form}
+                />
+                <small className="checkout-note">
+                  Chọn tỉnh / thành phố và phường / xã hiện hành. Quận / huyện
                   cũ không bắt buộc.
                 </small>
               </fieldset>
             </Panel>
-            <Panel title="Phương thức giao hàng" icon={<Truck size={21} />}>
-              <label className="c-option">
-                <input type="radio" checked readOnly name="delivery" />
-                <div>
-                  <strong>Giao hàng tiêu chuẩn</strong>
-                  <small>Giao đến địa chỉ người nhận</small>
-                </div>
-                <b className="c-green">
-                  {shipping === 0 ? 'Miễn phí' : formatMoney(shipping)}
-                </b>
-              </label>
+            <Panel title="Phương thức giao hàng" icon={<Truck size={20} />}>
+              <DeliveryOption
+                feeVnd={displayedShipping}
+                freeShippingThresholdVnd={delivery?.freeShippingThresholdVnd}
+              />
             </Panel>
             <Panel
               title="Phương thức thanh toán"
-              icon={<CreditCard size={21} />}
+              icon={<CreditCard size={20} />}
             >
-              <div className="c-option-grid">
-                <label className="c-option">
-                  <input
-                    type="radio"
-                    name="payment"
-                    checked={paymentMethod === 'cod'}
-                    onChange={() => setPaymentMethod('cod')}
-                    disabled={busy}
-                  />
-                  <div>
-                    <strong>Thanh toán khi nhận hàng (COD)</strong>
-                    <small>Thanh toán cho nhân viên giao hàng</small>
-                  </div>
-                </label>
-                <label
-                  className={`c-option${!policy.data?.bankTransferConfigured ? ' c-option--disabled' : ''}`}
-                >
-                  <input
-                    type="radio"
-                    name="payment"
-                    checked={paymentMethod === 'bank_transfer'}
-                    onChange={() => setPaymentMethod('bank_transfer')}
-                    disabled={busy || !policy.data?.bankTransferConfigured}
-                  />
-                  <Landmark size={27} />
-                  <div>
-                    <strong>Chuyển khoản ngân hàng</strong>
-                    <small>
-                      {policy.data?.bankTransferConfigured
-                        ? 'Thông tin chuyển khoản hiển thị sau khi đặt hàng'
-                        : 'Cửa hàng chưa mở phương thức này'}
-                    </small>
-                  </div>
-                </label>
+              <div className="checkout-option-list">
+                <PaymentOption
+                  checked={paymentMethod === 'cod'}
+                  description="Thanh toán cho nhân viên giao hàng"
+                  disabled={busy}
+                  icon={Banknote}
+                  onSelect={() => setPaymentMethod('cod')}
+                  title="Thanh toán khi nhận hàng (COD)"
+                />
+                <PaymentOption
+                  checked={paymentMethod === 'bank_transfer'}
+                  description={
+                    policy.data?.bankTransferConfigured
+                      ? 'Thông tin chuyển khoản hiển thị sau khi đặt hàng'
+                      : 'Cửa hàng chưa mở phương thức này'
+                  }
+                  disabled={busy || !policy.data?.bankTransferConfigured}
+                  icon={QrCode}
+                  onSelect={() => setPaymentMethod('bank_transfer')}
+                  title="Chuyển khoản ngân hàng"
+                />
               </div>
             </Panel>
-            <BackToShop />
           </div>
-          <aside className="c-stack c-checkout-aside">
+          <aside className="checkout-aside">
             <Panel
-              title={`Đơn hàng của bạn (${data.items.length} sản phẩm)`}
-              icon={<ShoppingCart size={21} />}
+              title={`Đơn hàng của bạn (${cartItemCount(data)})`}
+              icon={<ShoppingCart size={20} />}
             >
-              <CompactLines lines={displayedLines} />
+              <CheckoutLines cartLines={data.items} lines={displayedLines} />
               <PriceSummary
                 subtotal={displayedSubtotal}
                 shipping={displayedShipping}
@@ -1099,16 +827,8 @@ function CheckoutContent() {
                   pending={busy}
                 >
                   Đặt hàng
-                  <ArrowRight size={17} />
                 </Action>
               </div>
-              <p
-                className="c-muted"
-                style={{ fontSize: 11, textAlign: 'center', marginTop: 12 }}
-              >
-                Thông tin người nhận, giá và tồn kho sẽ được kiểm tra khi xác
-                nhận đặt hàng.
-              </p>
             </Panel>
           </aside>
         </div>
@@ -1118,8 +838,10 @@ function CheckoutContent() {
 }
 
 export function RecipientFields({
+  addressFields,
   form,
 }: {
+  addressFields?: ReactNode
   form: ReturnType<typeof useForm<Recipient>>
 }) {
   const errors = form.formState.errors
@@ -1142,42 +864,7 @@ export function RecipientFields({
           aria-invalid={Boolean(errors.phone)}
         />
       </Field>
-      <div className="c-form-grid c-form-grid--three c-field--wide">
-        <Field label="Tỉnh / Thành phố *" error={errors.province?.message}>
-          <input
-            {...form.register('province', {
-              required: 'Nhập tỉnh / thành phố.',
-            })}
-            autoComplete="address-level1"
-            maxLength={100}
-            aria-invalid={Boolean(errors.province)}
-          />
-        </Field>
-        <Field label="Phường / Xã *" error={errors.ward?.message}>
-          <input
-            {...form.register('ward', { required: 'Nhập phường / xã.' })}
-            autoComplete={
-              form.watch('district')?.trim()
-                ? 'address-level3'
-                : 'address-level2'
-            }
-            maxLength={100}
-            aria-invalid={Boolean(errors.ward)}
-          />
-        </Field>
-        <Field
-          label="Quận / Huyện cũ (không bắt buộc)"
-          hint="Chỉ điền nếu cần giữ thông tin địa chỉ cũ."
-          error={errors.district?.message}
-        >
-          <input
-            {...form.register('district')}
-            autoComplete="off"
-            maxLength={100}
-            aria-invalid={Boolean(errors.district)}
-          />
-        </Field>
-      </div>
+      {addressFields ?? <ManualAddressFields form={form} />}
       <Field label="Địa chỉ cụ thể *" wide error={errors.addressLine?.message}>
         <input
           {...form.register('addressLine', {
@@ -1187,6 +874,60 @@ export function RecipientFields({
           maxLength={300}
           placeholder="Số nhà, tên đường…"
           aria-invalid={Boolean(errors.addressLine)}
+        />
+      </Field>
+    </div>
+  )
+}
+
+function ManualAddressFields({
+  form,
+}: {
+  form: ReturnType<typeof useForm<Recipient>>
+}) {
+  const errors = form.formState.errors
+  const province = form.watch('province') ?? ''
+  // Addresses saved before the 2025 merger may name a province outside the list.
+  const isListedProvince = storeProvinces.some((item) => item === province)
+  return (
+    <div className="c-form-grid c-form-grid--three c-field--wide">
+      <Field label="Tỉnh / Thành phố *" error={errors.province?.message}>
+        <select
+          {...form.register('province', { required: 'Chọn tỉnh / thành phố.' })}
+          aria-invalid={Boolean(errors.province)}
+          autoComplete="address-level1"
+          value={province}
+        >
+          <option value="">Chọn tỉnh / thành phố</option>
+          {province && !isListedProvince && (
+            <option value={province}>{province}</option>
+          )}
+          {storeProvinces.map((item) => (
+            <option key={item} value={item}>
+              {item}
+            </option>
+          ))}
+        </select>
+      </Field>
+      <Field label="Phường / Xã *" error={errors.ward?.message}>
+        <input
+          {...form.register('ward', { required: 'Nhập phường / xã.' })}
+          autoComplete={
+            form.watch('district')?.trim() ? 'address-level3' : 'address-level2'
+          }
+          maxLength={100}
+          aria-invalid={Boolean(errors.ward)}
+        />
+      </Field>
+      <Field
+        label="Quận / Huyện cũ (không bắt buộc)"
+        error={errors.district?.message}
+      >
+        <input
+          {...form.register('district')}
+          autoComplete="off"
+          maxLength={100}
+          aria-invalid={Boolean(errors.district)}
         />
       </Field>
     </div>

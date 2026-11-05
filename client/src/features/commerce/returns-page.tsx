@@ -816,6 +816,7 @@ function ReturnWorkspace({
                           <td>
                             <div className="c-product-cell">
                               <ProductThumb
+                                imageId={item?.primaryImageId}
                                 name={item?.nameSnapshot ?? 'Sản phẩm'}
                                 sku={item?.skuSnapshot}
                               />

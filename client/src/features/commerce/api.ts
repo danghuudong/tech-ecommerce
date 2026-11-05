@@ -221,6 +221,9 @@ export function useCart() {
   return useCommerceQuery<Cart>('cart')
 }
 
+export const cartItemCount = (cart: Cart | undefined) =>
+  cart?.items.reduce((sum, item) => sum + item.quantity, 0) ?? 0
+
 const cartIntentSchema = z.object({
   quantity: z.number().int().min(1).max(99),
   expectedVersion: z.number().int().min(0),

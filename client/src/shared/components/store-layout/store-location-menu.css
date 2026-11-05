@@ -1,19 +1,19 @@
 .store-header .store-action.store-location {
-  gap: 8px;
+  gap: 6px;
   max-width: 190px;
-  padding-inline: 12px;
+  padding-inline: 10px;
   text-align: left;
 }
 
 .store-location__copy {
   display: grid;
   min-width: 0;
-  gap: 1px;
-  line-height: 1.35;
+  gap: 2px;
+  line-height: 1.25;
 }
 
 .store-location__label {
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 400;
 }
 
@@ -75,6 +75,14 @@
   border: 1px solid #d8dfeb;
   border-radius: 8px;
   color: #6f7f9c;
+}
+
+.store-location-panel__search:focus-within {
+  border-color: #f4a6ac;
+}
+
+.store-location-panel__search input:focus-visible {
+  outline: 0;
 }
 
 .store-location-panel__search input {

@@ -4,6 +4,7 @@ import {
   lazyRouteComponent,
   redirect,
 } from '@tanstack/react-router'
+import { parseAccessorySearch } from '@/features/catalog/accessory-groups'
 import { parseCatalogSearch } from '@/features/catalog/catalog-search'
 import { Route as rootRoute } from '../routes/__root'
 import { Route as indexRoute } from '../routes/index'
@@ -23,6 +24,15 @@ const routeTree = rootRoute.addChildren([
   }),
   createRoute({
     getParentRoute: () => rootRoute,
+    path: '/accessories',
+    validateSearch: parseAccessorySearch,
+    component: lazyRouteComponent(
+      () => import('../features/catalog/accessories-page'),
+      'AccessoriesPage',
+    ),
+  }),
+  createRoute({
+    getParentRoute: () => rootRoute,
     path: '/products/$productId',
     component: lazyRouteComponent(
       () => import('../features/catalog/product-detail-page'),
@@ -39,7 +49,10 @@ const routeTree = rootRoute.addChildren([
   createRoute({
     getParentRoute: () => rootRoute,
     path: '/login',
-    component: lazyRouteComponent(customerPages, 'AuthPage'),
+    component: lazyRouteComponent(
+      () => import('../features/commerce/auth-page'),
+      'AuthPage',
+    ),
   }),
   createRoute({
     getParentRoute: () => rootRoute,

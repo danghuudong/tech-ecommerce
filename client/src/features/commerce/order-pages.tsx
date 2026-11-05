@@ -455,7 +455,11 @@ function ReturnRequestDrawer({
                 }))
               }
             />
-            <ProductThumb name={item.nameSnapshot} sku={item.skuSnapshot} />
+            <ProductThumb
+              imageId={item.primaryImageId}
+              name={item.nameSnapshot}
+              sku={item.skuSnapshot}
+            />
             <div>
               <strong>{item.nameSnapshot}</strong>
               <small>{item.skuSnapshot}</small>

@@ -1,0 +1,36 @@
+.accessory-groups {
+  display: flex;
+  overflow-x: auto;
+  gap: 8px;
+  margin-bottom: 20px;
+  padding: 2px;
+  scrollbar-width: thin;
+}
+
+.accessory-groups a {
+  display: inline-flex;
+  min-height: 38px;
+  flex: none;
+  align-items: center;
+  padding: 5px 16px;
+  border: 1px solid #dfe5ee;
+  border-radius: 24px;
+  background: #fff;
+  color: var(--c-ink);
+  font-size: 14px;
+  transition:
+    border-color 150ms ease,
+    color 150ms ease;
+}
+
+.accessory-groups a:hover {
+  border-color: var(--c-focus-line);
+  color: #d70018;
+}
+
+.accessory-groups a[aria-current="page"] {
+  border-color: #d70018;
+  background: #fff5f6;
+  color: #d70018;
+  font-weight: 600;
+}

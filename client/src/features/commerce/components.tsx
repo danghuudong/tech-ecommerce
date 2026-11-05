@@ -1,7 +1,7 @@
 import { Link, useParams } from '@tanstack/react-router'
 import {
   AlertCircle,
-  ArrowLeft,
+  ArrowRight,
   Check,
   ChevronLeft,
   ChevronRight,
@@ -30,6 +30,7 @@ import {
   useRef,
   useState,
 } from 'react'
+import { productImageUrl } from '@/features/catalog/product-view'
 import {
   downloadOrderUndoDocument,
   errorMessage,
@@ -41,7 +42,6 @@ import type {
   OrderDetail,
   OrderItem,
   OrderStatus,
-  PriceLine,
   Recipient,
   Role,
 } from './types'
@@ -470,11 +470,11 @@ export function AccessGate({
 export function ProductThumb({
   name,
   sku = '',
-  imageUrl,
+  imageId,
 }: {
   name: string
   sku?: string
-  imageUrl?: string | undefined
+  imageId?: string | null | undefined
 }) {
   const text = `${name} ${sku}`.toLowerCase()
   const kind = /laptop|vivobook|macbook|thinkpad/.test(text)
@@ -492,8 +492,13 @@ export function ProductThumb({
               : null
   return (
     <span className="c-thumb" aria-hidden="true">
-      {imageUrl ? (
-        <img alt="" className="product-photo" loading="lazy" src={imageUrl} />
+      {imageId ? (
+        <img
+          alt=""
+          className="product-photo"
+          loading="lazy"
+          src={productImageUrl(imageId)}
+        />
       ) : kind ? (
         <span className={`product-art product-art--${kind}`} />
       ) : (
@@ -580,25 +585,25 @@ export function PriceSummary({
   )
 }
 
-export function CompactLines({ lines }: { lines: (PriceLine | OrderItem)[] }) {
+export function CompactLines({ lines }: { lines: OrderItem[] }) {
   return (
     <div className="c-compact-lines">
-      {lines.map((line) => {
-        const name = 'nameSnapshot' in line ? line.nameSnapshot : line.name
-        const sku = 'skuSnapshot' in line ? line.skuSnapshot : line.sku
-        return (
-          <div className="c-compact-line" key={line.productId}>
-            <ProductThumb name={name} sku={sku} />
-            <div>
-              <strong>{name}</strong>
-              <small>
-                {sku} · Số lượng: {line.quantity}
-              </small>
-            </div>
-            <b>{formatMoney(line.lineTotalVnd)}</b>
+      {lines.map((line) => (
+        <div className="c-compact-line" key={line.productId}>
+          <ProductThumb
+            imageId={line.primaryImageId}
+            name={line.nameSnapshot}
+            sku={line.skuSnapshot}
+          />
+          <div>
+            <strong>{line.nameSnapshot}</strong>
+            <small>
+              {line.skuSnapshot} · Số lượng: {line.quantity}
+            </small>
           </div>
-        )
-      })}
+          <b>{formatMoney(line.lineTotalVnd)}</b>
+        </div>
+      ))}
     </div>
   )
 }
@@ -616,23 +621,6 @@ export function RecipientCard({ recipient }: { recipient: Recipient }) {
         {addressText(recipient)}
       </p>
     </div>
-  )
-}
-
-export function CheckoutSteps({ active }: { active: number }) {
-  return (
-    <ol className="c-checkout-steps" aria-label="Tiến trình đặt hàng">
-      {['Giỏ hàng', 'Thông tin giao hàng', 'Đặt hàng'].map((step, index) => (
-        <li
-          key={step}
-          className={index <= active ? 'is-active' : ''}
-          aria-current={index === active ? 'step' : undefined}
-        >
-          <span>{index < active ? <Check size={16} /> : index + 1}</span>
-          <small>{step}</small>
-        </li>
-      ))}
-    </ol>
   )
 }
 
@@ -1523,8 +1511,8 @@ export function PageHeading({
 export function BackToShop() {
   return (
     <Link to="/products" className="c-text-link">
-      <ArrowLeft size={16} />
       Tiếp tục mua sắm
+      <ArrowRight aria-hidden="true" size={16} />
     </Link>
   )
 }

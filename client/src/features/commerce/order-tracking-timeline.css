@@ -188,7 +188,7 @@
 }
 
 .c-order-tracing__step:focus-visible {
-  outline: 2px solid #315cb0;
+  outline: 2px solid var(--c-red);
   outline-offset: -2px;
 }
 

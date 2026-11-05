@@ -30,7 +30,7 @@
 }
 
 .store-page :focus-visible {
-  outline: 3px solid rgb(68 110 185 / 45%);
+  outline: 2px solid #c51230;
   outline-offset: 2px;
 }
 

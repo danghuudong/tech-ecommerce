@@ -1,0 +1,147 @@
+/* Portalled to <body>, so it cannot read the .commerce-app tokens. */
+.cart-toast-viewport {
+  position: fixed;
+  z-index: 70;
+  /* Clears the header both at the top of the page and once it has stuck. */
+  top: 124px;
+  right: max(16px, calc((100vw - 1320px) / 2));
+  width: min(360px, calc(100vw - 24px));
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  outline: 0;
+}
+
+@media (max-width: 767px) {
+  .cart-toast-viewport {
+    top: 168px;
+  }
+}
+
+.cart-toast {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 14px;
+  border: 1px solid #e8edf4;
+  border-radius: 14px;
+  background: #fff;
+  box-shadow: 0 14px 36px rgb(19 38 76 / 18%);
+  color: #13264c;
+  font-family: var(--font-sans), sans-serif;
+}
+
+.cart-toast[data-state="open"] {
+  animation: cart-toast-in 240ms ease-out;
+}
+
+.cart-toast[data-state="closed"] {
+  animation: cart-toast-out 160ms ease-in forwards;
+}
+
+.cart-toast[data-swipe="move"] {
+  transform: translateX(var(--radix-toast-swipe-move-x));
+}
+
+.cart-toast[data-swipe="cancel"] {
+  transform: translateX(0);
+  transition: transform 160ms ease-out;
+}
+
+.cart-toast[data-swipe="end"] {
+  animation: cart-toast-swipe-out 160ms ease-in forwards;
+}
+
+.cart-toast__icon {
+  flex: none;
+  color: #15803d;
+}
+
+.cart-toast__body {
+  display: grid;
+  min-width: 0;
+  flex: 1;
+  gap: 2px;
+}
+
+.cart-toast__title {
+  font-size: 14px;
+  font-weight: 650;
+}
+
+.cart-toast__name {
+  overflow: hidden;
+  color: #51607b;
+  font-size: 13px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cart-toast__link {
+  justify-self: start;
+  margin-top: 4px;
+  color: #d70018;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.cart-toast__link:hover {
+  text-decoration: underline;
+}
+
+.cart-toast__close {
+  display: grid;
+  width: 28px;
+  height: 28px;
+  flex: none;
+  place-items: center;
+  margin: -6px -6px 0 0;
+  padding: 0;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: #6b7a96;
+  cursor: pointer;
+}
+
+.cart-toast__close:hover {
+  background: #f4f6fa;
+  color: #13264c;
+}
+
+.cart-toast :focus-visible {
+  outline: 2px solid #c51230;
+  outline-offset: 2px;
+}
+
+@keyframes cart-toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes cart-toast-out {
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes cart-toast-swipe-out {
+  from {
+    transform: translateX(var(--radix-toast-swipe-end-x));
+  }
+
+  to {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  @keyframes cart-toast-in {
+    from {
+      opacity: 0;
+    }
+  }
+}

@@ -29,7 +29,7 @@ export function CategoryMenuProduct({
           <img
             alt=""
             src={productImageUrl(imageId)}
-            decoding="async"
+            decoding="sync"
             onError={() => setFailedImage(imageId)}
           />
         ) : (

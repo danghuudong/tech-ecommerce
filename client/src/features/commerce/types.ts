@@ -223,6 +223,8 @@ export interface PriceLine {
 export interface CartLine extends PriceLine {
   availableQuantity: number
   eligible: boolean
+  listPriceVnd: number | null
+  primaryImageId: string | null
 }
 
 export interface Cart {
@@ -387,6 +389,7 @@ export interface OrderItem {
   unitPriceVnd: number
   lineTotalVnd: number
   remainingReturnableQuantity: number
+  primaryImageId: string | null
 }
 
 export type ReturnStatus =

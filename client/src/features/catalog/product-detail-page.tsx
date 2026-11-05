@@ -5,16 +5,11 @@ import {
   useNavigate,
   useParams,
 } from '@tanstack/react-router'
-import {
-  ArrowRight,
-  Check,
-  ChevronDown,
-  ChevronUp,
-  Phone,
-  ShieldCheck,
-} from 'lucide-react'
-import { useLayoutEffect, useRef, useState } from 'react'
+import { ClipboardList, Gift, ShieldCheck, ShoppingCart } from 'lucide-react'
+import { useState } from 'react'
+import { StoreProductCard } from '@/features/catalog/components/store-product-card'
 import { read, useAddToCart, useSession } from '@/features/commerce/api'
+import { CartToast } from '@/features/commerce/cart-toast'
 import {
   Action,
   Badge,
@@ -22,7 +17,6 @@ import {
   ErrorNotice,
   formatMoney,
   Loading,
-  Notice,
   Panel,
   QueryError,
 } from '@/features/commerce/components'
@@ -32,17 +26,17 @@ import type {
   CatalogProductDetail,
 } from '@/features/commerce/types'
 import { ApiError } from '@/shared/api/client'
-import { storePromises } from '@/shared/components/store-layout/store-header.data'
 import { brandLabel, catalogCategoryLabels } from './catalog-search'
-import { ProductQuestions, ProductReviews, Stars } from './product-feedback'
+import { Stars } from './product-feedback'
 import { ProductGallery } from './product-gallery'
+import { ProductQuestions } from './product-questions'
+import { ProductReviews } from './product-reviews'
 import { ProductStores } from './product-stores'
 import { ProductVariants } from './product-variants'
-import { discountPercent, productArt, productImageUrl } from './product-view'
+import { discountPercent } from './product-view'
 import './product-detail.css'
 
 const LOW_STOCK_THRESHOLD = 5
-const HOTLINE = { href: 'tel:1900636888', label: '1900 63 6888' }
 
 export function ProductDetailPage() {
   const { productId } = useParams({ from: '/products/$productId' })
@@ -97,119 +91,82 @@ function ProductDetail({ product }: { product: CatalogProductDetail }) {
             </Link>
           </>
         )}
+        {product.brand && (
+          <>
+            <span aria-hidden="true">›</span>
+            <Link to="/products" search={{ brand: product.brand }}>
+              {brandLabel(product.brand)}
+            </Link>
+          </>
+        )}
         <span aria-hidden="true">›</span>
         <span aria-current="page">{product.name}</span>
       </nav>
-      <header className="pd-title">
-        <h1>{product.name}</h1>
-        <div className="pd-title__meta">
-          {product.rating ? (
-            <a href="#reviews">
-              <Stars rating={product.rating.average} />
-              <span>({product.rating.count} đánh giá)</span>
-            </a>
-          ) : (
-            <a href="#reviews">Chưa có đánh giá</a>
-          )}
-          {product.specifications.length > 0 && (
-            <a href="#specifications">Thông số kỹ thuật</a>
-          )}
-        </div>
-      </header>
       <div className="pd-hero">
+        <header className="pd-title">
+          <h1>{product.name}</h1>
+          <div className="pd-title__meta">
+            {product.rating ? (
+              <a href="#reviews">
+                <Stars rating={product.rating.average} />
+                <span>({product.rating.count} đánh giá)</span>
+              </a>
+            ) : (
+              <a href="#reviews">Chưa có đánh giá</a>
+            )}
+            <a className="pd-title__jump" href="#questions">
+              Hỏi đáp
+            </a>
+            {product.specifications.length > 0 && (
+              <a className="pd-title__jump" href="#specifications">
+                <ClipboardList size={15} aria-hidden="true" />
+                Thông số kỹ thuật
+              </a>
+            )}
+          </div>
+        </header>
         <div className="pd-hero__media">
-          <Panel className="pd-gallery">
-            <ProductGallery key={product.id} product={product} />
-          </Panel>
-          <ProductPolicies product={product} />
+          <ProductGallery product={product} />
         </div>
-        <div className="pd-hero__buy">
-          <Panel className="pd-buybox">
-            <BuyBox product={product} />
-          </Panel>
-          <ProductStores key={product.id} product={product} />
+        <section aria-label="Mua hàng" className="pd-buybox">
+          <BuyBox product={product} />
+        </section>
+        <div className="pd-hero__support">
+          <ProductSpecifications product={product} />
+          <ProductStores product={product} />
         </div>
       </div>
       {product.related.length > 0 && (
-        <section className="pd-related" aria-labelledby="pd-related-title">
-          <h2 id="pd-related-title">Sản phẩm tương tự</h2>
-          <div className="pd-related__grid">
-            {product.related.map((item) => (
-              <RelatedProduct key={item.id} product={item} />
-            ))}
-          </div>
-        </section>
+        <RelatedProducts key={product.id} products={product.related} />
       )}
       <div className="pd-detail">
-        <div className="pd-detail__main">
-          <ProductDescription product={product} />
-          <ProductReviews product={product} />
-          <ProductQuestions product={product} />
-        </div>
-        <aside className="pd-detail__side">
-          {product.specifications.length > 0 && (
-            <Panel title="Thông số kỹ thuật" className="pd-specifications">
-              <span className="pd-anchor" id="specifications" />
-              {product.specifications.map((group) => (
-                <section key={group.title}>
-                  <h3>{group.title}</h3>
-                  <dl>
-                    {group.rows.map((row) => (
-                      <div key={row.label}>
-                        <dt>{row.label}</dt>
-                        <dd>{row.value}</dd>
-                      </div>
-                    ))}
-                  </dl>
-                </section>
-              ))}
-            </Panel>
-          )}
-          <StickyPurchaseCard product={product} />
-        </aside>
+        <ProductReviews key={product.id} product={product} />
+        <ProductQuestions key={product.id} product={product} />
       </div>
     </div>
   )
 }
 
-function ProductPolicies({ product }: { product: CatalogProductDetail }) {
+function ProductSpecifications({ product }: { product: CatalogProductDetail }) {
   return (
-    <div className="pd-policies">
-      <Panel title="Thông tin sản phẩm">
-        <dl className="pd-facts">
-          <div>
-            <dt>Mã sản phẩm</dt>
-            <dd>{product.sku}</dd>
-          </div>
-          {product.brand && (
-            <div>
-              <dt>Thương hiệu</dt>
-              <dd>{brandLabel(product.brand)}</dd>
-            </div>
-          )}
-          {product.warrantyMonths && (
-            <div>
-              <dt>Bảo hành</dt>
-              <dd>{product.warrantyMonths} tháng</dd>
-            </div>
-          )}
-          {product.packageContents.length > 0 && (
-            <div>
-              <dt>Bộ sản phẩm</dt>
-              <dd>{product.packageContents.join(', ')}</dd>
-            </div>
-          )}
-        </dl>
-      </Panel>
-      <Panel title="Cam kết sản phẩm">
-        <ul className="pd-promises">
-          {storePromises.map(({ text, icon: Icon }) => (
-            <li key={text}>
-              <Icon size={16} aria-hidden="true" />
-              {text}
-            </li>
-          ))}
-        </ul>
+    <div className="pd-anchor" id="specifications">
+      <Panel title="Thông số kỹ thuật" className="pd-specifications">
+        {product.specifications.length === 0 && (
+          <p className="c-muted">Thông số kỹ thuật đang được cập nhật.</p>
+        )}
+        {product.specifications.map((group) => (
+          <section key={group.title}>
+            {group.title !== 'Thông số kỹ thuật' && <h3>{group.title}</h3>}
+            <dl>
+              {group.rows.map((row) => (
+                <div key={row.label}>
+                  <dt>{row.label}</dt>
+                  <dd>{row.value}</dd>
+                </div>
+              ))}
+            </dl>
+          </section>
+        ))}
       </Panel>
     </div>
   )
@@ -217,52 +174,58 @@ function ProductPolicies({ product }: { product: CatalogProductDetail }) {
 
 function BuyBox({ product }: { product: CatalogProductDetail }) {
   const discount = discountPercent(product)
+  const savings = (product.listPriceVnd ?? product.priceVnd) - product.priceVnd
   const inStock = product.availableQuantity > 0
   const lowStock = inStock && product.availableQuantity <= LOW_STOCK_THRESHOLD
   return (
     <>
       <div className="pd-price">
-        <div className="pd-price__row">
-          <strong>{formatMoney(product.priceVnd)}</strong>
-          {discount && <del>{formatMoney(product.listPriceVnd)}</del>}
-          {discount && <span>−{discount}%</span>}
+        <div>
+          <div className="pd-price__label">
+            {savings > 0 ? (
+              <del>{formatMoney(product.listPriceVnd)}</del>
+            ) : (
+              'Giá bán'
+            )}
+          </div>
+          <div className="pd-price__row">
+            <strong>{formatMoney(product.priceVnd)}</strong>
+            {discount && <span>−{discount}%</span>}
+          </div>
         </div>
-        {product.listPriceVnd && discount && (
-          <small>
-            Tiết kiệm {formatMoney(product.listPriceVnd - product.priceVnd)}
-          </small>
-        )}
+        <Badge tone={!inStock ? 'red' : lowStock ? 'amber' : 'green'}>
+          {!inStock
+            ? 'Tạm hết hàng'
+            : lowStock
+              ? `Chỉ còn ${product.availableQuantity} sản phẩm`
+              : 'Còn hàng'}
+        </Badge>
       </div>
-      <Badge tone={!inStock ? 'red' : lowStock ? 'amber' : 'green'}>
-        {!inStock
-          ? 'Tạm hết hàng'
-          : lowStock
-            ? `Chỉ còn ${product.availableQuantity} sản phẩm`
-            : 'Còn hàng'}
-      </Badge>
       <ProductVariants product={product} />
       {product.warrantyMonths && (
         <div className="pd-warranty">
-          <span className="pd-variants__label">Dịch vụ bảo hành</span>
+          <h2>
+            <ShieldCheck size={17} aria-hidden="true" /> Dịch vụ bảo hành
+          </h2>
           <div className="pd-warranty__option">
-            <ShieldCheck size={18} aria-hidden="true" />
             <span>Bảo hành {product.warrantyMonths} tháng</span>
             <strong>Đã gồm trong giá</strong>
           </div>
         </div>
       )}
-      <PurchaseActions product={product} inStock={inStock} />
-      {inStock ? (
-        <a className="pd-hotline" href={HOTLINE.href}>
-          <Phone size={16} aria-hidden="true" />
-          Gọi mua hàng <strong>{HOTLINE.label}</strong>
-        </a>
-      ) : (
-        <p className="pd-hotline">
-          Vui lòng liên hệ <a href={HOTLINE.href}>{HOTLINE.label}</a> để được tư
-          vấn.
-        </p>
+      {savings > 0 && (
+        <Panel
+          className="pd-offers"
+          title="Ưu đãi sản phẩm"
+          icon={<Gift size={18} aria-hidden="true" />}
+        >
+          <p>
+            Giảm trực tiếp <strong>{formatMoney(savings)}</strong> so với giá
+            niêm yết.
+          </p>
+        </Panel>
       )}
+      <PurchaseActions product={product} inStock={inStock} />
     </>
   )
 }
@@ -279,14 +242,13 @@ function PurchaseActions({
   const loginRedirect = useLocation({ select: (location) => location.href })
   const add = useAddToCart()
   const [intent, setIntent] = useState<'add' | 'buy'>('add')
-  const [added, setAdded] = useState(false)
+  const [addedCount, setAddedCount] = useState(0)
 
   async function handleAdd(next: 'add' | 'buy') {
     setIntent(next)
-    setAdded(false)
     if (!(await add.run(product))) return
     if (next === 'buy') await navigate({ to: '/cart' })
-    else setAdded(true)
+    else setAddedCount((count) => count + 1)
   }
 
   if (!inStock)
@@ -301,23 +263,18 @@ function PurchaseActions({
         <Link
           to="/login"
           search={{ redirect: loginRedirect }}
-          className="c-button c-button--primary"
+          className="c-button c-button--primary pd-actions__buy"
         >
-          Đăng nhập để mua
+          <strong>Mua ngay</strong>
+          <small>Đăng nhập để đặt hàng</small>
         </Link>
       </div>
     )
   return (
     <>
       <ErrorNotice error={add.error} />
-      {added && (
-        <Notice tone="green">
-          Đã thêm vào giỏ hàng.{' '}
-          <Link to="/cart" className="c-text-link">
-            Xem giỏ hàng
-            <ArrowRight size={14} />
-          </Link>
-        </Notice>
+      {addedCount > 0 && (
+        <CartToast key={addedCount} productName={product.name} />
       )}
       <div className="c-actions pd-actions">
         <Action
@@ -330,11 +287,13 @@ function PurchaseActions({
           <small>Giao hàng toàn quốc</small>
         </Action>
         <Action
+          className="pd-actions__add"
           variant="secondary"
           disabled={add.isPending}
           pending={add.isPending && intent === 'add'}
           onClick={() => handleAdd('add')}
         >
+          <ShoppingCart size={17} aria-hidden="true" />
           Thêm vào giỏ
         </Action>
       </div>
@@ -342,103 +301,17 @@ function PurchaseActions({
   )
 }
 
-function ProductDescription({ product }: { product: CatalogProductDetail }) {
-  const content = useRef<HTMLDivElement>(null)
-  const [expanded, setExpanded] = useState(false)
-  const [collapsible, setCollapsible] = useState(false)
-  useLayoutEffect(() => {
-    const element = content.current
-    if (element) setCollapsible(element.scrollHeight > element.clientHeight)
-  }, [])
-  if (!product.overview && product.highlights.length === 0) return null
+function RelatedProducts({ products }: { products: CatalogProduct[] }) {
   return (
-    <Panel title="Nội dung chính" className="pd-description">
-      <div
-        className={`pd-description__body${expanded ? ' is-expanded' : ''}`}
-        ref={content}
-      >
-        {product.overview && <p className="pd-overview">{product.overview}</p>}
-        {product.highlights.length > 0 && (
-          <>
-            <h3>Đặc điểm nổi bật</h3>
-            <ul className="pd-checklist">
-              {product.highlights.map((highlight) => (
-                <li key={highlight}>
-                  <Check size={16} aria-hidden="true" />
-                  {highlight}
-                </li>
-              ))}
-            </ul>
-          </>
-        )}
+    <section className="pd-related" aria-labelledby="pd-related-title">
+      <h2 id="pd-related-title">
+        <span>Sản phẩm tương tự</span>
+      </h2>
+      <div className="store-product-grid">
+        {products.map((item) => (
+          <StoreProductCard item={item} key={item.id} />
+        ))}
       </div>
-      {collapsible && (
-        <Action
-          className="pd-description__toggle"
-          onClick={() => setExpanded((value) => !value)}
-          variant="secondary"
-        >
-          {expanded ? 'Ẩn bớt' : 'Xem thêm'}
-          {expanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
-        </Action>
-      )}
-    </Panel>
-  )
-}
-
-function ProductImage({ product }: { product: CatalogProduct }) {
-  return product.primaryImageId ? (
-    <img
-      alt=""
-      className="product-photo"
-      loading="lazy"
-      src={productImageUrl(product.primaryImageId)}
-    />
-  ) : (
-    <span
-      aria-hidden="true"
-      className={`product-art product-art--${productArt(product)}`}
-    />
-  )
-}
-
-function StickyPurchaseCard({ product }: { product: CatalogProductDetail }) {
-  return (
-    <Panel className="pd-sticky-card">
-      <div className="pd-sticky-card__product">
-        <ProductImage product={product} />
-        <div>
-          <strong>{product.name}</strong>
-          <span>{formatMoney(product.priceVnd)}</span>
-        </div>
-      </div>
-      <PurchaseActions
-        inStock={product.availableQuantity > 0}
-        product={product}
-      />
-    </Panel>
-  )
-}
-
-function RelatedProduct({ product }: { product: CatalogProduct }) {
-  return (
-    <Link
-      to="/products/$productId"
-      params={{ productId: product.id }}
-      className="pd-related__card"
-    >
-      <ProductImage product={product} />
-      <span className="pd-related__name">{product.name}</span>
-      {product.rating && (
-        <span className="pd-related__rating">
-          <Stars rating={product.rating.average} size={13} />(
-          {product.rating.count} đánh giá)
-        </span>
-      )}
-      <strong>{formatMoney(product.priceVnd)}</strong>
-      {discountPercent(product) && (
-        <del>{formatMoney(product.listPriceVnd)}</del>
-      )}
-    </Link>
+    </section>
   )
 }

@@ -66,6 +66,10 @@ export const catalogBrandLabels = {
   belkin: 'Belkin',
   dji: 'DJI',
   spigen: 'Spigen',
+  intel: 'Intel',
+  amd: 'AMD',
+  gigabyte: 'Gigabyte',
+  'hang-khac': 'Hãng khác',
 } as const
 
 export function brandLabel(code: string) {

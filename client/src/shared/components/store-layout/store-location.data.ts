@@ -38,3 +38,19 @@ export const storeProvinces = [
 ] as const
 
 export type StoreProvince = (typeof storeProvinces)[number]
+
+export const STORE_PROVINCE_STORAGE_KEY = 'tinovashop:province:v1'
+
+export function parseStoreProvince(value: string | null): StoreProvince | null {
+  return storeProvinces.find((province) => province === value) ?? null
+}
+
+export function readStoreProvince(): StoreProvince | null {
+  try {
+    return parseStoreProvince(
+      window.localStorage.getItem(STORE_PROVINCE_STORAGE_KEY),
+    )
+  } catch {
+    return null
+  }
+}

@@ -720,6 +720,7 @@ function FulfillmentContent() {
                       <td>
                         <div className="c-product-cell">
                           <ProductThumb
+                            imageId={item.primaryImageId}
                             name={item.nameSnapshot}
                             sku={item.skuSnapshot}
                           />

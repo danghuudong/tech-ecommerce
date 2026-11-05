@@ -24,6 +24,7 @@
 }
 
 .hv2-home-hero > .category-menu--hero {
+  --menu-speed: 0ms;
   --menu-red: #c51230;
   --menu-ink: #30343b;
   --menu-tint: #f0f1f3;
@@ -33,6 +34,32 @@
   border-color: #eeeeef;
   border-radius: 14px;
   box-shadow: 0 2px 5px rgb(0 0 0 / 6%);
+}
+
+.hv2-home-hero > .category-menu--hero {
+  scroll-margin-top: 110px;
+  transition: box-shadow 180ms ease;
+}
+
+.hv2-home-hero > :not(.category-menu) {
+  transition: filter 180ms ease;
+}
+
+/* The hero rises above the page backdrop, so its other columns dim themselves
+   while the menu stays lit. */
+@media (min-width: 1101px) {
+  .hv2-home-hero[data-category-spotlight] {
+    z-index: 41;
+  }
+
+  .hv2-home-hero[data-category-spotlight] > :not(.category-menu) {
+    filter: brightness(0.54);
+    pointer-events: none;
+  }
+
+  .hv2-home-hero[data-category-spotlight] > .category-menu--hero {
+    box-shadow: 0 8px 24px rgb(10 16 30 / 22%);
+  }
 }
 
 .hv2-home-hero .category-menu--hero .category-menu__panel {
@@ -78,7 +105,6 @@
   opacity: 1;
 }
 
-.hv2-home-hero .category-menu--hero .category-menu__row:hover,
 .hv2-home-hero .category-menu--hero .category-menu__row.is-active {
   background: var(--menu-tint);
   color: var(--menu-ink);
