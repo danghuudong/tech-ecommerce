@@ -14,6 +14,7 @@ import type {
   ProductQuestionInput,
   ProductReviewDecisionInput,
   ProductReviewInput,
+  ProductReviewListInput,
 } from './commerce.contracts.js'
 import {
   type Command,
@@ -57,7 +58,10 @@ function familyIds(product: { id: string; variantGroup: string | null }) {
     )
 }
 
-export async function listProductReviews(productId: string, page: PublicPage) {
+export async function listProductReviews(
+  productId: string,
+  page: ProductReviewListInput,
+) {
   const product = await findActiveProduct(productId)
   const filter = and(
     eq(productReviews.status, 'published'),
@@ -77,7 +81,11 @@ export async function listProductReviews(productId: string, page: PublicPage) {
       .from(productReviews)
       .innerJoin(products, eq(products.id, productReviews.productId))
       .innerJoin(user, eq(user.id, productReviews.userId))
-      .where(filter)
+      .where(
+        page.rating
+          ? and(filter, eq(productReviews.rating, page.rating))
+          : filter,
+      )
       .orderBy(desc(productReviews.createdAt), desc(productReviews.id))
       .limit(page.limit)
       .offset(page.offset),
@@ -87,7 +95,7 @@ export async function listProductReviews(productId: string, page: PublicPage) {
       .where(filter)
       .groupBy(productReviews.rating),
   ])
-  const total = distribution.reduce((sum, row) => sum + row.total, 0)
+  const reviewCount = distribution.reduce((sum, row) => sum + row.total, 0)
   const points = distribution.reduce(
     (sum, row) => sum + row.rating * row.total,
     0,
@@ -99,10 +107,14 @@ export async function listProductReviews(productId: string, page: PublicPage) {
     })),
     limit: page.limit,
     offset: page.offset,
-    total,
+    total: page.rating
+      ? (distribution.find((row) => row.rating === page.rating)?.total ?? 0)
+      : reviewCount,
     summary: {
-      average: total ? Math.round((points / total) * 10) / 10 : null,
-      count: total,
+      average: reviewCount
+        ? Math.round((points / reviewCount) * 10) / 10
+        : null,
+      count: reviewCount,
       distribution: [5, 4, 3, 2, 1].map((rating) => ({
         rating,
         total: distribution.find((row) => row.rating === rating)?.total ?? 0,

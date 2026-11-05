@@ -88,6 +88,7 @@ import {
   readOrderFinancials,
   refundAttemptClosed,
 } from './payment-ledger.js'
+import { primaryImagesForProducts } from './product-media.service.js'
 import {
   canVerifyRefundAttempt,
   hasIndependentRefundChecker,
@@ -234,7 +235,7 @@ export async function getOrder(
   orderId: string,
   staffView = false,
 ) {
-  return db.transaction(
+  const detail = await db.transaction(
     async (tx) => {
       const identity = await resolveActor(
         tx,
@@ -1249,6 +1250,16 @@ export async function getOrder(
     },
     { isolationLevel: 'repeatable read' },
   )
+  const images = await primaryImagesForProducts(
+    detail.items.map((item) => item.productId),
+  )
+  return {
+    ...detail,
+    items: detail.items.map((item) => ({
+      ...item,
+      primaryImageId: images.get(item.productId) ?? null,
+    })),
+  }
 }
 
 export async function listOrders(

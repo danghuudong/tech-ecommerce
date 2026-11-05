@@ -11,6 +11,7 @@ import {
 import { MAX_LINES } from './commerce.types.js'
 import { lockProducts } from './inventory.service.js'
 import { calculateOrderPricing } from './order-pricing.js'
+import { primaryImagesForProducts } from './product-media.service.js'
 
 export async function lockCart(tx: Transaction, userId: string) {
   await tx.insert(carts).values({ userId }).onConflictDoNothing()
@@ -32,7 +33,7 @@ export async function readCartItems(tx: Transaction, cartId: string) {
 }
 
 export async function getCart(userId: string) {
-  return db.transaction(
+  const snapshot = await db.transaction(
     async (tx) => {
       await resolveActor(tx, userId)
       const [cart] = await tx
@@ -60,6 +61,7 @@ export async function getCart(userId: string) {
         name: product.name,
         quantity: item.quantity,
         unitPriceVnd: product.priceVnd,
+        listPriceVnd: product.listPriceVnd,
         lineTotalVnd: product.priceVnd * item.quantity,
         availableQuantity: product.stockOnHand - product.stockReserved,
         eligible:
@@ -84,6 +86,16 @@ export async function getCart(userId: string) {
     },
     { isolationLevel: 'repeatable read' },
   )
+  const images = await primaryImagesForProducts(
+    snapshot.items.map((item) => item.productId),
+  )
+  return {
+    ...snapshot,
+    items: snapshot.items.map((item) => ({
+      ...item,
+      primaryImageId: images.get(item.productId) ?? null,
+    })),
+  }
 }
 
 export function setCartItem(

@@ -12,6 +12,7 @@ import {
   ne,
   notExists,
   or,
+  type SQL,
   sql,
 } from 'drizzle-orm'
 import { alias } from 'drizzle-orm/pg-core'
@@ -46,8 +47,8 @@ const variantSibling = alias(products, 'variant_sibling')
 
 type ProductRecord = typeof products.$inferSelect
 
-// A model appears once in listings, as its first active variant.
-function isVariantRepresentative() {
+// Show the first variant that satisfies the current catalog filters.
+function isVariantRepresentative(siblingFilter?: SQL) {
   return or(
     isNull(products.variantGroup),
     notExists(
@@ -58,6 +59,7 @@ function isVariantRepresentative() {
           and(
             eq(variantSibling.variantGroup, products.variantGroup),
             eq(variantSibling.active, true),
+            siblingFilter,
             or(
               lt(variantSibling.variantRank, products.variantRank),
               and(
@@ -193,36 +195,54 @@ function publicProduct(product: typeof products.$inferSelect) {
   }
 }
 
-function catalogQueryMatch(q: string | undefined) {
+function catalogQueryMatch(
+  q: string | undefined,
+  row: typeof products | typeof variantSibling = products,
+) {
   return q
-    ? sql`strpos(lower(concat_ws(' ', ${products.name}, ${products.sku}, ${products.description})), lower(${q})) > 0`
+    ? sql`strpos(lower(concat_ws(' ', ${row.name}, ${row.sku}, ${row.description})), lower(${q})) > 0`
     : undefined
 }
 
+function catalogFilters(
+  row: typeof products | typeof variantSibling,
+  { q, category, brand, minPrice, maxPrice, discounted }: CatalogListInput,
+) {
+  return and(
+    catalogQueryMatch(q, row),
+    category === 'computing'
+      ? inArray(row.category, ['desktop', 'monitor'])
+      : category
+        ? eq(row.category, category)
+        : undefined,
+    brand ? eq(row.brand, brand) : undefined,
+    minPrice !== undefined ? gte(row.priceVnd, minPrice) : undefined,
+    maxPrice !== undefined ? lte(row.priceVnd, maxPrice) : undefined,
+    discounted ? lt(row.priceVnd, row.listPriceVnd) : undefined,
+  )
+}
+
+// Names beginning with the query come first, then names containing it, so a
+// search for "iPhone" lists phones ahead of accessories that mention them.
+function catalogQueryRank(q: string) {
+  const position = sql`strpos(lower(${products.name}), lower(${q}))`
+  return sql`case when ${position} = 1 then 0 when ${position} > 0 then 1 else 2 end`
+}
+
 export async function listProducts(input: CatalogListInput) {
-  const { limit, offset, q, category, brand, minPrice, maxPrice, discounted } =
-    input
+  const { limit, offset, q } = input
   return db.transaction(
     async (tx) => {
       const filter = and(
         eq(products.active, true),
-        isVariantRepresentative(),
-        catalogQueryMatch(q),
-        category === 'computing'
-          ? inArray(products.category, ['desktop', 'monitor'])
-          : category
-            ? eq(products.category, category)
-            : undefined,
-        brand ? eq(products.brand, brand) : undefined,
-        minPrice !== undefined ? gte(products.priceVnd, minPrice) : undefined,
-        maxPrice !== undefined ? lte(products.priceVnd, maxPrice) : undefined,
-        discounted ? lt(products.priceVnd, products.listPriceVnd) : undefined,
+        catalogFilters(products, input),
+        isVariantRepresentative(catalogFilters(variantSibling, input)),
       )
       const records = await tx
         .select()
         .from(products)
         .where(filter)
-        .orderBy(products.id)
+        .orderBy(...(q ? [catalogQueryRank(q)] : []), products.id)
         .limit(limit)
         .offset(offset)
       const [totals] = await tx
@@ -249,13 +269,7 @@ export async function catalogFacets(q?: string) {
       maxPriceVnd: sql<number>`max(${products.priceVnd})`.mapWith(Number),
     })
     .from(products)
-    .where(
-      and(
-        eq(products.active, true),
-        isVariantRepresentative(),
-        catalogQueryMatch(q),
-      ),
-    )
+    .where(and(eq(products.active, true), catalogQueryMatch(q)))
     .groupBy(products.category, products.brand)
     .orderBy(products.category, products.brand)
   return { items }

@@ -86,6 +86,7 @@ import {
   productQuestionDecisionSchema,
   productQuestionSchema,
   productReviewDecisionSchema,
+  productReviewListSchema,
   productReviewSchema,
   productUpdateSchema,
   reasonSchema,
@@ -288,7 +289,7 @@ commerceRouter.get('/products/:productId/reviews', async (request, response) =>
   response.json({
     data: await listProductReviews(
       id(request, 'productId'),
-      paginationSchema.parse(request.query),
+      productReviewListSchema.parse(request.query),
     ),
   }),
 )

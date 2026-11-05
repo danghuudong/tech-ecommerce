@@ -258,6 +258,9 @@ export const productReviewSchema = z.strictObject({
   rating: z.number().int().min(1).max(5),
   comment: z.string().trim().min(10).max(2000),
 })
+export const productReviewListSchema = paginationSchema.extend({
+  rating: z.coerce.number().int().min(1).max(5).optional(),
+})
 export const productQuestionSchema = z.strictObject({
   question: z.string().trim().min(5).max(1000),
 })
@@ -923,6 +926,7 @@ export type ProductUpdateInput = z.infer<typeof productUpdateSchema>
 export type ProductImageUploadInput = z.infer<typeof productImageUploadSchema>
 export type ProductImageOrderInput = z.infer<typeof productImageOrderSchema>
 export type ProductReviewInput = z.infer<typeof productReviewSchema>
+export type ProductReviewListInput = z.infer<typeof productReviewListSchema>
 export type ProductQuestionInput = z.infer<typeof productQuestionSchema>
 export type ProductFeedbackListInput = z.infer<typeof productFeedbackListSchema>
 export type ProductReviewDecisionInput = z.infer<
