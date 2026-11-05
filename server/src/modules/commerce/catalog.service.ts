@@ -75,11 +75,14 @@ function isVariantRepresentative(siblingFilter?: SQL) {
 
 const familyKey = sql<string>`coalesce(${products.variantGroup}, ${products.id}::text)`
 
-async function cardDetails(records: ProductRecord[]) {
+async function cardDetails(
+  records: ProductRecord[],
+  executor: Pick<Transaction, 'select' | 'selectDistinctOn'> = db,
+) {
   const keys = records.map((record) => record.variantGroup ?? record.id)
   const [ratings, images] = await Promise.all([
     keys.length
-      ? db
+      ? executor
           .select({
             key: familyKey,
             average:
@@ -98,7 +101,10 @@ async function cardDetails(records: ProductRecord[]) {
           )
           .groupBy(familyKey)
       : [],
-    primaryImagesForProducts(records.map((record) => record.id)),
+    primaryImagesForProducts(
+      records.map((record) => record.id),
+      executor,
+    ),
   ])
   const ratingByKey = new Map(ratings.map((row) => [row.key, row]))
   return (record: ProductRecord) => {
@@ -250,7 +256,9 @@ export async function listProducts(input: CatalogListInput) {
         .from(products)
         .where(filter)
       return {
-        items: records.map(await cardDetails(records)),
+        // Keep enrichment on this transaction's connection. Borrowing another
+        // pool client here deadlocks concurrent catalog requests at pool capacity.
+        items: records.map(await cardDetails(records, tx)),
         limit,
         offset,
         total: totals?.total ?? 0,

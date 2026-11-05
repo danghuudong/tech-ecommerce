@@ -11,6 +11,7 @@ import {
   executeCommand,
   fail,
   resolveActor,
+  type Transaction,
 } from './commerce.persistence.js'
 import { lockProducts } from './inventory.service.js'
 
@@ -174,9 +175,12 @@ export async function listImagesForProducts(productIds: string[]) {
     .orderBy(asc(productImages.position), asc(productImages.id))
 }
 
-export async function primaryImagesForProducts(productIds: string[]) {
+export async function primaryImagesForProducts(
+  productIds: string[],
+  executor: Pick<Transaction, 'selectDistinctOn'> = db,
+) {
   if (productIds.length === 0) return new Map<string, string>()
-  const rows = await db
+  const rows = await executor
     .selectDistinctOn([productImages.productId], {
       productId: productImages.productId,
       id: productImages.id,
