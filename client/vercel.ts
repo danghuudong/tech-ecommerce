@@ -23,7 +23,7 @@ if ((process.env.API_PROXY_SECRET?.length ?? 0) < 32) {
 // Vercel evaluates this file on the platform; no secrets enter the Vite bundle.
 export const config = {
   framework: 'vite',
-  installCommand: 'corepack pnpm install --frozen-lockfile --prod=false',
+  installCommand: 'corepack pnpm install --frozen-lockfile --no-prod',
   buildCommand: 'pnpm run build',
   outputDirectory: 'dist',
   routes: [

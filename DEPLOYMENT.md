@@ -81,7 +81,7 @@ Blueprint dùng toàn bộ repo làm root để giữ đúng pnpm workspace. Cá
 
 ```sh
 # Build Command
-corepack pnpm install --frozen-lockfile --prod=false --filter server... && corepack pnpm --filter server build
+corepack pnpm install --frozen-lockfile --no-prod --filter server... && corepack pnpm --filter server build
 
 # Start Command
 corepack pnpm --filter server start:render
